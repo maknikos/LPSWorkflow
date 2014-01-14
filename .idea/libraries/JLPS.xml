@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="JLPS">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/JLPS.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
