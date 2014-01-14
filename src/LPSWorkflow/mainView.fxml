@@ -1,13 +1,7 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.control.Label?>
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.cell.*?>
-<?import javafx.collections.*?>
-<?import LPSWorkflow.Person?>
 
-<?import LPSWorkflow.FormattedTableCellFactory?>
 <GridPane fx:controller="LPSWorkflow.Controller"
           xmlns:fx="http://javafx.com/fxml"
           alignment="center" hgap="10" vgap="10">
@@ -17,39 +11,4 @@
     <Label style="-fx-font: NORMAL 20 Tahoma;" text="Address Book"
            GridPane.columnIndex="0" GridPane.rowIndex="0">
     </Label>
-    <TableView fx:id="tableView" GridPane.columnIndex="0"
-               GridPane.rowIndex="1">
-        <columns>
-            <TableColumn text="First Name" prefWidth="100">
-                <cellValueFactory><PropertyValueFactory property="firstName" />
-                </cellValueFactory>
-                <cellFactory>
-                    <FormattedTableCellFactory alignment="center">
-                    </FormattedTableCellFactory>
-                </cellFactory>
-            </TableColumn>
-            <TableColumn text="Last Name" prefWidth="100">
-                <cellValueFactory><PropertyValueFactory property="lastName" />
-                </cellValueFactory>
-            </TableColumn>
-            <TableColumn text="Email Address" prefWidth="200">
-                <cellValueFactory><PropertyValueFactory property="email" />
-                </cellValueFactory>
-            </TableColumn>
-        </columns>
-        <items>
-            <FXCollections fx:factory="observableArrayList">
-                <Person firstName="Jacob" lastName="Smith"
-                        email="jacob.smith@example.com"/>
-                <Person firstName="Isabella" lastName="Johnson"
-                        email="isabella.johnson@example.com"/>
-                <Person firstName="Ethan" lastName="Williams"
-                        email="ethan.williams@example.com"/>
-                <Person firstName="Emma" lastName="Jones"
-                        email="emma.jones@example.com"/>
-                <Person firstName="Michael" lastName="Brown"
-                        email="michael.brown@example.com"/>
-            </FXCollections>
-        </items>
-    </TableView>
 </GridPane>
