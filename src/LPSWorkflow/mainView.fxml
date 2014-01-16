@@ -1,14 +1,12 @@
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.control.Label?>
-<?import javafx.geometry.Insets?>
-
-<GridPane fx:controller="LPSWorkflow.Controller"
-          xmlns:fx="http://javafx.com/fxml"
-          alignment="center" hgap="10" vgap="10">
-    <padding>
-        <Insets bottom="10" left="10" right="10" top="10"/>
-    </padding>
-    <Label style="-fx-font: NORMAL 20 Tahoma;" text="Address Book"
-           GridPane.columnIndex="0" GridPane.rowIndex="0">
-    </Label>
-</GridPane>
+<?import javafx.scene.layout.BorderPane?>
+<BorderPane fx:controller="LPSWorkflow.Controller"
+            xmlns:fx="http://javafx.com/fxml">
+    <!-- Top MenuBar -->
+    <top>
+        <fx:include source="../view/menuBar.fxml" />
+    </top>
+    <!-- Main contents for the workflow -->
+    <center>
+        <fx:include source="../view/canvas.fxml" />
+    </center>
+</BorderPane>
