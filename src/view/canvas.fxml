@@ -6,6 +6,8 @@
     <Label fx:id="filePathLabel"
            GridPane.rowIndex="0">
     </Label>
+    <VBox fx:id="contentBox" GridPane.rowIndex="1" />
+
     <Button text="Push" onAction="#handleTextChange"
-            GridPane.rowIndex="1"/>
+            GridPane.rowIndex="2"/>
 </GridPane>
