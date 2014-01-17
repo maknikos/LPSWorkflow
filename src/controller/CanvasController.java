@@ -3,10 +3,9 @@ package controller;
 import LPS.LPSFileManager;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Group;
 import javafx.scene.control.Label;
-import javafx.scene.layout.VBox;
 import model.FileData;
-import model.ReactiveRule;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -20,7 +19,7 @@ public class CanvasController implements Initializable {
     private LPSFileManager fileManager;
 
     @FXML
-    private VBox contentBox;
+    private Group contentGroup;
 
     @FXML
     private Label filePathLabel;
@@ -42,7 +41,8 @@ public class CanvasController implements Initializable {
         drawReactiveRules(rules);
     }
 
-    private void drawReactiveRules(ArrayList<ReactiveRule> rules) {
+    private void drawReactiveRules(ArrayList rules) {
+
         fileData.setFilePath(rules.get(0).toString());
     }
 

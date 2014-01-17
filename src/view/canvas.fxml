@@ -1,12 +1,13 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
+<?import javafx.scene.Group?>
 <GridPane fx:controller="controller.CanvasController"
           xmlns:fx="http://javafx.com/fxml">
     <Label fx:id="filePathLabel"
            GridPane.rowIndex="0">
     </Label>
-    <VBox fx:id="contentBox" GridPane.rowIndex="1" />
+    <Group fx:id="contentGroup" GridPane.rowIndex="1" />
 
     <Button text="Push" onAction="#handleTextChange"
             GridPane.rowIndex="2"/>
