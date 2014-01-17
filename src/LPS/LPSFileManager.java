@@ -1,8 +1,8 @@
 package LPS;
 
 import main.JLPS;
-import model.ReactiveRule;
 import model.ReactiveRuleSet;
+import model.SimpleSentence;
 import org.antlr.runtime.RecognitionException;
 
 import java.io.IOException;
@@ -30,7 +30,6 @@ public class LPSFileManager {
         } catch (RecognitionException e1) {
             e1.printStackTrace();
         }
-        getReactiveRules();
     }
 
     /**
@@ -38,26 +37,46 @@ public class LPSFileManager {
      * @return Returns ArrayList of reactive rules.
      */
     public ArrayList getReactiveRules() {
-        //Database db = Database.getInstance();
+        //Database db = Database.getInstance(); TODO cleanup
         //CycleHandler ch = CycleHandler.getInstance();
         //GoalsList gl = GoalsList.getInstance();
 
-        ReactiveRuleSet rr = ReactiveRuleSet.getInstance();
-        Field f;
-        ArrayList<ReactiveRule> rules = null;
+        return (ArrayList) getHiddenField(ReactiveRuleSet.getInstance(), "reactiveRules");
+    }
 
+    public String getCause(Object obj) {
+        SimpleSentence s = (SimpleSentence) getHiddenField(obj, "causes");
+
+        if(s == null)
+            return null;
+
+        return s.getName();
+    }
+
+    public String getGoal(Object obj) {
+        SimpleSentence s = (SimpleSentence) getHiddenField(obj, "goal");
+
+        if(s == null)
+            return null;
+
+        return s.getName();
+    }
+
+    private Object getHiddenField(Object obj, String fieldName) {
+        Field f;
+        Object result = null;
         try {
-            // Since reactiveRules field is private in JLPS library, we use reflection to access it.
-            f = rr.getClass().getDeclaredField("reactiveRules");
+            // We use reflection to access hidden variables in JLPS library
+            f = obj.getClass().getDeclaredField(fieldName);
             if (f != null) {
                 f.setAccessible(true);
-                rules = (ArrayList<ReactiveRule>) f.get(rr);
+                result = f.get(obj);
             }
         } catch (NoSuchFieldException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
-        return rules;
+        return result;
     }
 }
