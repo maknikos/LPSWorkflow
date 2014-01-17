@@ -32,7 +32,8 @@ public class CanvasController implements Initializable {
     }
 
     public void handleTextChange() {
-        ArrayList rules = fileManager.openFile(fileData.getFilePath());
+        fileManager.openFile(fileData.getFilePath());
+        ArrayList rules = fileManager.getReactiveRules();
 
         if(rules == null){
             return; //TODO handle fail case
@@ -42,7 +43,6 @@ public class CanvasController implements Initializable {
     }
 
     private void drawReactiveRules(ArrayList rules) {
-
         fileData.setFilePath(rules.get(0).toString());
     }
 

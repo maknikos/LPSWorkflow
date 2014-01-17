@@ -14,7 +14,12 @@ import java.util.HashSet;
  * Deals with LPS files
  */
 public class LPSFileManager {
-    public ArrayList openFile(String fileData) {
+
+    /**
+     * Opens and parses the LPS program files.
+     * @param fileData The path of the file.
+     */
+    public void openFile(String fileData) {
         // Open and parse the LPS program file
         HashSet<String> facts = new HashSet<String>();
         HashSet<String> actions  = new HashSet<String>();
@@ -25,12 +30,19 @@ public class LPSFileManager {
         } catch (RecognitionException e1) {
             e1.printStackTrace();
         }
+        getReactiveRules();
+    }
 
+    /**
+     *
+     * @return Returns ArrayList of reactive rules.
+     */
+    public ArrayList getReactiveRules() {
         //Database db = Database.getInstance();
-        ReactiveRuleSet rr = ReactiveRuleSet.getInstance();
         //CycleHandler ch = CycleHandler.getInstance();
         //GoalsList gl = GoalsList.getInstance();
 
+        ReactiveRuleSet rr = ReactiveRuleSet.getInstance();
         Field f;
         ArrayList<ReactiveRule> rules = null;
 
@@ -46,7 +58,6 @@ public class LPSFileManager {
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
-
         return rules;
     }
 }
