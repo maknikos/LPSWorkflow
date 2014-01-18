@@ -1,6 +1,6 @@
-package controller;
+package com.LPSWorkflow.controller;
 
-import model.FileData;
+import com.LPSWorkflow.model.FileData;
 import javafx.application.Platform;
 import javafx.fxml.Initializable;
 import javafx.stage.FileChooser;
@@ -27,7 +27,7 @@ public class MenuController implements Initializable{
     public void handleOpen() {
         File file = fileChooser.showOpenDialog(null);
         if(file != null){
-            openFile(file);
+            fileData.setFilePath(file.getAbsolutePath());
         }
     }
 
@@ -36,9 +36,5 @@ public class MenuController implements Initializable{
      */
     public void handleQuit() {
         Platform.exit();
-    }
-
-    private void openFile(File file) {
-        fileData.setFilePath(file.getAbsolutePath());
     }
 }

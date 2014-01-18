@@ -1,4 +1,4 @@
-package LPS;
+package com.LPSWorkflow.LPS;
 
 import main.JLPS;
 import model.ReactiveRuleSet;
@@ -44,6 +44,11 @@ public class LPSFileManager {
         return (ArrayList) getHiddenField(ReactiveRuleSet.getInstance(), "reactiveRules");
     }
 
+    /**
+     * From ReactiveRule object, get the cause (antecedent) part.
+     * @param obj ReactiveRule object
+     * @return cause part of the ReactiveRule
+     */
     public String getCause(Object obj) {
         SimpleSentence s = (SimpleSentence) getHiddenField(obj, "causes");
 
@@ -53,6 +58,11 @@ public class LPSFileManager {
         return s.getName();
     }
 
+    /**
+     * From ReactiveRule object, get the goal (consequent) part.
+     * @param obj ReactiveRule object
+     * @return goal part of the ReactiveRule
+     */
     public String getGoal(Object obj) {
         SimpleSentence s = (SimpleSentence) getHiddenField(obj, "goal");
 

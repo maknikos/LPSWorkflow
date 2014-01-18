@@ -1,4 +1,4 @@
-package model;
+package com.LPSWorkflow.model;
 
 import javafx.scene.Parent;
 

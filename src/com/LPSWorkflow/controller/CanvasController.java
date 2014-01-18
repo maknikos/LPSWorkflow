@@ -1,15 +1,15 @@
-package controller;
+package com.LPSWorkflow.controller;
 
-import LPS.LPSFileManager;
+import com.LPSWorkflow.LPS.LPSFileManager;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
-import model.Event;
-import model.FileData;
-import model.Idle;
+import com.LPSWorkflow.model.Event;
+import com.LPSWorkflow.model.FileData;
+import com.LPSWorkflow.model.Idle;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -21,6 +21,7 @@ import java.util.ResourceBundle;
 public class CanvasController implements Initializable {
     private FileData fileData;
     private LPSFileManager fileManager;
+
 
     @FXML
     private Group contentGroup;

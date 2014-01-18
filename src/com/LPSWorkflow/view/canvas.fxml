@@ -2,7 +2,7 @@
 <?import javafx.scene.layout.*?>
 
 <?import javafx.scene.Group?>
-<GridPane fx:controller="controller.CanvasController"
+<GridPane fx:controller="com.LPSWorkflow.controller.CanvasController"
           xmlns:fx="http://javafx.com/fxml">
     <Label fx:id="filePathLabel"
            GridPane.rowIndex="0">

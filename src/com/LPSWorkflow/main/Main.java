@@ -1,4 +1,4 @@
-package LPSWorkflow;
+package com.LPSWorkflow.main;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;

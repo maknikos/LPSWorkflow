@@ -1,5 +1,5 @@
 <?import javafx.scene.layout.BorderPane?>
-<BorderPane fx:controller="LPSWorkflow.Controller"
+<BorderPane fx:controller="com.LPSWorkflow.main.Controller"
             xmlns:fx="http://javafx.com/fxml">
     <!-- Top MenuBar -->
     <top>
