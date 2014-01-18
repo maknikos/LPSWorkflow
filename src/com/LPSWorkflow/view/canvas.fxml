@@ -9,6 +9,6 @@
     </Label>
     <Group fx:id="contentGroup" GridPane.rowIndex="1" />
 
-    <Button text="Draw" onAction="#handleTextChange"
+    <Button text="Draw" onAction="#handleDrawAction"
             GridPane.rowIndex="2"/>
 </GridPane>

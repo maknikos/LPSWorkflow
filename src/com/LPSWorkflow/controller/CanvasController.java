@@ -1,15 +1,18 @@
 package com.LPSWorkflow.controller;
 
 import com.LPSWorkflow.LPS.LPSFileManager;
+import com.LPSWorkflow.model.Event;
+import com.LPSWorkflow.model.FileData;
+import com.LPSWorkflow.model.Idle;
+import com.LPSWorkflow.model.MacroAction;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.control.Label;
-import javafx.scene.layout.HBox;
-import com.LPSWorkflow.model.Event;
-import com.LPSWorkflow.model.FileData;
-import com.LPSWorkflow.model.Idle;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Polygon;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -37,7 +40,7 @@ public class CanvasController implements Initializable {
     }
 
     //TODO change the name
-    public void handleTextChange() {
+    public void handleDrawAction() {
         fileManager.openFile(fileData.getFilePath());
         ArrayList rules = fileManager.getReactiveRules();
 
@@ -60,18 +63,30 @@ public class CanvasController implements Initializable {
             //TODO make connections
             Idle start = new Idle("Start");
             Event e1 = new Event(cause);
-            Event e2 = new Event(goal);
+            MacroAction a1 = new MacroAction(goal);
             Idle end = new Idle("End");
-            HBox hbox = new HBox();
-            hbox.setAlignment(Pos.CENTER);
-            hbox.getChildren().addAll(start, e1, e2, end);
-            contentGroup.getChildren().addAll(hbox);
-
-            fileData.setFilePath(rules.get(0).toString());
+            VBox vBox = new VBox();
+            vBox.setAlignment(Pos.CENTER);
+            vBox.getChildren().addAll(start, drawArrow(), e1, drawArrow(), a1, drawArrow(), end);
+            contentGroup.getChildren().addAll(vBox);
         }
 
         //TODO do nothing if no reactive rules exist? give a message?
     }
 
+    private Polygon drawArrow(){
+        Polygon arrow = new Polygon(
+                7.5, 0,
+                15, 15,
+                7.51, 15,
+                7.51, 40,
+                7.49, 40,
+                7.49, 15,
+                0, 15);
+        arrow.setFill(Color.WHITE);
+        arrow.setStroke(Color.BLACK);
+        arrow.setRotate(180); //TODO make the arrow in reverse direction in the first place
+        return arrow;
+    }
 
 }
