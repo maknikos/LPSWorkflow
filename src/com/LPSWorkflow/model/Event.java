@@ -1,5 +1,6 @@
 package com.LPSWorkflow.model;
 
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 
 /**

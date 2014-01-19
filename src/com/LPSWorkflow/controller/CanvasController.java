@@ -48,6 +48,8 @@ public class CanvasController implements Initializable {
             return; //TODO handle fail case
         }
 
+        contentGroup.getChildren().clear();
+
         drawReactiveRules(rules);
     }
 
