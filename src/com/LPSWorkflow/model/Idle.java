@@ -15,4 +15,9 @@ public class Idle extends Entity {
         text.setLayoutY(2);
         getChildren().addAll(text);
     }
+
+    @Override
+    public String getName() {
+        return text.getText();
+    }
 }

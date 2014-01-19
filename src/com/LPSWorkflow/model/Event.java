@@ -1,6 +1,5 @@
 package com.LPSWorkflow.model;
 
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 
 /**
@@ -15,5 +14,10 @@ public class Event extends Entity {
         text.setLayoutX(4);
         text.setLayoutY(2);
         getChildren().addAll(text);
+    }
+
+    @Override
+    public String getName() {
+        return text.getText();
     }
 }

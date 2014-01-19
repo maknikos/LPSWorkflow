@@ -44,4 +44,9 @@ public class MacroAction extends Entity {
         });
         return button;
     }
+
+    @Override
+    public String getName() {
+        return text.getText();
+    }
 }
