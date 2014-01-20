@@ -19,7 +19,7 @@ import static com.LPSWorkflow.common.ReflectionHelper.getHiddenField;
 public class LPSFileManager {
     HashSet<String> facts;
     HashSet<String> actions;
-    ArrayList reactiveRules;
+
 
     /**
      * Opens and parses the LPS program files.
@@ -41,44 +41,11 @@ public class LPSFileManager {
             e1.printStackTrace();
         }
 
-        reactiveRules = (ArrayList) getHiddenField(ReactiveRuleSet.getInstance(), "reactiveRules");
-
 
         //Database db = Database.getInstance(); TODO cleanup
         //CycleHandler ch = CycleHandler.getInstance();
         GoalsList gl = GoalsList.getInstance();
         GoalSet goals = gl.getGoalsDefinitions(); //TODO move to different method
-    }
-
-    public int size(){
-        return reactiveRules.size();
-    }
-
-
-    /**
-     * From ReactiveRule object, get the cause (antecedent) part.
-     * @return cause part of the ReactiveRule
-     */
-    public String getReactiveRuleCause(int index) {
-        SimpleSentence s = (SimpleSentence) getHiddenField(reactiveRules.get(index), "causes");
-
-        if(s == null)
-            return null;
-
-        return s.getName();
-    }
-
-    /**
-     * From ReactiveRule object, get the goal (consequent) part.
-     * @return goal part of the ReactiveRule
-     */
-    public String getReactiveRuleGoal(int index) {
-        SimpleSentence s = (SimpleSentence) getHiddenField(reactiveRules.get(index), "goal");
-
-        if(s == null)
-            return null;
-
-        return s.getName();
     }
 
     private void clearPreviousData() {

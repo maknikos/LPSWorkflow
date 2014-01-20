@@ -1,6 +1,7 @@
 package com.LPSWorkflow.controller;
 
 import com.LPSWorkflow.LPS.LPSFileManager;
+import com.LPSWorkflow.LPS.ReactiveRuleManager;
 import com.LPSWorkflow.model.Event;
 import com.LPSWorkflow.model.FileData;
 import com.LPSWorkflow.model.Idle;
@@ -24,6 +25,7 @@ import java.util.ResourceBundle;
 public class CanvasController implements Initializable {
     private FileData fileData;
     private LPSFileManager fileManager;
+    private ReactiveRuleManager reactiveRuleManager;
 
 
     @FXML
@@ -37,6 +39,7 @@ public class CanvasController implements Initializable {
         fileData = FileData.getInstance();
         filePathLabel.textProperty().bind(fileData.filePathProperty());
         fileManager = new LPSFileManager();
+        reactiveRuleManager = new ReactiveRuleManager();
     }
 
     //TODO change the name
@@ -50,10 +53,11 @@ public class CanvasController implements Initializable {
 
     private void drawReactiveRules() {
 
-        if(fileManager.size() > 0){
+        //TODO do nothing if no reactive rules exist? give a message?
+        if(reactiveRuleManager.size() > 0){
             //TODO currently only using the first element
-            String cause = fileManager.getReactiveRuleCause(0);
-            String goal = fileManager.getReactiveRuleGoal(0);
+            String cause = reactiveRuleManager.getReactiveRuleCause(0);
+            String goal = reactiveRuleManager.getReactiveRuleGoal(0);
 
             //TODO null check
 
@@ -68,7 +72,6 @@ public class CanvasController implements Initializable {
             contentGroup.getChildren().addAll(vBox);
         }
 
-        //TODO do nothing if no reactive rules exist? give a message?
     }
 
     private Polygon drawArrow(){
