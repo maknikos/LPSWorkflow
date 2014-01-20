@@ -2,9 +2,12 @@ package com.LPSWorkflow.model;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.scene.Group;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
+
+import java.util.List;
 
 /**
  * A macro-action entity that can contain other actions
@@ -14,8 +17,11 @@ public class MacroAction extends Entity {
     private Label text;
     private Button expand;
     private boolean isExpanded;
+    private Group childGroup;
 
-    public MacroAction(String name) {
+
+    public MacroAction(String name, Group childGroup) {
+        this.childGroup = childGroup;
         isExpanded = false;
         hBox = new HBox();
         expand = createExpandButton();
@@ -27,6 +33,14 @@ public class MacroAction extends Entity {
         hBox.getChildren().addAll(text, expand);
 
         getChildren().addAll(hBox);
+    }
+
+    public Group getChildGroup(){
+        return childGroup;
+    }
+
+    public boolean isExpanded(){
+        return isExpanded;
     }
 
     private Button createExpandButton() {

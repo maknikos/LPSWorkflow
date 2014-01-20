@@ -42,30 +42,25 @@ public class CanvasController implements Initializable {
     //TODO change the name
     public void handleDrawAction() {
         fileManager.openFile(fileData.getFilePath());
-        ArrayList rules = fileManager.getReactiveRules();
-
-        if(rules == null){
-            return; //TODO handle fail case
-        }
 
         contentGroup.getChildren().clear();
 
-        drawReactiveRules(rules);
+        drawReactiveRules();
     }
 
-    private void drawReactiveRules(ArrayList rules) {
-        //TODO currently only using the first element
+    private void drawReactiveRules() {
 
-        if(rules.size() > 0){
-            String cause = fileManager.getCause(rules.get(0));
-            String goal = fileManager.getGoal(rules.get(0));
+        if(fileManager.size() > 0){
+            //TODO currently only using the first element
+            String cause = fileManager.getReactiveRuleCause(0);
+            String goal = fileManager.getReactiveRuleGoal(0);
 
             //TODO null check
 
             //TODO make connections
             Idle start = new Idle("Start");
             Event e1 = new Event(cause);
-            MacroAction a1 = new MacroAction(goal);
+            MacroAction a1 = new MacroAction(goal, new Group());
             Idle end = new Idle("End");
             VBox vBox = new VBox();
             vBox.setAlignment(Pos.CENTER);

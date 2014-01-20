@@ -1,13 +1,17 @@
 package com.LPSWorkflow.LPS;
 
 import main.JLPS;
-import model.*;
+import model.GoalSet;
+import model.GoalsList;
+import model.ReactiveRuleSet;
+import model.SimpleSentence;
 import org.antlr.runtime.RecognitionException;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashSet;
+
+import static com.LPSWorkflow.common.ReflectionHelper.getHiddenField;
 
 /**
  * Deals with LPS files
@@ -15,6 +19,8 @@ import java.util.HashSet;
 public class LPSFileManager {
     HashSet<String> facts;
     HashSet<String> actions;
+    ArrayList reactiveRules;
+
     /**
      * Opens and parses the LPS program files.
      * @param fileData The path of the file.
@@ -34,29 +40,27 @@ public class LPSFileManager {
         } catch (RecognitionException e1) {
             e1.printStackTrace();
         }
-    }
 
-    /**
-     *
-     * @return Returns ArrayList of reactive rules.
-     */
-    public ArrayList getReactiveRules() {
+        reactiveRules = (ArrayList) getHiddenField(ReactiveRuleSet.getInstance(), "reactiveRules");
+
+
         //Database db = Database.getInstance(); TODO cleanup
         //CycleHandler ch = CycleHandler.getInstance();
         GoalsList gl = GoalsList.getInstance();
         GoalSet goals = gl.getGoalsDefinitions(); //TODO move to different method
-
-
-        return (ArrayList) getHiddenField(ReactiveRuleSet.getInstance(), "reactiveRules");
     }
+
+    public int size(){
+        return reactiveRules.size();
+    }
+
 
     /**
      * From ReactiveRule object, get the cause (antecedent) part.
-     * @param obj ReactiveRule object
      * @return cause part of the ReactiveRule
      */
-    public String getCause(Object obj) {
-        SimpleSentence s = (SimpleSentence) getHiddenField(obj, "causes");
+    public String getReactiveRuleCause(int index) {
+        SimpleSentence s = (SimpleSentence) getHiddenField(reactiveRules.get(index), "causes");
 
         if(s == null)
             return null;
@@ -66,34 +70,15 @@ public class LPSFileManager {
 
     /**
      * From ReactiveRule object, get the goal (consequent) part.
-     * @param obj ReactiveRule object
      * @return goal part of the ReactiveRule
      */
-    public String getGoal(Object obj) {
-        SimpleSentence s = (SimpleSentence) getHiddenField(obj, "goal");
+    public String getReactiveRuleGoal(int index) {
+        SimpleSentence s = (SimpleSentence) getHiddenField(reactiveRules.get(index), "goal");
 
         if(s == null)
             return null;
 
         return s.getName();
-    }
-
-    private Object getHiddenField(Object obj, String fieldName) {
-        Field f;
-        Object result = null;
-        try {
-            // We use reflection to access hidden variables in JLPS library
-            f = obj.getClass().getDeclaredField(fieldName);
-            if (f != null) {
-                f.setAccessible(true);
-                result = f.get(obj);
-            }
-        } catch (NoSuchFieldException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        }
-        return result;
     }
 
     private void clearPreviousData() {
