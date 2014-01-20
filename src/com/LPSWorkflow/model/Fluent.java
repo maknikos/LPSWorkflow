@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * A macro-action entity that can contain other actions
  */
-public class MacroAction extends Entity {
+public class Fluent extends Entity {
     private HBox hBox;
     private Label text;
     private Button expand;
@@ -20,7 +20,7 @@ public class MacroAction extends Entity {
     private Group childGroup;
 
 
-    public MacroAction(String name, Group childGroup) {
+    public Fluent(String name, Group childGroup) {
         this.childGroup = childGroup;
         isExpanded = false;
         hBox = new HBox();

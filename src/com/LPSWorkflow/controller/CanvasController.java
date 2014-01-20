@@ -1,11 +1,12 @@
 package com.LPSWorkflow.controller;
 
+import com.LPSWorkflow.LPS.GoalManager;
 import com.LPSWorkflow.LPS.LPSFileManager;
 import com.LPSWorkflow.LPS.ReactiveRuleManager;
 import com.LPSWorkflow.model.Event;
 import com.LPSWorkflow.model.FileData;
+import com.LPSWorkflow.model.Fluent;
 import com.LPSWorkflow.model.Idle;
-import com.LPSWorkflow.model.MacroAction;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
@@ -26,6 +27,7 @@ public class CanvasController implements Initializable {
     private FileData fileData;
     private LPSFileManager fileManager;
     private ReactiveRuleManager reactiveRuleManager;
+    private GoalManager goalManager;
 
 
     @FXML
@@ -38,16 +40,17 @@ public class CanvasController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         fileData = FileData.getInstance();
         filePathLabel.textProperty().bind(fileData.filePathProperty());
+
+        //TODO Should I get the singleton values at the constructor? or every time I use a getter?
         fileManager = new LPSFileManager();
         reactiveRuleManager = new ReactiveRuleManager();
+        goalManager = new GoalManager();
     }
 
     //TODO change the name
     public void handleDrawAction() {
         fileManager.openFile(fileData.getFilePath());
-
         contentGroup.getChildren().clear();
-
         drawReactiveRules();
     }
 
@@ -64,13 +67,21 @@ public class CanvasController implements Initializable {
             //TODO make connections
             Idle start = new Idle("Start");
             Event e1 = new Event(cause);
-            MacroAction a1 = new MacroAction(goal, new Group());
+            Fluent a1 = new Fluent(goal, drawGoalGroup(goal));
             Idle end = new Idle("End");
             VBox vBox = new VBox();
             vBox.setAlignment(Pos.CENTER);
             vBox.getChildren().addAll(start, drawArrow(), e1, drawArrow(), a1, drawArrow(), end);
             contentGroup.getChildren().addAll(vBox);
         }
+
+    }
+
+    private Group drawGoalGroup(String goal) {
+        Group group = new Group();
+        //ArrayList goalDefinitions = goalManager.getGoalDefinitions(goal);
+
+        return group;
 
     }
 

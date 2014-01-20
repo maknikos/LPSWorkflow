@@ -15,6 +15,7 @@ public class ReactiveRuleManager {
 
     public ReactiveRuleManager() {
         reactiveRules = (ArrayList) getHiddenField(ReactiveRuleSet.getInstance(), "reactiveRules");
+        //TODO null check? empty set check?
     }
 
     /**
@@ -22,6 +23,8 @@ public class ReactiveRuleManager {
      * @return Size of the reactive rules
      */
     public int size(){
+        if(reactiveRules == null)
+            return 0;
         return reactiveRules.size();
     }
 

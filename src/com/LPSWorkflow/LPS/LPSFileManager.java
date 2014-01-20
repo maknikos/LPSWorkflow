@@ -1,10 +1,7 @@
 package com.LPSWorkflow.LPS;
 
 import main.JLPS;
-import model.GoalSet;
-import model.GoalsList;
 import model.ReactiveRuleSet;
-import model.SimpleSentence;
 import org.antlr.runtime.RecognitionException;
 
 import java.io.IOException;
@@ -44,8 +41,7 @@ public class LPSFileManager {
 
         //Database db = Database.getInstance(); TODO cleanup
         //CycleHandler ch = CycleHandler.getInstance();
-        GoalsList gl = GoalsList.getInstance();
-        GoalSet goals = gl.getGoalsDefinitions(); //TODO move to different method
+
     }
 
     private void clearPreviousData() {
