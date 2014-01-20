@@ -11,11 +11,8 @@ import static com.LPSWorkflow.common.ReflectionHelper.getHiddenField;
  * Class dealing with ReactiveRules from the parsed LPS program
  */
 public class ReactiveRuleManager {
-    ArrayList reactiveRules;
 
     public ReactiveRuleManager() {
-        reactiveRules = (ArrayList) getHiddenField(ReactiveRuleSet.getInstance(), "reactiveRules");
-        //TODO null check? empty set check?
     }
 
     /**
@@ -23,6 +20,7 @@ public class ReactiveRuleManager {
      * @return Size of the reactive rules
      */
     public int size(){
+        ArrayList reactiveRules = retrieveReactiveRules();
         if(reactiveRules == null)
             return 0;
         return reactiveRules.size();
@@ -33,6 +31,11 @@ public class ReactiveRuleManager {
      * @return cause part of the ReactiveRule
      */
     public String getReactiveRuleCause(int index) {
+        ArrayList reactiveRules = retrieveReactiveRules();
+
+        if(reactiveRules == null)
+            return null;
+
         SimpleSentence s = (SimpleSentence) getHiddenField(reactiveRules.get(index), "causes");
 
         if(s == null)
@@ -46,11 +49,20 @@ public class ReactiveRuleManager {
      * @return goal part of the ReactiveRule
      */
     public String getReactiveRuleGoal(int index) {
+        ArrayList reactiveRules = retrieveReactiveRules();
+
+        if(reactiveRules == null)
+            return null;
+
         SimpleSentence s = (SimpleSentence) getHiddenField(reactiveRules.get(index), "goal");
 
         if(s == null)
             return null;
 
         return s.getName();
+    }
+
+    private ArrayList retrieveReactiveRules() {
+        return (ArrayList) getHiddenField(ReactiveRuleSet.getInstance(), "reactiveRules");
     }
 }

@@ -79,7 +79,7 @@ public class CanvasController implements Initializable {
 
     private Group drawGoalGroup(String goal) {
         Group group = new Group();
-        //ArrayList goalDefinitions = goalManager.getGoalDefinitions(goal);
+        ArrayList goalDefinitions = goalManager.getGoalDefinitions(goal);
 
         return group;
 
