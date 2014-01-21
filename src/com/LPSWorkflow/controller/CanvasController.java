@@ -12,6 +12,7 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
@@ -30,7 +31,6 @@ public class CanvasController implements Initializable {
     private LPSFileManager fileManager;
     private ReactiveRuleManager reactiveRuleManager;
     private GoalManager goalManager;
-
 
     @FXML
     private Group contentGroup;
@@ -57,12 +57,13 @@ public class CanvasController implements Initializable {
     }
 
     private void drawReactiveRules() {
-
+        HBox hBox = new HBox();
         //TODO do nothing if no reactive rules exist? give a message?
-        if(reactiveRuleManager.size() > 0){
-            //TODO currently only using the first element
-            String cause = reactiveRuleManager.getReactiveRuleCause(0);
-            String goal = reactiveRuleManager.getReactiveRuleGoal(0);
+
+        //Draw all reactive rules separately
+        for(int i=0; i < reactiveRuleManager.size(); i++){
+            String cause = reactiveRuleManager.getReactiveRuleCause(i);
+            String goal = reactiveRuleManager.getReactiveRuleGoal(i);
 
             //TODO null check
 
@@ -72,11 +73,11 @@ public class CanvasController implements Initializable {
             Fluent a1 = new Fluent(goal, drawGoalGroup(goal));
             Idle end = new Idle("End");
             VBox vBox = new VBox();
-            vBox.setAlignment(Pos.CENTER);
+            vBox.setAlignment(Pos.TOP_CENTER);
             vBox.getChildren().addAll(start, createArrow(), e1, createArrow(), a1, createArrow(), end);
-            contentGroup.getChildren().addAll(vBox);
+            hBox.getChildren().add(vBox);
         }
-
+        contentGroup.getChildren().add(hBox);
     }
 
     private Group drawGoalGroup(String goal) {
@@ -87,11 +88,15 @@ public class CanvasController implements Initializable {
         }
 
         VBox vBox = new VBox();
-        vBox.setAlignment(Pos.CENTER);
+        vBox.setAlignment(Pos.TOP_CENTER);
         for(Object gd : goalDefinitions){ // TODO null check
             Fluent f = new Fluent(gd.toString(), null); //TODO change to term name rather than toString (not all gd are SimpleSentences)
-            vBox.getChildren().addAll(f, createArrow());
+            vBox.getChildren().addAll(f, createArrow()); //TODO remove the last arrow
         }
+
+        // remove the last redundant arrow
+        vBox.getChildren().remove(vBox.getChildren().size() - 1);
+
         group.getChildren().add(vBox);
         return group;
     }
