@@ -16,8 +16,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
-import model.Clause;
-import model.SimpleSentence;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -53,7 +51,10 @@ public class CanvasController implements Initializable {
     public void handleDrawAction() {
         fileManager.openFile(fileData.getFilePath());
         contentGroup.getChildren().clear();
-        drawReactiveRules();
+
+        //only draw when the file is open
+        if(fileManager.isFileOpen())
+            drawReactiveRules();
     }
 
     private void drawReactiveRules() {
