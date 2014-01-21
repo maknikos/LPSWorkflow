@@ -1,7 +1,6 @@
 package com.LPSWorkflow.LPS;
 
-import com.LPSWorkflow.common.ReflectionHelper;
-import model.Clause;
+import model.AbstractOperator;
 import model.Goal;
 import model.GoalSet;
 import model.GoalsList;
@@ -19,12 +18,13 @@ public class GoalManager {
         GoalSet goals = GoalsList.getInstance().getGoalsDefinitions();
         Goal g = goals.getGoal(goal);
         if(g == null){
-            return new ArrayList(); //TODO handle exception
+            return null; //TODO handle exception
         }
-        Clause goalDefinition = g.getNextDefinition(); //TODO null checking.... each step
+        AbstractOperator goalDefinition = (AbstractOperator) g.getNextDefinition(); //TODO null checking.... each step
         if(goalDefinition == null){
-            return new ArrayList(); //TODO handle exception
+            return null; //TODO handle exception
         }
-        return (ArrayList) ReflectionHelper.getHiddenField(goalDefinition, "operands");
+
+        return goalDefinition.getOperands();
     }
 }

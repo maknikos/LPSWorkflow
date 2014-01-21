@@ -1,63 +1,51 @@
 package com.LPSWorkflow.model;
 
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.Group;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.HBox;
-
-import java.util.List;
+import javafx.scene.control.TitledPane;
 
 /**
  * A macro-action entity that can contain other actions
  */
 public class Fluent extends Entity {
-    private HBox hBox;
+    private TitledPane expander;
     private Label text;
-    private Button expand;
-    private boolean isExpanded;
     private Group childGroup;
-
+    private boolean isMacro;
 
     public Fluent(String name, Group childGroup) {
         this.childGroup = childGroup;
-        isExpanded = false;
-        hBox = new HBox();
-        expand = createExpandButton();
-        text = new Label(name);
-        text.setLayoutX(4);
-        text.setLayoutY(2);
-        text.setStyle("-fx-padding:3px;");
-        hBox.setStyle("-fx-border-color:Black; -fx-padding:3px;");
-        hBox.getChildren().addAll(text, expand);
+        isMacro = (childGroup != null && childGroup.getChildren().size() > 0);
 
-        getChildren().addAll(hBox);
+        //TODO private fields (text and expander) may be null depending on isMacro .. make it unified?
+
+        // If not a macro-action, no need to have an expand button
+        if(isMacro)
+        {
+            expander = new TitledPane(name, childGroup);
+            expander.setExpanded(false);
+            this.getChildren().add(expander);
+        }
+        else
+        {
+            text = new Label(name);
+            text.setLayoutX(4);
+            text.setLayoutY(2);
+            text.setStyle("-fx-border-color:Black; -fx-padding:3px;");
+            text.setStyle("-fx-padding:3px;");
+            this.getChildren().add(text);
+        }
     }
 
     public Group getChildGroup(){
         return childGroup;
     }
 
-    public boolean isExpanded(){
-        return isExpanded;
+    public boolean isMacro() {
+        return isMacro;
     }
 
-    private Button createExpandButton() {
-        final Button button = new Button("+");
-        button.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent actionEvent) {
-                hBox.getChildren().add(new Label("test"));
-                isExpanded = !isExpanded;
-                if(isExpanded)
-                    button.setText("-");
-                else
-                    button.setText("+");
-            }
-        });
-        return button;
-    }
+    //TODO need a way to set childGroup, and make it a macro
 
     @Override
     public String getName() {

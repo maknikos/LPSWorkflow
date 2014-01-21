@@ -15,6 +15,8 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
+import model.Clause;
+import model.SimpleSentence;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -71,7 +73,7 @@ public class CanvasController implements Initializable {
             Idle end = new Idle("End");
             VBox vBox = new VBox();
             vBox.setAlignment(Pos.CENTER);
-            vBox.getChildren().addAll(start, drawArrow(), e1, drawArrow(), a1, drawArrow(), end);
+            vBox.getChildren().addAll(start, createArrow(), e1, createArrow(), a1, createArrow(), end);
             contentGroup.getChildren().addAll(vBox);
         }
 
@@ -80,12 +82,21 @@ public class CanvasController implements Initializable {
     private Group drawGoalGroup(String goal) {
         Group group = new Group();
         ArrayList goalDefinitions = goalManager.getGoalDefinitions(goal);
+        if(goalDefinitions == null){
+            return group;
+        }
 
+        VBox vBox = new VBox();
+        vBox.setAlignment(Pos.CENTER);
+        for(Object gd : goalDefinitions){ // TODO null check
+            Fluent f = new Fluent(gd.toString(), null); //TODO change to term name rather than toString (not all gd are SimpleSentences)
+            vBox.getChildren().addAll(f, createArrow());
+        }
+        group.getChildren().add(vBox);
         return group;
-
     }
 
-    private Polygon drawArrow(){
+    private Polygon createArrow(){
         Polygon arrow = new Polygon(
                 7.5, 0,
                 15, 15,
