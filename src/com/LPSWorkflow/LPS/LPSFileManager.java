@@ -1,21 +1,19 @@
 package com.LPSWorkflow.LPS;
 
-import main.JLPS;
-import model.ReactiveRuleSet;
-import org.antlr.runtime.RecognitionException;
+import com.LPSWorkflow.antlr.LPSLexer;
+import com.LPSWorkflow.antlr.LPSParser;
+import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.tree.ParseTree;
 
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-
-import static com.LPSWorkflow.common.ReflectionHelper.getHiddenField;
+import java.io.InputStream;
 
 /**
  * Deals with LPS files
  */
 public class LPSFileManager {
-    private HashSet<String> facts;
-    private HashSet<String> actions;
     private boolean isFileOpen;
 
     public LPSFileManager() {
@@ -27,37 +25,28 @@ public class LPSFileManager {
      * @param fileData The path of the file.
      */
     public void openFile(String fileData) {
-
-        //Reset data TODO cleanup
-        clearPreviousData();
-
-        // Open and parse the LPS program file
-        facts = new HashSet<String>();
-        actions = new HashSet<String>();
+        InputStream is = System.in;
+        ANTLRInputStream input = null;
         try {
-            JLPS.fileReader(JLPS.fileOpener(fileData, true), facts, actions);
-        } catch (IOException e1) {
-            //Could not open the file.
-            isFileOpen = false;
-            e1.printStackTrace();
-        } catch (RecognitionException e1) {
-            isFileOpen = false;
-            e1.printStackTrace();
+            if ( fileData!=null ) is = new FileInputStream(fileData);
+            input = new ANTLRInputStream(is);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if(input == null){
+            return; //TODO error handling?
         }
 
-        isFileOpen = true;
-        //Database db = Database.getInstance(); TODO cleanup
-        //CycleHandler ch = CycleHandler.getInstance();
+        LPSLexer lexer = new LPSLexer(input);
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
+        LPSParser parser = new LPSParser(tokens);
+        ParseTree tree = parser.program();
+
+        System.out.println(tree.toStringTree(parser));
+
     }
 
     public boolean isFileOpen(){
         return isFileOpen;
-    }
-
-    private void clearPreviousData() {
-        // used to clear all data from previous loaded file
-        //TODO add any other singleton used ...
-        ((ArrayList) getHiddenField(ReactiveRuleSet.getInstance(), "reactiveRules")).clear();
-
     }
 }
