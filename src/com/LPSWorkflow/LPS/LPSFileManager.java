@@ -1,10 +1,12 @@
 package com.LPSWorkflow.LPS;
 
 import com.LPSWorkflow.antlr.LPSLexer;
+import com.LPSWorkflow.antlr.LPSLoader;
 import com.LPSWorkflow.antlr.LPSParser;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -41,6 +43,13 @@ public class LPSFileManager {
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         LPSParser parser = new LPSParser(tokens);
         ParseTree tree = parser.program();
+
+        ParseTreeWalker walker = new ParseTreeWalker();
+        LPSLoader loader = new LPSLoader();
+        walker.walk(loader, tree);
+
+        StructureBuilder structureBuilder = new StructureBuilder();
+        structureBuilder.build(loader.getReactiveRuleConnections(), loader.getGoalConnections());
 
         System.out.println(tree.toStringTree(parser));
 

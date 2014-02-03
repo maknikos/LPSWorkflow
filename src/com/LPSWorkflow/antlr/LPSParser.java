@@ -1,6 +1,7 @@
 // Generated from LPS.g4 by ANTLR 4.x
 
 package com.LPSWorkflow.antlr;
+
 import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;
 import org.antlr.v4.runtime.*;
@@ -381,26 +382,93 @@ public class LPSParser extends Parser {
 	}
 
 	public static class FormulaContext extends ParserRuleContext {
+		public FormulaContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_formula; }
+	 
+		public FormulaContext() { }
+		public void copyFrom(FormulaContext ctx) {
+			super.copyFrom(ctx);
+		}
+	}
+	public static class AtomicContext extends FormulaContext {
+		public AtomContext atom() {
+			return getRuleContext(AtomContext.class,0);
+		}
+		public AtomicContext(FormulaContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof LPSListener ) ((LPSListener)listener).enterAtomic(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof LPSListener ) ((LPSListener)listener).exitAtomic(this);
+		}
+	}
+	public static class PartialOrderContext extends FormulaContext {
 		public List<FormulaContext> formula() {
 			return getRuleContexts(FormulaContext.class);
 		}
 		public FormulaContext formula(int i) {
 			return getRuleContext(FormulaContext.class,i);
 		}
-		public AtomContext atom() {
-			return getRuleContext(AtomContext.class,0);
-		}
-		public FormulaContext(ParserRuleContext parent, int invokingState) {
-			super(parent, invokingState);
-		}
-		@Override public int getRuleIndex() { return RULE_formula; }
+		public PartialOrderContext(FormulaContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof LPSListener ) ((LPSListener)listener).enterFormula(this);
+			if ( listener instanceof LPSListener ) ((LPSListener)listener).enterPartialOrder(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof LPSListener ) ((LPSListener)listener).exitFormula(this);
+			if ( listener instanceof LPSListener ) ((LPSListener)listener).exitPartialOrder(this);
+		}
+	}
+	public static class BracketContext extends FormulaContext {
+		public FormulaContext formula() {
+			return getRuleContext(FormulaContext.class,0);
+		}
+		public BracketContext(FormulaContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof LPSListener ) ((LPSListener)listener).enterBracket(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof LPSListener ) ((LPSListener)listener).exitBracket(this);
+		}
+	}
+	public static class SequenceContext extends FormulaContext {
+		public List<FormulaContext> formula() {
+			return getRuleContexts(FormulaContext.class);
+		}
+		public FormulaContext formula(int i) {
+			return getRuleContext(FormulaContext.class,i);
+		}
+		public SequenceContext(FormulaContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof LPSListener ) ((LPSListener)listener).enterSequence(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof LPSListener ) ((LPSListener)listener).exitSequence(this);
+		}
+	}
+	public static class ConcurrentContext extends FormulaContext {
+		public List<FormulaContext> formula() {
+			return getRuleContexts(FormulaContext.class);
+		}
+		public FormulaContext formula(int i) {
+			return getRuleContext(FormulaContext.class,i);
+		}
+		public ConcurrentContext(FormulaContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof LPSListener ) ((LPSListener)listener).enterConcurrent(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof LPSListener ) ((LPSListener)listener).exitConcurrent(this);
 		}
 	}
 
@@ -423,6 +491,10 @@ public class LPSParser extends Parser {
 			switch (_input.LA(1)) {
 			case 8:
 				{
+				_localctx = new BracketContext(_localctx);
+				_ctx = _localctx;
+				_prevctx = _localctx;
+
 				setState(64); match(8);
 				setState(65); formula(0);
 				setState(66); match(4);
@@ -431,6 +503,9 @@ public class LPSParser extends Parser {
 			case ID:
 			case NEG:
 				{
+				_localctx = new AtomicContext(_localctx);
+				_ctx = _localctx;
+				_prevctx = _localctx;
 				setState(68); atom();
 				}
 				break;
@@ -450,7 +525,7 @@ public class LPSParser extends Parser {
 					switch ( getInterpreter().adaptivePredict(_input,9,_ctx) ) {
 					case 1:
 						{
-						_localctx = new FormulaContext(_parentctx, _parentState);
+						_localctx = new SequenceContext(new FormulaContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_formula);
 						setState(71);
 						if (!(precpred(_ctx, 5))) throw new FailedPredicateException(this, "precpred(_ctx, 5)");
@@ -460,7 +535,7 @@ public class LPSParser extends Parser {
 						break;
 					case 2:
 						{
-						_localctx = new FormulaContext(_parentctx, _parentState);
+						_localctx = new ConcurrentContext(new FormulaContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_formula);
 						setState(74);
 						if (!(precpred(_ctx, 4))) throw new FailedPredicateException(this, "precpred(_ctx, 4)");
@@ -470,7 +545,7 @@ public class LPSParser extends Parser {
 						break;
 					case 3:
 						{
-						_localctx = new FormulaContext(_parentctx, _parentState);
+						_localctx = new PartialOrderContext(new FormulaContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_formula);
 						setState(77);
 						if (!(precpred(_ctx, 3))) throw new FailedPredicateException(this, "precpred(_ctx, 3)");

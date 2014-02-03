@@ -1,5 +1,9 @@
 grammar LPS;
 
+@header{
+package com.LPSWorkflow.antlr;
+}
+
 program : (reactiveRules | goals)* ;
 
 reactiveRules   : 'ReactiveRules' '{' (r (END r)* )?  END? '}' ;
@@ -8,11 +12,11 @@ r               : formula '->' formula ;
 goals   : 'Goals' '{' (g (END g)* )? END? '}' ;
 g       : atom '<-' formula ;
 
-formula : formula ',' formula
-        | formula ':' formula
-        | formula '||' formula
-        | '(' formula ')'
-        | atom
+formula : formula ',' formula  # Sequence
+        | formula ':' formula  # Concurrent
+        | formula '||' formula # PartialOrder
+        | '(' formula ')'      # Bracket
+        | atom                 # Atomic
         ;
 
 END     : '.' ;

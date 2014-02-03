@@ -31,6 +31,8 @@ public class CanvasController implements Initializable {
         // Use the custom LPS parser to get data
         fileManager = new LPSFileManager();
 
+
+
     }
 
     //TODO change the name

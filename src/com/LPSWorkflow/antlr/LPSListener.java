@@ -1,5 +1,7 @@
 // Generated from LPS.g4 by ANTLR 4.x
+
 package com.LPSWorkflow.antlr;
+
 import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
@@ -49,6 +51,26 @@ public interface LPSListener extends ParseTreeListener {
 	 */
 	void exitReactiveRules(@NotNull LPSParser.ReactiveRulesContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link LPSParser#PartialOrder}.
+	 * @param ctx the parse tree
+	 */
+	void enterPartialOrder(@NotNull LPSParser.PartialOrderContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link LPSParser#PartialOrder}.
+	 * @param ctx the parse tree
+	 */
+	void exitPartialOrder(@NotNull LPSParser.PartialOrderContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link LPSParser#Atomic}.
+	 * @param ctx the parse tree
+	 */
+	void enterAtomic(@NotNull LPSParser.AtomicContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link LPSParser#Atomic}.
+	 * @param ctx the parse tree
+	 */
+	void exitAtomic(@NotNull LPSParser.AtomicContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link LPSParser#r}.
 	 * @param ctx the parse tree
 	 */
@@ -69,13 +91,33 @@ public interface LPSListener extends ParseTreeListener {
 	 */
 	void exitProgram(@NotNull LPSParser.ProgramContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link LPSParser#formula}.
+	 * Enter a parse tree produced by {@link LPSParser#Bracket}.
 	 * @param ctx the parse tree
 	 */
-	void enterFormula(@NotNull LPSParser.FormulaContext ctx);
+	void enterBracket(@NotNull LPSParser.BracketContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link LPSParser#formula}.
+	 * Exit a parse tree produced by {@link LPSParser#Bracket}.
 	 * @param ctx the parse tree
 	 */
-	void exitFormula(@NotNull LPSParser.FormulaContext ctx);
+	void exitBracket(@NotNull LPSParser.BracketContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link LPSParser#Sequence}.
+	 * @param ctx the parse tree
+	 */
+	void enterSequence(@NotNull LPSParser.SequenceContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link LPSParser#Sequence}.
+	 * @param ctx the parse tree
+	 */
+	void exitSequence(@NotNull LPSParser.SequenceContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link LPSParser#Concurrent}.
+	 * @param ctx the parse tree
+	 */
+	void enterConcurrent(@NotNull LPSParser.ConcurrentContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link LPSParser#Concurrent}.
+	 * @param ctx the parse tree
+	 */
+	void exitConcurrent(@NotNull LPSParser.ConcurrentContext ctx);
 }
