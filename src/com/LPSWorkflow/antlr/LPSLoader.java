@@ -14,11 +14,14 @@ import java.util.Map;
 public class LPSLoader extends LPSBaseListener {
     //TODO LHS of R context must be conditions (not actions)
     //TODO each side of Concurrent (:) must be conditions (not actions)
+    //TODO it assumes that LHS of reactive rules cannot have Sequences
 
     public enum Parse{
         NONE, REACTIVE_RULES, GOALS
     }
 
+    private Map<Object, Object> reactiveRuleRoots;
+    private Map<Object, Object> goalRoots;
     private Map<Object, Object> reactiveRuleConnections;
     private Map<Object, Object> goalConnections;
     private Parse currentParseTarget;
@@ -26,6 +29,8 @@ public class LPSLoader extends LPSBaseListener {
     public LPSLoader() {
         this.reactiveRuleConnections = new HashMap<Object, Object>();
         this.goalConnections = new HashMap<Object, Object>();
+        this.reactiveRuleRoots = new HashMap<Object, Object>();
+        this.goalRoots = new HashMap<Object, Object>();
         this.currentParseTarget = Parse.NONE;
     }
 
@@ -58,7 +63,7 @@ public class LPSLoader extends LPSBaseListener {
             handleErrorCase();
             return;
         }
-        getConnections().put(formulas.get(0), formulas.get(1));
+        getRoots().put(formulas.get(0), formulas.get(1));
     }
 
     @Override
@@ -155,6 +160,12 @@ public class LPSLoader extends LPSBaseListener {
 
     @Override
     public void enterG(@NotNull LPSParser.GContext ctx) {
+        // Goal, g, always has an Atom and a Formula as children.
+        if(ctx.getChildCount() < 2){
+            handleErrorCase();
+            return;
+        }
+        getRoots().put(ctx.atom(), ctx.formula());
     }
 
     private void replaceValues(Object oldValue, Object newValue) {
@@ -162,7 +173,16 @@ public class LPSLoader extends LPSBaseListener {
         if(connections.containsValue(oldValue)){
             for(Object key : connections.keySet()){
                 if(connections.get(key).equals(oldValue)){
-                    connections.put(key, newValue); //replace with the first formula
+                    connections.put(key, newValue); // replace with the new value
+                }
+            }
+        }
+
+        Map<Object, Object> roots = getRoots();
+        if(roots.containsValue(oldValue)){
+            for(Object key : roots.keySet()){
+                if(roots.get(key).equals(oldValue)){
+                    roots.put(key, newValue);
                 }
             }
         }
@@ -174,6 +194,13 @@ public class LPSLoader extends LPSBaseListener {
             Object value = connections.get(oldKey);
             connections.remove(oldKey);
             connections.put(newKey, value);
+        }
+
+        Map<Object, Object> roots = getRoots();
+        if(roots.containsKey(oldKey)){
+            Object value = roots.get(oldKey);
+            roots.remove(oldKey);
+            roots.put(newKey, value);
         }
     }
 
@@ -192,11 +219,30 @@ public class LPSLoader extends LPSBaseListener {
         }
     }
 
+    private Map<Object, Object> getRoots(){
+        switch(currentParseTarget){
+            case REACTIVE_RULES:
+                return reactiveRuleRoots;
+            case GOALS:
+                return goalRoots;
+            default:
+                return null;
+        }
+    }
+
     public Map<Object, Object> getReactiveRuleConnections() {
         return reactiveRuleConnections;
     }
 
     public Map<Object, Object> getGoalConnections() {
         return goalConnections;
+    }
+
+    public Map<Object, Object> getReactiveRuleRoots() {
+        return reactiveRuleRoots;
+    }
+
+    public Map<Object, Object> getGoalRoots() {
+        return goalRoots;
     }
 }

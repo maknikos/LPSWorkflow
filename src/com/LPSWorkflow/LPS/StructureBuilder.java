@@ -5,36 +5,43 @@ import com.LPSWorkflow.model.Entity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
  * Builds structure of connected entities from 'connections' context maps
  */
 public class StructureBuilder {
-    private List<Entity> rootList;
     private Map<String, Entity> rootMap;
 
     public StructureBuilder() {
-        this.rootList = new ArrayList<Entity>();
         this.rootMap = new HashMap<String, Entity>();
     }
 
-    public void build(Map<Object, Object> reactiveRuleConnections, Map<Object, Object> goalConnections){
-        // find roots (nothing points to a root)
-        for(Object key : reactiveRuleConnections.keySet()){
-            if(!reactiveRuleConnections.containsValue(key)){
-                rootList.add((Entity) key);
-            }
-        }
+    public void build(Map<Object, Object> reactiveRuleRoots,
+                      Map<Object, Object> reactiveRuleConnections,
+                      Map<Object, Object> goalRoots,
+                      Map<Object, Object> goalConnections) {
+        buildReactiveRules(reactiveRuleRoots, reactiveRuleConnections);
+        buildGoalInformation(goalRoots, goalConnections);
+    }
 
+    private void buildGoalInformation(Map<Object, Object> goalRoots, Map<Object, Object> goalConnections) {
+
+    }
+
+    private void buildReactiveRules(Map<Object, Object> reactiveRuleRoots, Map<Object, Object> reactiveRuleConnections) {
         // Build connections of entities
-        for(Entity root : rootList){
-            connectEntities(root, reactiveRuleConnections);
+        for(Object root : reactiveRuleRoots.keySet()){
+            // connect Antecedent to the beginning of the Consequent
+            Entity next = (Entity) reactiveRuleRoots.get(root);
+            ((Entity)root).setNext(next);
+            // connect the rest
+            connectEntities(next, reactiveRuleConnections);
         }
 
         // Merge common roots
-        for(Entity root : rootList){
+        for(Object rootObj : reactiveRuleRoots.keySet()){
+            Entity root = (Entity) rootObj;
             String rootName = root.getName();
             if(rootMap.containsKey(rootName)){
                 Entity existingRoot = rootMap.get(rootName);

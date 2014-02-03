@@ -51,7 +51,8 @@ public class LPSFileManager {
         walker.walk(loader, tree);
 
         StructureBuilder structureBuilder = new StructureBuilder();
-        structureBuilder.build(loader.getReactiveRuleConnections(), loader.getGoalConnections());
+        structureBuilder.build(loader.getReactiveRuleRoots(), loader.getReactiveRuleConnections(),
+                loader.getGoalRoots(), loader.getGoalConnections());
         Map<String,Entity> rootMap = structureBuilder.getRootMap();
         System.out.println(tree.toStringTree(parser));
 
