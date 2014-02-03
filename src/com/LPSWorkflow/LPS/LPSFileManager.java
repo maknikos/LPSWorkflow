@@ -53,7 +53,7 @@ public class LPSFileManager {
         StructureBuilder structureBuilder = new StructureBuilder();
         structureBuilder.build(loader.getReactiveRuleRoots(), loader.getReactiveRuleConnections(),
                 loader.getGoalRoots(), loader.getGoalConnections());
-        Map<String,Entity> rootMap = structureBuilder.getRootMap();
+        Map<String,Entity> rootMap = structureBuilder.getReactiveRulesRootMap();
         System.out.println(tree.toStringTree(parser));
 
     }

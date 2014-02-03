@@ -6,6 +6,19 @@ package com.LPSWorkflow.model;
 public abstract class Entity {
     private String name;
     private Entity next;
+    private Entity definition;
+
+    public Entity getDefinition() {
+        return definition;
+    }
+
+    public void setDefinition(Entity definition) {
+        this.definition = definition;
+    }
+
+    public boolean hasDefinition(){
+        return definition != null;
+    }
 
     public Entity(String name) {
         this.name = name;

@@ -1,6 +1,7 @@
 package com.LPSWorkflow.antlr;
 
 import com.LPSWorkflow.model.Action;
+import com.LPSWorkflow.model.Concurrent;
 import com.LPSWorkflow.model.PartialOrder;
 import org.antlr.v4.runtime.misc.NotNull;
 
@@ -74,11 +75,8 @@ public class LPSLoader extends LPSBaseListener {
             return;
         }
 
-        // Replace all AtomicContexts with Action object
-        Action action = new Action(ctx.atom().getText());
-
-        replaceKey(ctx, action);
-        replaceValues(ctx, action);
+        replaceKey(ctx, ctx.atom());
+        replaceValues(ctx, ctx.atom());
     }
 
     @Override
@@ -151,11 +149,11 @@ public class LPSLoader extends LPSBaseListener {
         String firstFormula = formulas.get(0).getText();
         String secondFormula = formulas.get(1).getText();
 
-        PartialOrder partialOrder = new PartialOrder(firstFormula, secondFormula);
+        Concurrent concurrent = new Concurrent(firstFormula, secondFormula);
 
         // Replace the PartialOrderContext with PartialOrder entity
-        replaceKey(ctx, partialOrder);
-        replaceValues(ctx, partialOrder);
+        replaceKey(ctx, concurrent);
+        replaceValues(ctx, concurrent);
     }
 
     @Override
@@ -166,6 +164,20 @@ public class LPSLoader extends LPSBaseListener {
             return;
         }
         getRoots().put(ctx.atom(), ctx.formula());
+    }
+
+    @Override
+    public void enterAtom(@NotNull LPSParser.AtomContext ctx) {
+        if(ctx.getChildCount() < 1){
+            handleErrorCase();
+            return;
+        }
+
+        // Replace all AtomicContexts with Action object
+        Action action = new Action(ctx.getText());
+
+        replaceKey(ctx, action);
+        replaceValues(ctx, action);
     }
 
     private void replaceValues(Object oldValue, Object newValue) {

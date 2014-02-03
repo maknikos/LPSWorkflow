@@ -11,36 +11,74 @@ import java.util.Map;
  * Builds structure of connected entities from 'connections' context maps
  */
 public class StructureBuilder {
-    private Map<String, Entity> rootMap;
+    private Map<String, Entity> reactiveRulesRootMap;
+    private Map<String, Entity> goalsRootMap;
 
     public StructureBuilder() {
-        this.rootMap = new HashMap<String, Entity>();
+        this.reactiveRulesRootMap = new HashMap<String, Entity>();
+        this.goalsRootMap = new HashMap<String, Entity>();
     }
 
     public void build(Map<Object, Object> reactiveRuleRoots,
                       Map<Object, Object> reactiveRuleConnections,
                       Map<Object, Object> goalRoots,
-                      Map<Object, Object> goalConnections) {
-        buildReactiveRules(reactiveRuleRoots, reactiveRuleConnections);
-        buildGoalInformation(goalRoots, goalConnections);
+                      Map<Object, Object> goalConnections)
+    {
+        buildChains(reactiveRulesRootMap, reactiveRuleRoots, reactiveRuleConnections);
+        buildChains(goalsRootMap, goalRoots, goalConnections);
+        addGoalDefinitions();
     }
 
-    private void buildGoalInformation(Map<Object, Object> goalRoots, Map<Object, Object> goalConnections) {
-
+    private void addGoalDefinitions() {
+        // go through each root of reactive rules and add goal definitions
+        for(Entity root : reactiveRulesRootMap.values()){
+            addGoalDefinitions(root);
+        }
     }
 
-    private void buildReactiveRules(Map<Object, Object> reactiveRuleRoots, Map<Object, Object> reactiveRuleConnections) {
+    private void addGoalDefinitions(Entity e) {
+        Entity goalDef = goalsRootMap.get(e.getName());
+        // if definition exists for the entity
+        if(goalDef != null){
+            // if definition already added
+            if(e.hasDefinition()){
+                // if multiple definitions already exist
+                Entity existingGoalDef = e.getDefinition();
+                if(existingGoalDef.getName().equals("OR")){ //TODO make OR a constant?
+                    ((Choice) existingGoalDef).getEntities().add(goalDef);
+                } else {
+                    ArrayList<Entity> entities = new ArrayList<Entity>();
+                    entities.add(existingGoalDef);
+                    entities.add(goalDef);
+                    Choice choice = new Choice(entities);
+                    e.setDefinition(choice);
+                }
+            } else {
+                e.setDefinition(goalDef);
+            }
+        }
+
+        if(e.hasNext()){
+            addGoalDefinitions(e.getNext());
+        } else if (e.getName().equals("OR")){   //TODO make OR a constant (or make a method for checking it)
+            for(Entity child : ((Choice) e).getEntities()){
+                addGoalDefinitions(child);
+            }
+        }
+    }
+
+    private void buildChains(Map<String, Entity> rootMap, Map<Object, Object> goalRoots, Map<Object, Object> goalConnections) {
         // Build connections of entities
-        for(Object root : reactiveRuleRoots.keySet()){
+        for(Object root : goalRoots.keySet()){
             // connect Antecedent to the beginning of the Consequent
-            Entity next = (Entity) reactiveRuleRoots.get(root);
+            Entity next = (Entity) goalRoots.get(root);
             ((Entity)root).setNext(next);
             // connect the rest
-            connectEntities(next, reactiveRuleConnections);
+            connectEntities(next, goalConnections);
         }
 
         // Merge common roots
-        for(Object rootObj : reactiveRuleRoots.keySet()){
+        for(Object rootObj : goalRoots.keySet()){
             Entity root = (Entity) rootObj;
             String rootName = root.getName();
             if(rootMap.containsKey(rootName)){
@@ -77,7 +115,7 @@ public class StructureBuilder {
         connectEntities(entity, reactiveRuleConnections);
     }
 
-    public Map<String, Entity> getRootMap() {
-        return rootMap;
+    public Map<String, Entity> getReactiveRulesRootMap() {
+        return reactiveRulesRootMap;
     }
 }
