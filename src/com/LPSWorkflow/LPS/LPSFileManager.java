@@ -3,6 +3,7 @@ package com.LPSWorkflow.LPS;
 import com.LPSWorkflow.antlr.LPSLexer;
 import com.LPSWorkflow.antlr.LPSLoader;
 import com.LPSWorkflow.antlr.LPSParser;
+import com.LPSWorkflow.model.Entity;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -11,6 +12,7 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 
 /**
  * Deals with LPS files
@@ -50,7 +52,7 @@ public class LPSFileManager {
 
         StructureBuilder structureBuilder = new StructureBuilder();
         structureBuilder.build(loader.getReactiveRuleConnections(), loader.getGoalConnections());
-
+        Map<String,Entity> rootMap = structureBuilder.getRootMap();
         System.out.println(tree.toStringTree(parser));
 
     }

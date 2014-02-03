@@ -3,7 +3,6 @@ package com.LPSWorkflow.antlr;
 import com.LPSWorkflow.model.Action;
 import com.LPSWorkflow.model.PartialOrder;
 import org.antlr.v4.runtime.misc.NotNull;
-import org.antlr.v4.runtime.tree.TerminalNode;
 
 import java.util.HashMap;
 import java.util.List;
@@ -13,6 +12,9 @@ import java.util.Map;
  * Loads the parsed LPS program information into a structured data
  */
 public class LPSLoader extends LPSBaseListener {
+    //TODO LHS of R context must be conditions (not actions)
+    //TODO each side of Concurrent (:) must be conditions (not actions)
+
     public enum Parse{
         NONE, REACTIVE_RULES, GOALS
     }
