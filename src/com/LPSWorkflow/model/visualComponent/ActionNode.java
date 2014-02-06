@@ -13,10 +13,12 @@ public class ActionNode extends Node {
     private Group group;
     private Label text;
     private HBox goalDefinition;
+    private boolean isExpanded;
 
     public ActionNode(String name, HBox goalDefinition) {
         super(name);
         // TODO remove test
+
 
         if(goalDefinition != null){
             goalDefinition.setStyle("-fx-border-color:black; -fx-padding:18px;");
@@ -34,6 +36,15 @@ public class ActionNode extends Node {
         group.getChildren().addAll(this.text, this.goalDefinition);
         getChildren().add(group);
 
+        setExpanded(false);
+
+        this.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent mouseEvent) {
+                ActionNode sourceNode = (ActionNode) mouseEvent.getSource();
+                sourceNode.setExpanded(!sourceNode.isExpanded());
+            }
+        });
 //        this.setOnMouseDragged(new EventHandler<MouseEvent>() {
 //            @Override
 //            public void handle(MouseEvent mouseEvent) {
@@ -45,12 +56,19 @@ public class ActionNode extends Node {
 //            }
 //        });
 //
-//        this.setOnMouseClicked(new EventHandler<MouseEvent>() {
-//            @Override
-//            public void handle(MouseEvent mouseEvent) {
-//
-//            }
-//        });
+    }
+
+    private void setExpanded(boolean b) {
+        this.isExpanded = b;
+        this.goalDefinition.setVisible(b);
+    }
+
+    private boolean isExpanded() {
+        return isExpanded;
+    }
+
+    public boolean hasGoalDefinition(){
+        return goalDefinition != null;
     }
 
     //TODO clear up
