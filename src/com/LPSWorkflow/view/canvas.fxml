@@ -1,13 +1,14 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<?import javafx.scene.Group?>
 <GridPane fx:controller="com.LPSWorkflow.controller.CanvasController"
-          xmlns:fx="http://javafx.com/fxml">
+          xmlns:fx="http://javafx.com/fxml"
+        fx:id="parentGridPane">
     <Label fx:id="filePathLabel"
            GridPane.rowIndex="0">
     </Label>
-    <Group fx:id="contentGroup" GridPane.rowIndex="1" />
+    <ScrollPane fx:id="contentScrollPane" fitToHeight="true" fitToWidth="true"
+                prefHeight="500" GridPane.rowIndex="1" />
 
     <Button text="Draw" onAction="#handleDrawAction"
             GridPane.rowIndex="2"/>

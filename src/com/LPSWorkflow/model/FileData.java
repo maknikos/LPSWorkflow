@@ -21,7 +21,7 @@ public class FileData {
         return instance;
     }
 
-    private StringProperty filePath = new SimpleStringProperty(this, "str", "Default");
+    private StringProperty filePath = new SimpleStringProperty(this, "str", "/Users/elijah6/Documents/Project/MainProject/LPSWorkflow/src/com/LPSWorkflow/antlr/LPSprogram");
 
     public StringProperty filePathProperty(){
         return filePath;

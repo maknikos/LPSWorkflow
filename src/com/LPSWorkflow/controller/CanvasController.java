@@ -1,24 +1,38 @@
 package com.LPSWorkflow.controller;
 
 import com.LPSWorkflow.LPS.LPSFileManager;
+import com.LPSWorkflow.model.Choice;
+import com.LPSWorkflow.model.Entity;
 import com.LPSWorkflow.model.FileData;
+import com.LPSWorkflow.model.visualComponent.ActionNode;
+import com.LPSWorkflow.model.visualComponent.Arrow;
+import com.LPSWorkflow.model.visualComponent.ChoiceNode;
+import com.LPSWorkflow.model.visualComponent.Node;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.Group;
+import javafx.geometry.Pos;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.*;
 
 import java.net.URL;
+import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 /**
  * Controller for the main canvas
  */
 public class CanvasController implements Initializable {
+
     private FileData fileData;
     private LPSFileManager fileManager;
 
     @FXML
-    private Group contentGroup;
+    private GridPane parentGridPane;
+
+    @FXML
+    private ScrollPane contentScrollPane;
 
     @FXML
     private Label filePathLabel;
@@ -30,9 +44,10 @@ public class CanvasController implements Initializable {
 
         // Use the custom LPS parser to get data
         fileManager = new LPSFileManager();
-
-
-
+        ColumnConstraints cc = new ColumnConstraints();
+        cc.setFillWidth(true);
+        cc.setHgrow(Priority.ALWAYS);
+        parentGridPane.getColumnConstraints().add(cc);
     }
 
     //TODO change the name
@@ -41,7 +56,92 @@ public class CanvasController implements Initializable {
 
         //only draw when the file is open
         if(fileManager.isFileOpen()){
-            //drawReactiveRules();
+            drawProgram();
         }
+    }
+
+    private void drawProgram() {
+        Map<String,Entity> entityMap = fileManager.getEntityMap();
+
+        // each independent horizontal chain is stacked vertically
+        VBox rootsVBox = new VBox();
+        rootsVBox.setAlignment(Pos.CENTER);
+
+        //for each root entity, go through the chain and build the workflow diagram
+        for(Entity rootEntity : entityMap.values()){
+            rootsVBox.getChildren().add(buildWorkflowDiagram(rootEntity));
+        }
+
+        contentScrollPane.setContent(rootsVBox);
+    }
+
+    private HBox buildWorkflowDiagram(Entity rootEntity) {
+        if(rootEntity == null){
+            return null;
+        }
+
+        HBox resultHBox = new HBox();
+        resultHBox.setAlignment(Pos.CENTER_LEFT);
+        resultHBox.setStyle("-fx-padding:12px");
+
+        Entity currentEntity = rootEntity;
+
+        while(currentEntity != null){
+            String currName = currentEntity.getName();
+            Node currNode = null;
+
+            if(currName.equals("OR")){
+                currNode = new ChoiceNode(currName);
+                resultHBox.getChildren().addAll(new Arrow(0), currNode);
+
+                VBox optionsVBox = new VBox();
+                VBox optionsArrowVBox = new VBox();
+                optionsVBox.setAlignment(Pos.CENTER);
+                optionsArrowVBox.setAlignment(Pos.CENTER);
+
+                List<Entity> optionEntities = ((Choice) currentEntity).getEntities();
+                double[] angles = calculateAngleOfArrow(optionEntities.size());
+                for(int i = 0; i < angles.length; i++){
+                    optionsArrowVBox.getChildren().add(new Arrow(angles[i]));
+                }
+
+                for(Entity option : optionEntities){
+                    optionsVBox.getChildren().add(buildWorkflowDiagram(option));
+                }
+                resultHBox.getChildren().add(optionsArrowVBox);
+                resultHBox.getChildren().add(optionsVBox);
+            } else {
+                currNode = new ActionNode(currName, buildWorkflowDiagram(currentEntity.getDefinition()));
+                resultHBox.getChildren().addAll(new Arrow(0), currNode);
+            }
+
+            currentEntity = currentEntity.getNext();
+        }
+        //remove the first redundant arrow
+        resultHBox.getChildren().remove(0);
+        return resultHBox;
+    }
+
+    //TODO crude angle calculation.... replace with actual start and end coordinates
+    private double[] calculateAngleOfArrow(int childCount) {
+        // assume height of an entity is 40, width of arrow is 50 for simplicity
+        double[] resultArray = new double[childCount];
+        int numHeights = childCount - 1;
+
+        double maxAngle = Math.toDegrees(Math.atan((numHeights * 60) / 50.0));
+
+        double intervalAngle = maxAngle/(childCount/2);
+
+        for(int i = 0; i < childCount/2; i++){
+            resultArray[i] = maxAngle - (intervalAngle * i);
+            resultArray[childCount - i - 1] = resultArray[i] * -1;
+        }
+
+        //if odd number, need to put the centre arrow
+        if(childCount % 2 == 1){
+            resultArray[((childCount + 1)/2) + 1] = 0;
+        }
+
+        return resultArray;
     }
 }
