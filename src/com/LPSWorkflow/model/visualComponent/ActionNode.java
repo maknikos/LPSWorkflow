@@ -1,11 +1,11 @@
 package com.LPSWorkflow.model.visualComponent;
 
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 
 /**
@@ -23,49 +23,46 @@ public class ActionNode extends Node {
         super(name);
 
         if(goalDefinition != null){
-            goalDefinition.setStyle("-fx-border-color:black; -fx-padding:18px;");
+            goalDefinition.setStyle("-fx-border-color:black;");
             this.goalDefinition = goalDefinition;
         } else {
             this.goalDefinition = new VBox();
         }
 
-        this.group = new Group();
+        group = new Group();
 
-        this.expandButton = new Button("+");
-        this.expandButton.setVisible(hasGoalDefinition());
-        this.text = new Label(name);
-        this.text.setStyle("-fx-border-color:black; -fx-font-size:25px");
-        this.text.setPrefSize(width, height);
-        this.text.setAlignment(Pos.CENTER);
+        expandButton = new Button("+");
+        expandButton.setVisible(hasGoalDefinition());
+        text = new Label(name);
+        text.setStyle("-fx-border-color:black; -fx-font-size:25px");
+        text.setPrefSize(width, height);
+        text.setAlignment(Pos.CENTER);
 
-        group.getChildren().addAll(this.text, this.goalDefinition);
-        getChildren().addAll(group, this.expandButton);
+        group.getChildren().addAll(text, this.goalDefinition);
+        getChildren().addAll(group, expandButton);
 
         setExpanded(false);
 
-        this.expandButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
+        // When clicked on expand button, it will show goal definitions ("expand")
+        expandButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
-            public void handle(MouseEvent mouseEvent) {
-                ActionNode sourceNode = (ActionNode) ((Button) mouseEvent.getSource()).getParent();
+            public void handle(ActionEvent actionEvent) {
+                ActionNode sourceNode = (ActionNode) ((Button) actionEvent.getSource()).getParent();
                 sourceNode.setExpanded(!sourceNode.isExpanded());
             }
         });
-//        this.setOnMouseDragged(new EventHandler<MouseEvent>() {
-//            @Override
-//            public void handle(MouseEvent mouseEvent) {
-//                System.out.println(
-//                        String.format("%s is being dragged to (%f:%f) which is (%f:%f)",
-//                                getName(), mouseEvent.getSceneX(), mouseEvent.getSceneY(),
-//                                mouseEvent.getX(), mouseEvent.getY()
-//                        ));
-//            }
-//        });
-//
     }
 
     private void setExpanded(boolean b) {
-        this.isExpanded = b;
-        this.goalDefinition.setVisible(b);
+        isExpanded = b;
+        goalDefinition.setVisible(b);
+
+        //TODO there may be a better way to show the label
+        if(b){
+            text.setStyle("-fx-border-color:transparent; -fx-font-size:25px");
+        } else {
+            text.setStyle("-fx-border-color:black; -fx-font-size:25px");
+        }
     }
 
     private boolean isExpanded() {
@@ -73,6 +70,7 @@ public class ActionNode extends Node {
     }
 
     public boolean hasGoalDefinition(){
-        return goalDefinition.getChildren().size() > 0;
+        return goalDefinition != null
+                && goalDefinition.getChildren().size() > 0;
     }
 }

@@ -11,13 +11,17 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Loads the parsed LPS program information into a structured data
+ * Loads the parsed LPS program information into a structured data. The data includes
+ * a map of connections of entities in reactive rule definitions and goal definitions,
+ * a map of roots for reactive rules and goal definitions,
+ * a list of names of fluents.
  */
 public class LPSLoader extends LPSBaseListener {
     //TODO LHS of R context must be conditions (not actions)
     //TODO each side of Concurrent (:) must be conditions (not actions)
     //TODO it assumes that LHS of reactive rules cannot have Sequences
 
+    // enum indicating what the parser is parsing at the moment
     public enum Parse{
         NONE, REACTIVE_RULES, FLUENTS, GOALS
     }

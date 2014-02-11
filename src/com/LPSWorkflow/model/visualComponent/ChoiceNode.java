@@ -23,7 +23,6 @@ public class ChoiceNode extends Node {
         text = new Label(name);
         text.setStyle("-fx-padding:15px; -fx-font-size:25px");
 
-
         stackPane.getChildren().addAll(text, circleBorder);
         getChildren().addAll(stackPane);
     }

@@ -1,5 +1,6 @@
 package com.LPSWorkflow.model.visualComponent;
 
+import com.LPSWorkflow.common.Constants;
 import javafx.scene.Parent;
 
 /**
@@ -7,8 +8,8 @@ import javafx.scene.Parent;
  */
 public abstract class Node extends Parent {
     private String name;
-    protected final double width = 110;
-    protected final double height = 70;
+    protected final double width = Constants.NODE_WIDTH;
+    protected final double height = Constants.NODE_HEIGHT;
 
     protected Node(String name) {
         this.name = name;

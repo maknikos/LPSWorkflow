@@ -1,12 +1,14 @@
 package com.LPSWorkflow.controller;
 
 import com.LPSWorkflow.LPS.LPSFileManager;
+import com.LPSWorkflow.common.Constants;
 import com.LPSWorkflow.model.abstractComponent.Choice;
 import com.LPSWorkflow.model.abstractComponent.Entity;
 import com.LPSWorkflow.model.FileData;
 import com.LPSWorkflow.model.visualComponent.*;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
@@ -80,13 +82,14 @@ public class CanvasController implements Initializable {
 
         VBox resultVBox = new VBox();
         resultVBox.setAlignment(Pos.TOP_CENTER);
-        resultVBox.setStyle("-fx-padding:12px");
+        resultVBox.setPadding(new Insets(Constants.PADDING_WIDTH));
+        resultVBox.getChildren().add(new Arrow(0)); // initial entry arrow
 
         Entity currentEntity = rootEntity;
 
         while(currentEntity != null){
             String currName = currentEntity.getName();
-            Node currNode = null;
+            Node currNode;
 
             if(currName.equals("OR")){
                 currNode = new ChoiceNode(currName);
