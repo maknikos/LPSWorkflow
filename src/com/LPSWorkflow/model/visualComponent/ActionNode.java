@@ -14,6 +14,7 @@ import javafx.scene.layout.VBox;
 public class ActionNode extends Node {
     private Group group;
     private Label text;
+    private Button expandButton;
 
     private VBox goalDefinition;
     private boolean isExpanded;
@@ -30,23 +31,22 @@ public class ActionNode extends Node {
 
         this.group = new Group();
 
+        this.expandButton = new Button("+");
+        this.expandButton.setVisible(hasGoalDefinition());
         this.text = new Label(name);
         this.text.setStyle("-fx-border-color:black; -fx-font-size:25px");
         this.text.setPrefSize(width, height);
         this.text.setAlignment(Pos.CENTER);
 
-
-
-
         group.getChildren().addAll(this.text, this.goalDefinition);
-        getChildren().add(group);
+        getChildren().addAll(group, this.expandButton);
 
         setExpanded(false);
 
-        this.setOnMouseClicked(new EventHandler<MouseEvent>() {
+        this.expandButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent mouseEvent) {
-                ActionNode sourceNode = (ActionNode) mouseEvent.getSource();
+                ActionNode sourceNode = (ActionNode) ((Button) mouseEvent.getSource()).getParent();
                 sourceNode.setExpanded(!sourceNode.isExpanded());
             }
         });
@@ -73,6 +73,6 @@ public class ActionNode extends Node {
     }
 
     public boolean hasGoalDefinition(){
-        return goalDefinition != null;
+        return goalDefinition.getChildren().size() > 0;
     }
 }
