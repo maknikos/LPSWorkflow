@@ -21,17 +21,17 @@ public class Arrow extends Parent {
 
 
         if(((int) angle) == 0){
-            line = new Line(0,0,50,0);
+            line = new Line(0,0,0,50);
             line.setStrokeWidth(3);
 
-            head1 = new Line(4,0,0,3);
-            head2 = new Line(4,0,0,-3);
+            head1 = new Line(0,4,3,0);
+            head2 = new Line(0,4,-3,0);
             head1.setStrokeWidth(3);
-            head1.setTranslateX(24);
-            head1.setTranslateY(2);
             head2.setStrokeWidth(3);
-            head2.setTranslateX(24);
-            head2.setTranslateY(-2);
+            head1.setTranslateX(2);
+            head1.setTranslateY(24);
+            head2.setTranslateX(-2);
+            head2.setTranslateY(24);
 
             stackPane.getChildren().addAll(line, head1, head2);
         } else {

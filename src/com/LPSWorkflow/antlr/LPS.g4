@@ -4,13 +4,16 @@ grammar LPS;
 package com.LPSWorkflow.antlr;
 }
 
-program : (reactiveRules | goals)* ;
+program : (reactiveRules | goals | fluents)* ;
 
 reactiveRules   : 'ReactiveRules' '{' (r (END r)* )?  END? '}' ;
 r               : formula '->' formula ;
 
 goals   : 'Goals' '{' (g (END g)* )? END? '}' ;
 g       : atom '<-' formula ;
+
+fluents : 'Fluents' '{' (f (',' f)* )? ','? '}' ;
+f       : atom ;
 
 formula : formula ',' formula  # Sequence
         | formula ':' formula  # Concurrent

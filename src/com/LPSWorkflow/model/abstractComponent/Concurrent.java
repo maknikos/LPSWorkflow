@@ -1,4 +1,4 @@
-package com.LPSWorkflow.model;
+package com.LPSWorkflow.model.abstractComponent;
 
 import java.util.ArrayList;
 import java.util.List;

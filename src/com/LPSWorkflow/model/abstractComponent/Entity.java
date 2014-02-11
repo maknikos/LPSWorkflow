@@ -1,4 +1,4 @@
-package com.LPSWorkflow.model;
+package com.LPSWorkflow.model.abstractComponent;
 
 /**
  * An entity in the workflow diagram

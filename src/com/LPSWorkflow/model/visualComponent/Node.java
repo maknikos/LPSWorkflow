@@ -7,6 +7,8 @@ import javafx.scene.Parent;
  */
 public abstract class Node extends Parent {
     private String name;
+    protected final double width = 110;
+    protected final double height = 70;
 
     protected Node(String name) {
         this.name = name;
@@ -18,7 +20,4 @@ public abstract class Node extends Parent {
     public void setName(String name){
         this.name = name;
     }
-
-    public abstract double getWidth();
-    public abstract double getHeight();
 }

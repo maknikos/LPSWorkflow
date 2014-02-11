@@ -1,10 +1,11 @@
 package com.LPSWorkflow.antlr;
 
-import com.LPSWorkflow.model.Action;
-import com.LPSWorkflow.model.Concurrent;
-import com.LPSWorkflow.model.PartialOrder;
+import com.LPSWorkflow.model.abstractComponent.Action;
+import com.LPSWorkflow.model.abstractComponent.Concurrent;
+import com.LPSWorkflow.model.abstractComponent.PartialOrder;
 import org.antlr.v4.runtime.misc.NotNull;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,16 +19,18 @@ public class LPSLoader extends LPSBaseListener {
     //TODO it assumes that LHS of reactive rules cannot have Sequences
 
     public enum Parse{
-        NONE, REACTIVE_RULES, GOALS
+        NONE, REACTIVE_RULES, FLUENTS, GOALS
     }
 
     private Map<Object, Object> reactiveRuleRoots;
     private Map<Object, Object> goalRoots;
     private Map<Object, Object> reactiveRuleConnections;
     private Map<Object, Object> goalConnections;
+    private List<String> fluents;
     private Parse currentParseTarget;
 
     public LPSLoader() {
+        this.fluents = new ArrayList<String>();
         this.reactiveRuleConnections = new HashMap<Object, Object>();
         this.goalConnections = new HashMap<Object, Object>();
         this.reactiveRuleRoots = new HashMap<Object, Object>();
@@ -52,6 +55,16 @@ public class LPSLoader extends LPSBaseListener {
 
     @Override
     public void exitReactiveRules(@NotNull LPSParser.ReactiveRulesContext ctx) {
+        currentParseTarget = Parse.NONE;
+    }
+
+    @Override
+    public void enterFluents(@NotNull LPSParser.FluentsContext ctx) {
+        currentParseTarget = Parse.FLUENTS;
+    }
+
+    @Override
+    public void exitFluents(@NotNull LPSParser.FluentsContext ctx) {
         currentParseTarget = Parse.NONE;
     }
 
@@ -173,12 +186,24 @@ public class LPSLoader extends LPSBaseListener {
             return;
         }
 
-        // Replace all AtomicContexts with Action object
-        Action action = new Action(ctx.getText());
 
-        replaceKey(ctx, action);
-        replaceValues(ctx, action);
+        if(currentParseTarget == Parse.FLUENTS){
+            // when parsing fluents, just add their names
+            fluents.add(ctx.getText());
+        } else {
+            Action action = new Action(ctx.getText());
+            // Replace all AtomicContexts with Action object
+            replaceKey(ctx, action);
+            replaceValues(ctx, action);
+        }
+
     }
+
+    @Override
+    public void enterF(@NotNull LPSParser.FContext ctx) {
+        super.enterF(ctx);
+    }
+
 
     private void replaceValues(Object oldValue, Object newValue) {
         Map<Object, Object> connections = getConnections();
@@ -240,6 +265,11 @@ public class LPSLoader extends LPSBaseListener {
             default:
                 return null;
         }
+    }
+
+
+    public List<String> getFluents() {
+        return fluents;
     }
 
     public Map<Object, Object> getReactiveRuleConnections() {

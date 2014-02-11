@@ -19,6 +19,18 @@ public class LPSBaseListener implements LPSListener {
 	 * <p/>
 	 * The default implementation does nothing.
 	 */
+	@Override public void enterF(@NotNull LPSParser.FContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void exitF(@NotNull LPSParser.FContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
 	@Override public void enterAtom(@NotNull LPSParser.AtomContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -43,18 +55,6 @@ public class LPSBaseListener implements LPSListener {
 	 * <p/>
 	 * The default implementation does nothing.
 	 */
-	@Override public void enterGoals(@NotNull LPSParser.GoalsContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
-	@Override public void exitGoals(@NotNull LPSParser.GoalsContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
 	@Override public void enterReactiveRules(@NotNull LPSParser.ReactiveRulesContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -62,6 +62,18 @@ public class LPSBaseListener implements LPSListener {
 	 * The default implementation does nothing.
 	 */
 	@Override public void exitReactiveRules(@NotNull LPSParser.ReactiveRulesContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void enterAtomic(@NotNull LPSParser.AtomicContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void exitAtomic(@NotNull LPSParser.AtomicContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 * <p/>
@@ -79,13 +91,49 @@ public class LPSBaseListener implements LPSListener {
 	 * <p/>
 	 * The default implementation does nothing.
 	 */
-	@Override public void enterAtomic(@NotNull LPSParser.AtomicContext ctx) { }
+	@Override public void enterBracket(@NotNull LPSParser.BracketContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 * <p/>
 	 * The default implementation does nothing.
 	 */
-	@Override public void exitAtomic(@NotNull LPSParser.AtomicContext ctx) { }
+	@Override public void exitBracket(@NotNull LPSParser.BracketContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void enterFluents(@NotNull LPSParser.FluentsContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void exitFluents(@NotNull LPSParser.FluentsContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void enterConcurrent(@NotNull LPSParser.ConcurrentContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void exitConcurrent(@NotNull LPSParser.ConcurrentContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void enterGoals(@NotNull LPSParser.GoalsContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void exitGoals(@NotNull LPSParser.GoalsContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 * <p/>
@@ -115,18 +163,6 @@ public class LPSBaseListener implements LPSListener {
 	 * <p/>
 	 * The default implementation does nothing.
 	 */
-	@Override public void enterBracket(@NotNull LPSParser.BracketContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
-	@Override public void exitBracket(@NotNull LPSParser.BracketContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
 	@Override public void enterSequence(@NotNull LPSParser.SequenceContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -134,18 +170,6 @@ public class LPSBaseListener implements LPSListener {
 	 * The default implementation does nothing.
 	 */
 	@Override public void exitSequence(@NotNull LPSParser.SequenceContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
-	@Override public void enterConcurrent(@NotNull LPSParser.ConcurrentContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
-	@Override public void exitConcurrent(@NotNull LPSParser.ConcurrentContext ctx) { }
 
 	/**
 	 * {@inheritDoc}

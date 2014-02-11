@@ -1,7 +1,7 @@
 package com.LPSWorkflow.LPS;
 
-import com.LPSWorkflow.model.Choice;
-import com.LPSWorkflow.model.Entity;
+import com.LPSWorkflow.model.abstractComponent.Choice;
+import com.LPSWorkflow.model.abstractComponent.Entity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -44,7 +44,7 @@ public class StructureBuilder {
             if(e.hasDefinition()){
                 // if multiple definitions already exist
                 Entity existingGoalDef = e.getDefinition();
-                if(existingGoalDef.getName().equals("OR")){ //TODO make OR a constant?
+                if(isChoice(existingGoalDef)){
                     ((Choice) existingGoalDef).getEntities().add(goalDef);
                 } else {
                     ArrayList<Entity> entities = new ArrayList<Entity>();
@@ -60,7 +60,7 @@ public class StructureBuilder {
 
         if(e.hasNext()){
             addGoalDefinitions(e.getNext());
-        } else if (e.getName().equals("OR")){   //TODO make OR a constant (or make a method for checking it)
+        } else if (isChoice(e)){
             for(Entity child : ((Choice) e).getEntities()){
                 addGoalDefinitions(child);
             }
@@ -89,7 +89,7 @@ public class StructureBuilder {
                     rootMap.put(rootName, root);
                 } else if(root.getNext() == null) {
                     break;
-                } else if(existingNext.getName().equals("OR")) { //TODO make OR a constant?
+                } else if(isChoice(existingNext)) {
                     //Choice already exists, so just add the current to it.
                     ((Choice)existingNext).getEntities().add(root);
                 } else {
@@ -106,6 +106,10 @@ public class StructureBuilder {
         }
     }
 
+    public Map<String, Entity> getReactiveRulesRootMap() {
+        return reactiveRulesRootMap;
+    }
+
     private void connectEntities(Entity e, Map<Object, Object> reactiveRuleConnections) {
         if(e == null){
             return;
@@ -115,7 +119,7 @@ public class StructureBuilder {
         connectEntities(entity, reactiveRuleConnections);
     }
 
-    public Map<String, Entity> getReactiveRulesRootMap() {
-        return reactiveRulesRootMap;
+    private boolean isChoice(Entity e) {
+        return e.getName().equals("OR");
     }
 }

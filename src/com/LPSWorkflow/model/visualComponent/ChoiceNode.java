@@ -37,14 +37,4 @@ public class ChoiceNode extends Node {
     public void setName(String name) {
 
     }
-
-    @Override
-    public double getWidth() {
-        return 0;
-    }
-
-    @Override
-    public double getHeight() {
-        return 0;
-    }
 }

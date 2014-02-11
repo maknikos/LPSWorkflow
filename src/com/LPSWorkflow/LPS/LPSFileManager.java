@@ -3,7 +3,7 @@ package com.LPSWorkflow.LPS;
 import com.LPSWorkflow.antlr.LPSLexer;
 import com.LPSWorkflow.antlr.LPSLoader;
 import com.LPSWorkflow.antlr.LPSParser;
-import com.LPSWorkflow.model.Entity;
+import com.LPSWorkflow.model.abstractComponent.Entity;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -12,6 +12,7 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -20,6 +21,7 @@ import java.util.Map;
 public class LPSFileManager {
     private boolean isFileOpen;
     private Map<String,Entity> entityMap;
+    private List<String> fluents;
 
     public LPSFileManager() {
         isFileOpen = false;
@@ -59,8 +61,13 @@ public class LPSFileManager {
         structureBuilder.build(loader.getReactiveRuleRoots(), loader.getReactiveRuleConnections(),
                 loader.getGoalRoots(), loader.getGoalConnections());
         this.entityMap = structureBuilder.getReactiveRulesRootMap();
+        this.fluents = loader.getFluents();
 
         this.isFileOpen = true;
+    }
+
+    public List<String> getFluents() {
+        return fluents;
     }
 
     public boolean isFileOpen(){

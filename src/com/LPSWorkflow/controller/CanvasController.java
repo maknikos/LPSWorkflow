@@ -1,13 +1,10 @@
 package com.LPSWorkflow.controller;
 
 import com.LPSWorkflow.LPS.LPSFileManager;
-import com.LPSWorkflow.model.Choice;
-import com.LPSWorkflow.model.Entity;
+import com.LPSWorkflow.model.abstractComponent.Choice;
+import com.LPSWorkflow.model.abstractComponent.Entity;
 import com.LPSWorkflow.model.FileData;
-import com.LPSWorkflow.model.visualComponent.ActionNode;
-import com.LPSWorkflow.model.visualComponent.Arrow;
-import com.LPSWorkflow.model.visualComponent.ChoiceNode;
-import com.LPSWorkflow.model.visualComponent.Node;
+import com.LPSWorkflow.model.visualComponent.*;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
@@ -62,27 +59,28 @@ public class CanvasController implements Initializable {
 
     private void drawProgram() {
         Map<String,Entity> entityMap = fileManager.getEntityMap();
+        List<String> fluents = fileManager.getFluents();
 
         // each independent horizontal chain is stacked vertically
-        VBox rootsVBox = new VBox();
-        rootsVBox.setAlignment(Pos.CENTER);
+        HBox rootsHBox = new HBox();
+        rootsHBox.setAlignment(Pos.CENTER);
 
         //for each root entity, go through the chain and build the workflow diagram
         for(Entity rootEntity : entityMap.values()){
-            rootsVBox.getChildren().add(buildWorkflowDiagram(rootEntity));
+            rootsHBox.getChildren().add(buildWorkflowDiagram(rootEntity, fluents));
         }
 
-        contentScrollPane.setContent(rootsVBox);
+        contentScrollPane.setContent(rootsHBox);
     }
 
-    private HBox buildWorkflowDiagram(Entity rootEntity) {
+    private VBox buildWorkflowDiagram(Entity rootEntity, List<String> fluents) {
         if(rootEntity == null){
             return null;
         }
 
-        HBox resultHBox = new HBox();
-        resultHBox.setAlignment(Pos.CENTER_LEFT);
-        resultHBox.setStyle("-fx-padding:12px");
+        VBox resultVBox = new VBox();
+        resultVBox.setAlignment(Pos.TOP_CENTER);
+        resultVBox.setStyle("-fx-padding:12px");
 
         Entity currentEntity = rootEntity;
 
@@ -92,34 +90,38 @@ public class CanvasController implements Initializable {
 
             if(currName.equals("OR")){
                 currNode = new ChoiceNode(currName);
-                resultHBox.getChildren().addAll(new Arrow(0), currNode);
+                resultVBox.getChildren().addAll(new Arrow(0), currNode);
 
-                VBox optionsVBox = new VBox();
-                VBox optionsArrowVBox = new VBox();
-                optionsVBox.setAlignment(Pos.CENTER);
-                optionsArrowVBox.setAlignment(Pos.CENTER);
+                HBox optionsHBox = new HBox();
+                HBox optionsArrowHBox = new HBox();
+                optionsHBox.setAlignment(Pos.CENTER);
+                optionsArrowHBox.setAlignment(Pos.CENTER);
 
                 List<Entity> optionEntities = ((Choice) currentEntity).getEntities();
                 double[] angles = calculateAngleOfArrow(optionEntities.size());
                 for(int i = 0; i < angles.length; i++){
-                    optionsArrowVBox.getChildren().add(new Arrow(angles[i]));
+                    optionsArrowHBox.getChildren().add(new Arrow(angles[i]));
                 }
 
                 for(Entity option : optionEntities){
-                    optionsVBox.getChildren().add(buildWorkflowDiagram(option));
+                    optionsHBox.getChildren().add(buildWorkflowDiagram(option, fluents));
                 }
-                resultHBox.getChildren().add(optionsArrowVBox);
-                resultHBox.getChildren().add(optionsVBox);
+                resultVBox.getChildren().add(optionsArrowHBox);
+                resultVBox.getChildren().add(optionsHBox);
             } else {
-                currNode = new ActionNode(currName, buildWorkflowDiagram(currentEntity.getDefinition()));
-                resultHBox.getChildren().addAll(new Arrow(0), currNode);
+                if(fluents.contains(currName)){
+                    currNode = new FluentNode(currName);
+                } else {
+                    currNode = new ActionNode(currName, buildWorkflowDiagram(currentEntity.getDefinition(), fluents));
+                }
+                resultVBox.getChildren().addAll(new Arrow(0), currNode);
             }
 
             currentEntity = currentEntity.getNext();
         }
         //remove the first redundant arrow
-        resultHBox.getChildren().remove(0);
-        return resultHBox;
+        resultVBox.getChildren().remove(0);
+        return resultVBox;
     }
 
     //TODO crude angle calculation.... replace with actual start and end coordinates
