@@ -157,7 +157,7 @@ public class LPSLoader extends LPSBaseListener {
     public void enterConcurrent(@NotNull LPSParser.ConcurrentContext ctx) {
         // Concurrent formulas are in the form: Formula ':' Formula
         List<LPSParser.FormulaContext> formulas = ctx.formula();
-
+        //TODO can it manager complex combination of other formulas?
         if(formulas.size() < 2){
             handleErrorCase();
             return;

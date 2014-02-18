@@ -2,10 +2,9 @@ package com.LPSWorkflow.controller;
 
 import com.LPSWorkflow.LPS.LPSFileManager;
 import com.LPSWorkflow.common.Constants;
-import com.LPSWorkflow.model.abstractComponent.MultiChildEntity;
-import com.LPSWorkflow.model.abstractComponent.Or;
-import com.LPSWorkflow.model.abstractComponent.Entity;
 import com.LPSWorkflow.model.FileData;
+import com.LPSWorkflow.model.abstractComponent.Entity;
+import com.LPSWorkflow.model.abstractComponent.MultiChildEntity;
 import com.LPSWorkflow.model.visualComponent.*;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -72,9 +71,7 @@ public class CanvasController implements Initializable {
         for(Entity rootEntity : entityMap.values()){
             rootsHBox.getChildren().add(buildWorkflowDiagram(rootEntity, fluents));
         }
-
         contentScrollPane.setContent(rootsHBox);
-
     }
 
     private VBox buildWorkflowDiagram(Entity rootEntity, List<String> fluents) {
