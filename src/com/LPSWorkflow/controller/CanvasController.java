@@ -74,6 +74,7 @@ public class CanvasController implements Initializable {
         }
 
         contentScrollPane.setContent(rootsHBox);
+
     }
 
     private VBox buildWorkflowDiagram(Entity rootEntity, List<String> fluents) {
@@ -100,8 +101,8 @@ public class CanvasController implements Initializable {
                     currNode = new AndNode(currName);
                 }
 
-                // draw an arrow and the node
-                resultVBox.getChildren().addAll(new Arrow(), currNode);
+                // draw the node and an arrow
+                resultVBox.getChildren().addAll(currNode, new Arrow());
 
                 HBox optionsHBox = new HBox();
                 HBox optionsArrowHBox = new HBox();
@@ -109,8 +110,6 @@ public class CanvasController implements Initializable {
                 optionsArrowHBox.setAlignment(Pos.CENTER);
 
                 List<Entity> optionEntities = ((MultiChildEntity) currentEntity).getEntities();
-                //for(int i = 0; i < optionEntities.size(); i++){
-                //}
 
                 for(Entity option : optionEntities){
                     VBox optionChain = buildWorkflowDiagram(option, fluents);
@@ -120,13 +119,19 @@ public class CanvasController implements Initializable {
                 resultVBox.getChildren().add(optionsArrowHBox);
                 resultVBox.getChildren().add(optionsHBox);
             } else {
-                if(isFluent(currName, fluents)){ //TODO make it into a method
+                if(isFluent(currName, fluents)){
                     currNode = new FluentNode(currName);
                 } else {
                     currNode = new ActionNode(currName, buildWorkflowDiagram(currentEntity.getDefinition(), fluents));
                 }
-                // draw an arrow and the node
-                resultVBox.getChildren().addAll(new Arrow(), currNode);
+
+                // draw the node and an arrow
+                if(fileManager.getEntityMap().keySet().contains(currName)){
+                    // use a special arrow for antecedent of a reactive rule
+                    resultVBox.getChildren().addAll(currNode, new ReactiveArrow());
+                } else {
+                    resultVBox.getChildren().addAll(currNode, new Arrow());
+                }
             }
 
             currentEntity = currentEntity.getNext();
