@@ -23,7 +23,7 @@ import java.util.ResourceBundle;
  * Controller for the main canvas
  */
 public class CanvasController implements Initializable {
-
+    private List<String> fluents;
     private FileData fileData;
     private LPSFileManager fileManager;
 
@@ -61,7 +61,7 @@ public class CanvasController implements Initializable {
 
     private void drawProgram() {
         Map<String,Entity> entityMap = fileManager.getEntityMap();
-        List<String> fluents = fileManager.getFluents();
+        fluents = fileManager.getFluents();
 
         // each independent horizontal chain is stacked vertically
         HBox rootsHBox = new HBox();
@@ -69,12 +69,12 @@ public class CanvasController implements Initializable {
 
         //for each root entity, go through the chain and build the workflow diagram
         for(Entity rootEntity : entityMap.values()){
-            rootsHBox.getChildren().add(buildWorkflowDiagram(rootEntity, fluents));
+            rootsHBox.getChildren().add(buildWorkflowDiagram(rootEntity));
         }
         contentScrollPane.setContent(rootsHBox);
     }
 
-    private VBox buildWorkflowDiagram(Entity rootEntity, List<String> fluents) {
+    private VBox buildWorkflowDiagram(Entity rootEntity) {
         VBox resultVBox = new VBox();
 
         if(rootEntity == null){
@@ -109,7 +109,7 @@ public class CanvasController implements Initializable {
                 List<Entity> optionEntities = ((MultiChildEntity) currentEntity).getEntities();
 
                 for(Entity option : optionEntities){
-                    VBox optionChain = buildWorkflowDiagram(option, fluents);
+                    VBox optionChain = buildWorkflowDiagram(option);
                     optionsArrowHBox.getChildren().add(new Arrow(/*currNode, optionChain*/));
                     optionsHBox.getChildren().add(optionChain);
                 }
@@ -119,7 +119,7 @@ public class CanvasController implements Initializable {
                 if(isFluent(currName, fluents)){
                     currNode = new FluentNode(currName);
                 } else {
-                    currNode = new ActionNode(currName, buildWorkflowDiagram(currentEntity.getDefinition(), fluents));
+                    currNode = new ActionNode(currName, buildWorkflowDiagram(currentEntity.getDefinition()));
                 }
 
                 // draw the node and an arrow
