@@ -8,12 +8,12 @@ import javafx.scene.shape.Circle;
 /**
  * Circular OR node that has multiple arrows going out from it
  */
-public class ChoiceNode extends Node {
+public class OrNode extends Node {
     private StackPane stackPane;
     private Label text;
     private Circle circleBorder;
 
-    public ChoiceNode(String name) {
+    public OrNode(String name) {
         super(name);
         stackPane = new StackPane();
         circleBorder = new Circle();

@@ -1,6 +1,8 @@
 package com.LPSWorkflow.model.visualComponent;
 
 import com.LPSWorkflow.common.Constants;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.scene.Parent;
 
 /**
@@ -14,11 +16,21 @@ public abstract class Node extends Parent {
     protected Node(String name) {
         this.name = name;
     }
-
     public String getName(){
         return name;
     }
+
     public void setName(String name){
         this.name = name;
+    }
+
+    @Override
+    public void relocate(double v, double v2) {
+        super.relocate(v, v2); // TODO remove if redundant
+    }
+
+    @Override
+    public void resize(double v, double v2) {
+        super.resize(v, v2);
     }
 }

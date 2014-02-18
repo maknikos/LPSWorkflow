@@ -1,6 +1,8 @@
 package com.LPSWorkflow.LPS;
 
-import com.LPSWorkflow.model.abstractComponent.Choice;
+import com.LPSWorkflow.model.abstractComponent.And;
+import com.LPSWorkflow.model.abstractComponent.MultiChildEntity;
+import com.LPSWorkflow.model.abstractComponent.Or;
 import com.LPSWorkflow.model.abstractComponent.Entity;
 
 import java.util.ArrayList;
@@ -24,8 +26,8 @@ public class StructureBuilder {
                       Map<Object, Object> goalRoots,
                       Map<Object, Object> goalConnections)
     {
-        buildChains(reactiveRulesRootMap, reactiveRuleRoots, reactiveRuleConnections);
-        buildChains(goalsRootMap, goalRoots, goalConnections);
+        buildReactiveRuleChains(reactiveRulesRootMap, reactiveRuleRoots, reactiveRuleConnections);
+        buildGoalChains(goalsRootMap, goalRoots, goalConnections);
         addGoalDefinitions();
     }
 
@@ -44,14 +46,14 @@ public class StructureBuilder {
             if(e.hasDefinition()){
                 // if multiple definitions already exist
                 Entity existingGoalDef = e.getDefinition();
-                if(isChoice(existingGoalDef)){
-                    ((Choice) existingGoalDef).getEntities().add(goalDef);
+                if(isOr(existingGoalDef)){
+                    ((Or) existingGoalDef).getEntities().add(goalDef);
                 } else {
                     ArrayList<Entity> entities = new ArrayList<Entity>();
                     entities.add(existingGoalDef);
                     entities.add(goalDef);
-                    Choice choice = new Choice(entities);
-                    e.setDefinition(choice);
+                    Or or = new Or(entities);
+                    e.setDefinition(or);
                 }
             } else {
                 e.setDefinition(goalDef);
@@ -60,14 +62,55 @@ public class StructureBuilder {
 
         if(e.hasNext()){
             addGoalDefinitions(e.getNext());
-        } else if (isChoice(e)){
-            for(Entity child : ((Choice) e).getEntities()){
+        } else if (isOr(e) || isAnd(e)){
+            for(Entity child : ((MultiChildEntity) e).getEntities()){
                 addGoalDefinitions(child);
             }
         }
     }
 
-    private void buildChains(Map<String, Entity> rootMap, Map<Object, Object> goalRoots, Map<Object, Object> goalConnections) {
+    private void buildReactiveRuleChains(Map<String, Entity> rootMap,
+                                         Map<Object, Object> ruleRoots, Map<Object, Object> ruleConnections) {
+        // Build connections of entities
+        for(Object root : ruleRoots.keySet()){
+            // connect Antecedent to the beginning of the Consequent
+            Entity next = (Entity) ruleRoots.get(root);
+            ((Entity)root).setNext(next);
+            // connect the rest
+            connectEntities(next, ruleConnections);
+        }
+
+        // Merge common roots
+        for(Object rootObj : ruleRoots.keySet()){
+            Entity root = (Entity) rootObj;
+            String rootName = root.getName();
+            if(rootMap.containsKey(rootName)){
+                Entity existingRoot = rootMap.get(rootName);
+                Entity existingNext = existingRoot.getNext();
+                if(existingNext == null){
+                    // no next element for the node, so just replace
+                    rootMap.put(rootName, root);
+                } else if(root.getNext() == null) {
+                    break;
+                } else if(isAnd(existingNext)) {
+                    //AND already exists, so just add the current to it.
+                    ((And)existingNext).getEntities().add(root);
+                } else {
+                    // Otherwise, make an AND and add the next entities as its children
+                    ArrayList<Entity> entities = new ArrayList<Entity>();
+                    entities.add(existingNext);
+                    entities.add(root.getNext());
+                    And and = new And(entities);
+                    existingRoot.setNext(and);
+                }
+            } else {
+                rootMap.put(rootName, root);
+            }
+        }
+    }
+
+    private void buildGoalChains(Map<String, Entity> rootMap,
+                                 Map<Object, Object> goalRoots, Map<Object, Object> goalConnections) {
         // Build connections of entities
         for(Object root : goalRoots.keySet()){
             // connect Antecedent to the beginning of the Consequent
@@ -89,16 +132,16 @@ public class StructureBuilder {
                     rootMap.put(rootName, root);
                 } else if(root.getNext() == null) {
                     break;
-                } else if(isChoice(existingNext)) {
-                    //Choice already exists, so just add the current to it.
-                    ((Choice)existingNext).getEntities().add(root);
+                } else if(isOr(existingNext)) {
+                    //OR already exists, so just add the current to it.
+                    ((Or)existingNext).getEntities().add(root);
                 } else {
-                    // Otherwise, make a choice and add the next entities as its children
+                    // Otherwise, make an Or and add the next entities as its children
                     ArrayList<Entity> entities = new ArrayList<Entity>();
                     entities.add(existingNext);
                     entities.add(root.getNext());
-                    Choice choice = new Choice(entities);
-                    existingRoot.setNext(choice);
+                    Or or = new Or(entities);
+                    existingRoot.setNext(or);
                 }
             } else {
                 rootMap.put(rootName, root);
@@ -119,7 +162,11 @@ public class StructureBuilder {
         connectEntities(entity, reactiveRuleConnections);
     }
 
-    private boolean isChoice(Entity e) {
+    private boolean isOr(Entity e) {
         return e.getName().equals("OR");
+    }
+
+    private boolean isAnd(Entity e) {
+        return e.getName().equals("AND");
     }
 }

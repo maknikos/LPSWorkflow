@@ -2,7 +2,8 @@ package com.LPSWorkflow.controller;
 
 import com.LPSWorkflow.LPS.LPSFileManager;
 import com.LPSWorkflow.common.Constants;
-import com.LPSWorkflow.model.abstractComponent.Choice;
+import com.LPSWorkflow.model.abstractComponent.MultiChildEntity;
+import com.LPSWorkflow.model.abstractComponent.Or;
 import com.LPSWorkflow.model.abstractComponent.Entity;
 import com.LPSWorkflow.model.FileData;
 import com.LPSWorkflow.model.visualComponent.*;
@@ -76,14 +77,15 @@ public class CanvasController implements Initializable {
     }
 
     private VBox buildWorkflowDiagram(Entity rootEntity, List<String> fluents) {
+        VBox resultVBox = new VBox();
+
         if(rootEntity == null){
-            return null;
+            return resultVBox; // TODo return null? will give an exception when trying to add it to rootsHBox above
         }
 
-        VBox resultVBox = new VBox();
         resultVBox.setAlignment(Pos.TOP_CENTER);
         resultVBox.setPadding(new Insets(Constants.PADDING_WIDTH));
-        resultVBox.getChildren().add(new Arrow(0)); // initial entry arrow
+        resultVBox.getChildren().add(new Arrow()); // initial entry arrow
 
         Entity currentEntity = rootEntity;
 
@@ -91,33 +93,40 @@ public class CanvasController implements Initializable {
             String currName = currentEntity.getName();
             Node currNode;
 
-            if(currName.equals("OR")){
-                currNode = new ChoiceNode(currName);
-                resultVBox.getChildren().addAll(new Arrow(0), currNode);
+            if(currName.equals("OR") || currName.equals("AND")){  //TODO better way to distinguish multi-child entities?
+                if(currName.equals("OR")){
+                    currNode = new OrNode(currName);
+                } else {
+                    currNode = new AndNode(currName);
+                }
+
+                // draw an arrow and the node
+                resultVBox.getChildren().addAll(new Arrow(), currNode);
 
                 HBox optionsHBox = new HBox();
                 HBox optionsArrowHBox = new HBox();
                 optionsHBox.setAlignment(Pos.CENTER);
                 optionsArrowHBox.setAlignment(Pos.CENTER);
 
-                List<Entity> optionEntities = ((Choice) currentEntity).getEntities();
-                double[] angles = calculateAngleOfArrow(optionEntities.size());
-                for(int i = 0; i < angles.length; i++){
-                    optionsArrowHBox.getChildren().add(new Arrow(angles[i]));
-                }
+                List<Entity> optionEntities = ((MultiChildEntity) currentEntity).getEntities();
+                //for(int i = 0; i < optionEntities.size(); i++){
+                //}
 
                 for(Entity option : optionEntities){
-                    optionsHBox.getChildren().add(buildWorkflowDiagram(option, fluents));
+                    VBox optionChain = buildWorkflowDiagram(option, fluents);
+                    optionsArrowHBox.getChildren().add(new Arrow(/*currNode, optionChain*/));
+                    optionsHBox.getChildren().add(optionChain);
                 }
                 resultVBox.getChildren().add(optionsArrowHBox);
                 resultVBox.getChildren().add(optionsHBox);
             } else {
-                if(fluents.contains(currName)){
+                if(isFluent(currName, fluents)){ //TODO make it into a method
                     currNode = new FluentNode(currName);
                 } else {
                     currNode = new ActionNode(currName, buildWorkflowDiagram(currentEntity.getDefinition(), fluents));
                 }
-                resultVBox.getChildren().addAll(new Arrow(0), currNode);
+                // draw an arrow and the node
+                resultVBox.getChildren().addAll(new Arrow(), currNode);
             }
 
             currentEntity = currentEntity.getNext();
@@ -127,26 +136,34 @@ public class CanvasController implements Initializable {
         return resultVBox;
     }
 
-    //TODO crude angle calculation.... replace with actual start and end coordinates
-    private double[] calculateAngleOfArrow(int childCount) {
-        // assume height of an entity is 40, width of arrow is 50 for simplicity
-        double[] resultArray = new double[childCount];
-        int numHeights = childCount - 1;
-
-        double maxAngle = Math.toDegrees(Math.atan((numHeights * 60) / 50.0));
-
-        double intervalAngle = maxAngle/(childCount/2);
-
-        for(int i = 0; i < childCount/2; i++){
-            resultArray[i] = maxAngle - (intervalAngle * i);
-            resultArray[childCount - i - 1] = resultArray[i] * -1;
-        }
-
-        //if odd number, need to put the centre arrow
-        if(childCount % 2 == 1){
-            resultArray[((childCount + 1)/2) + 1] = 0;
-        }
-
-        return resultArray;
+    private boolean isFluent(String currName, List<String> fluents) {
+        return fluents.contains(currName)
+                || (currName.contains("!") && fluents.contains(currName.substring(1))) // negation
+                || (currName.contains(":")); // concurrent
     }
+
+
+    // TODO clear up
+//    //TODO crude angle calculation.... replace with actual start and end coordinates
+//    private double[] calculateAngleOfArrow(int childCount) {
+//        // assume height of an entity is 40, width of arrow is 50 for simplicity
+//        double[] resultArray = new double[childCount];
+//        int numHeights = childCount - 1;
+//
+//        double maxAngle = Math.toDegrees(Math.atan((numHeights * 60) / 50.0));
+//
+//        double intervalAngle = maxAngle/(childCount/2);
+//
+//        for(int i = 0; i < childCount/2; i++){
+//            resultArray[i] = maxAngle - (intervalAngle * i);
+//            resultArray[childCount - i - 1] = resultArray[i] * -1;
+//        }
+//
+//        //if odd number, need to put the centre arrow
+//        if(childCount % 2 == 1){
+//            resultArray[((childCount + 1)/2) + 1] = 0;
+//        }
+//
+//        return resultArray;
+//    }
 }
