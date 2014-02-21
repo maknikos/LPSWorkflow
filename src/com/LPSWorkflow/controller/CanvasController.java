@@ -10,7 +10,6 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Group;
-import javafx.scene.control.Label;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.*;
 
@@ -36,13 +35,9 @@ public class CanvasController implements Initializable {
     @FXML
     private Pane contentPane; // TODO BorderPane?
 
-    @FXML
-    private Label filePathLabel;
-
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         fileData = FileData.getInstance();
-        filePathLabel.textProperty().bind(fileData.filePathProperty());
         displayMap = new HashMap<Entity, Node>();
 
         // Use the custom LPS parser to get data
@@ -78,10 +73,9 @@ public class CanvasController implements Initializable {
             resultGroup = new Group();
             buildWorkflowDiagram(resultGroup, rootEntity, initX, initY, true);
             resultHBox.getChildren().add(resultGroup);
-            //initX += resultGroup.getLayoutBounds().getWidth() + Constants.NODE_HORIZONTAL_GAP;
+            //initX += resultGroup.getLayoutBounds().getWidth() + Constants.NODE_HORIZONTAL_GAP; TODO
         }
         contentPane.getChildren().add(resultHBox);
-        //contentPane.setContent(resultGroup);
 
         //TODO allow SPACE + mouse-drag as well?
         // move view point using scroll

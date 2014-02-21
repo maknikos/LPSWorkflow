@@ -36,10 +36,14 @@ public class LPSFileManager {
      * @param fileData The path of the file.
      */
     public void openFile(String fileData) {
-        InputStream is = System.in;
+        InputStream is;
         ANTLRInputStream input = null;
         try {
-            if ( fileData!=null ) is = new FileInputStream(fileData);
+            if (fileData != null) {
+                is = new FileInputStream(fileData);
+            } else {
+                return;
+            }
             input = new ANTLRInputStream(is);
         } catch (IOException e) {
             e.printStackTrace();

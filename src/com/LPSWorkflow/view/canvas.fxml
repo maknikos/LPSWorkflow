@@ -4,13 +4,9 @@
 <GridPane fx:controller="com.LPSWorkflow.controller.CanvasController"
           xmlns:fx="http://javafx.com/fxml"
         fx:id="parentGridPane">
-    <Label fx:id="filePathLabel"
-           GridPane.rowIndex="0">
-    </Label>
-
     <Pane fx:id="contentPane"
-                prefHeight="500" GridPane.rowIndex="1" />
+                prefHeight="500" GridPane.rowIndex="0" />
 
     <Button text="Draw" onAction="#handleDrawAction"
-            GridPane.rowIndex="2"/>
+            GridPane.rowIndex="1"/>
 </GridPane>

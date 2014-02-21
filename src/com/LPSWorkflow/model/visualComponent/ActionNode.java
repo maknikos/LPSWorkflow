@@ -1,7 +1,5 @@
 package com.LPSWorkflow.model.visualComponent;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
@@ -9,7 +7,6 @@ import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
 import java.util.ArrayList;
@@ -79,8 +76,12 @@ public class ActionNode extends Node {
                 boolean intersects = false;
                 List<Node> relevantChildren = new ArrayList<Node>();
                 for(javafx.scene.Node node : parentGroup.getChildren()){
+                    Bounds nodeBounds = node.getBoundsInParent();
                     // should only include Nodes, excluding itself
-                    if(node instanceof Node && !source.equals(node)){
+                    // also, only the ones not below this expanding node, and to the right.
+                    if(node instanceof Node && !source.equals(node)
+                            && prevSourceBounds.getMaxX() < nodeBounds.getMinX()
+                            && sourceBounds.getMaxY() > nodeBounds.getMinY()){
                         relevantChildren.add((Node)node);
                         intersects = intersects || sourceBounds.intersects(node.getBoundsInParent());
                     }
@@ -88,16 +89,11 @@ public class ActionNode extends Node {
 
                 if(intersects){
                     for(Node node : relevantChildren){
-                        Bounds nodeBounds = node.getBoundsInParent();
                         // push sideways
                         double prevX = node.getLayoutX();
-                        if(prevSourceBounds.getMaxX() < nodeBounds.getMinX()
-                                && sourceBounds.getMaxY() > nodeBounds.getMinY()){
-                            double moveX = sourceBounds.getWidth() - prevSourceBounds.getWidth();
-                            nodesPushed.put(node, moveX);
-                            node.setLayoutX(prevX + moveX);
-                        }
-
+                        double moveX = sourceBounds.getWidth() - prevSourceBounds.getWidth();
+                        nodesPushed.put(node, moveX);
+                        node.setLayoutX(prevX + moveX);
                     }
                 }
             }

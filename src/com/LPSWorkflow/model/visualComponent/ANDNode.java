@@ -13,14 +13,14 @@ public class AndNode extends Node {
     private Label text;
     private Circle circleBorder;
 
-    public AndNode(String name) {
-        super(name);
+    public AndNode() {
+        super("AND");
         stackPane = new StackPane();
         circleBorder = new Circle();
         circleBorder.setRadius(30);
         circleBorder.setFill(Paint.valueOf("Transparent"));
         circleBorder.setStroke(Paint.valueOf("Black"));
-        text = new Label(name);
+        text = new Label("AND");
         text.setStyle("-fx-padding:15px; -fx-font-size:25px");
 
         stackPane.getChildren().addAll(text, circleBorder);
