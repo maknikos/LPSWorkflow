@@ -1,9 +1,9 @@
 package com.LPSWorkflow.LPS;
 
 import com.LPSWorkflow.model.abstractComponent.And;
+import com.LPSWorkflow.model.abstractComponent.Entity;
 import com.LPSWorkflow.model.abstractComponent.MultiChildEntity;
 import com.LPSWorkflow.model.abstractComponent.Or;
-import com.LPSWorkflow.model.abstractComponent.Entity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,7 +14,7 @@ import java.util.Map;
  */
 public class StructureBuilder {
     private Map<String, Entity> reactiveRulesRootMap;
-    private Map<String, Entity> goalsRootMap;
+    private Map<String, Entity> goalsRootMap; //TODO make use of this from visualiser?
 
     public StructureBuilder() {
         this.reactiveRulesRootMap = new HashMap<String, Entity>();
@@ -47,7 +47,7 @@ public class StructureBuilder {
                 // if multiple definitions already exist
                 Entity existingGoalDef = e.getDefinition();
                 if(isOr(existingGoalDef)){
-                    ((Or) existingGoalDef).getEntities().add(goalDef);
+                    ((Or) existingGoalDef).getNextEntities().add(goalDef);
                 } else {
                     ArrayList<Entity> entities = new ArrayList<Entity>();
                     entities.add(existingGoalDef);
@@ -63,7 +63,7 @@ public class StructureBuilder {
         if(e.hasNext()){
             addGoalDefinitions(e.getNext());
         } else if (isOr(e) || isAnd(e)){
-            for(Entity child : ((MultiChildEntity) e).getEntities()){
+            for(Entity child : ((MultiChildEntity) e).getNextEntities()){
                 addGoalDefinitions(child);
             }
         }
@@ -85,18 +85,18 @@ public class StructureBuilder {
             Entity root = (Entity) rootObj;
             String rootName = root.getName();
             if(rootMap.containsKey(rootName)){
-                Entity existingRoot = rootMap.get(rootName);
-                Entity existingNext = existingRoot.getNext();
-                if(existingNext == null){
-                    // no next element for the node, so just replace
-                    rootMap.put(rootName, root);
-                } else if(root.getNext() == null) {
+                // Same root already exists. Merge the reactive rule roots by AND.
+                Entity existingRoot = rootMap.get(rootName); //TODO may need to group together the antecedents?
+                Entity existingNext = existingRoot.getNext(); // Either the next entity or an AND
+
+                if(root.getNext() == null) {
+                    // if it does not have next entity, ignore it
                     break;
-                } else if(isAnd(existingNext)) {
-                    //AND already exists, so just add the current to it.
-                    ((And)existingNext).getEntities().add(root);
+                } else if(!existingNext.hasSingleChild()) {
+                    // if the next is already multiChildEntity, add to its children
+                    ((MultiChildEntity)existingNext).getNextEntities().add(root.getNext());
                 } else {
-                    // Otherwise, make an AND and add the next entities as its children
+                    // if the next is a singleChildEntity, create AND entity and add
                     ArrayList<Entity> entities = new ArrayList<Entity>();
                     entities.add(existingNext);
                     entities.add(root.getNext());
@@ -120,23 +120,22 @@ public class StructureBuilder {
             connectEntities(next, goalConnections);
         }
 
-        // Merge common roots
         for(Object rootObj : goalRoots.keySet()){
             Entity root = (Entity) rootObj;
             String rootName = root.getName();
             if(rootMap.containsKey(rootName)){
+                // Same root already exists. Merge the goal roots by OR.
                 Entity existingRoot = rootMap.get(rootName);
-                Entity existingNext = existingRoot.getNext();
-                if(existingNext == null){
-                    // no next element for the node, so just replace
-                    rootMap.put(rootName, root);
-                } else if(root.getNext() == null) {
+                Entity existingNext = existingRoot.getNext(); // Either the next entity or an OR
+
+                if(root.getNext() == null) {
+                    // if it does not have next entity, ignore it
                     break;
-                } else if(isOr(existingNext)) {
-                    //OR already exists, so just add the current to it.
-                    ((Or)existingNext).getEntities().add(root);
+                } else if(!existingNext.hasSingleChild()) {
+                    // if the next is already multiChildEntity, add to its children
+                    ((MultiChildEntity)existingNext).getNextEntities().add(root.getNext());
                 } else {
-                    // Otherwise, make an Or and add the next entities as its children
+                    // if the next is a singleChildEntity, create OR entity and add
                     ArrayList<Entity> entities = new ArrayList<Entity>();
                     entities.add(existingNext);
                     entities.add(root.getNext());

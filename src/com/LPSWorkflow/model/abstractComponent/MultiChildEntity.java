@@ -6,24 +6,19 @@ import java.util.List;
  * Entities with multiple children
  */
 public abstract class MultiChildEntity extends Entity {
-    protected List<Entity> entities;
+    protected List<Entity> nextEntities;
 
-    public MultiChildEntity(String name, List<Entity> entities) {
+    public MultiChildEntity(String name, List<Entity> nextEntities) {
         super(name);
-        this.entities = entities;
+        this.nextEntities = nextEntities;
     }
 
-    public List<Entity> getEntities() {
-        return entities;
+    public List<Entity> getNextEntities() {
+        return nextEntities;
     }
 
     @Override
-    public int getChildCount() {
-        if(entities == null){
-            return 0;
-        } else {
-            return entities.size();
-        }
-    } //TODO using this to distinguish multi-child entities from others
-        // relies on there being more than 1 child ... which must hold, but not enforced in the program.
+    public boolean hasSingleChild() {
+        return false;
+    }
 }

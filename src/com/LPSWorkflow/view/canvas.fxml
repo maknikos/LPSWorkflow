@@ -7,7 +7,8 @@
     <Label fx:id="filePathLabel"
            GridPane.rowIndex="0">
     </Label>
-    <ScrollPane fx:id="contentScrollPane" fitToHeight="true" fitToWidth="true"
+
+    <Pane fx:id="contentPane"
                 prefHeight="500" GridPane.rowIndex="1" />
 
     <Button text="Draw" onAction="#handleDrawAction"

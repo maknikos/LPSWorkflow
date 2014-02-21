@@ -1,11 +1,9 @@
 package com.LPSWorkflow.model.abstractComponent;
 
-import javafx.scene.Parent;
-
 /**
- * An entity in the workflow diagram
+ * An abstract entity in the workflow diagram
  */
-public abstract class Entity extends Parent {
+public abstract class Entity {
     private String name;
     private Entity next;
     private Entity definition;
@@ -46,7 +44,7 @@ public abstract class Entity extends Parent {
         return name;
     }
 
-    public int getChildCount(){
-        return 1;
+    public boolean hasSingleChild(){
+        return true;
     }
 }

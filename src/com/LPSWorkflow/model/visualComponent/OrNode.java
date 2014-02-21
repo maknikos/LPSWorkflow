@@ -1,5 +1,6 @@
 package com.LPSWorkflow.model.visualComponent;
 
+import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Paint;
@@ -13,14 +14,16 @@ public class OrNode extends Node {
     private Label text;
     private Circle circleBorder;
 
-    public OrNode(String name) {
-        super(name);
+    public OrNode() {
+        super("OR");
         stackPane = new StackPane();
+        stackPane.setAlignment(Pos.CENTER);
+        stackPane.setMinSize(width, height);
         circleBorder = new Circle();
         circleBorder.setRadius(30);
         circleBorder.setFill(Paint.valueOf("Transparent"));
         circleBorder.setStroke(Paint.valueOf("Black"));
-        text = new Label(name);
+        text = new Label("OR");
         text.setStyle("-fx-padding:15px; -fx-font-size:25px");
 
         stackPane.getChildren().addAll(text, circleBorder);

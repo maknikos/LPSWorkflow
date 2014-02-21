@@ -23,14 +23,4 @@ public abstract class Node extends Parent {
     public void setName(String name){
         this.name = name;
     }
-
-    @Override
-    public void relocate(double v, double v2) {
-        super.relocate(v, v2); // TODO remove if redundant
-    }
-
-    @Override
-    public void resize(double v, double v2) {
-        super.resize(v, v2);
-    }
 }

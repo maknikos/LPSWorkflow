@@ -1,106 +1,84 @@
 package com.LPSWorkflow.model.visualComponent;
 
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.SimpleDoubleProperty;
+import com.LPSWorkflow.common.Constants;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.geometry.Bounds;
 import javafx.scene.Parent;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
-import javafx.scene.shape.Line;
-import javafx.scene.shape.LineTo;
-import javafx.scene.shape.MoveTo;
-import javafx.scene.shape.Path;
+import javafx.scene.shape.*;
 
 /**
  * Draw an arrow consisting of three lines (line and two heads)
  */
 public class Arrow extends Parent {
-    /**
-     * The coordinates for centre of the Node where input arrow points to
-     */
-    private DoubleProperty inputPointX = new SimpleDoubleProperty();
-    private DoubleProperty inputPointY = new SimpleDoubleProperty();
+    final Path path;
+    final MoveTo startPoint;
+    final LineTo line1;
+    final LineTo line2;
+    final LineTo endPoint;
+    final Line head1;
+    final Line head2;
 
-    public DoubleProperty inputPointXProperty(){
-        return inputPointX;
-    }
+    public Arrow(final Node startNode, final Node endNode) {
+        path = new Path();
+        path.setStrokeWidth(1);
 
-    public final double getInputPointX() {
-        return inputPointX.get();
-    }
+        startPoint = new MoveTo(0, 0);
+        line1 = new LineTo(0, 0); // intermediate points
+        line2 = new LineTo(0, 0); // TODO change shape
+        endPoint = new LineTo(0, 0);
 
-    public final void setInputPointX(double x) {
-        this.inputPointX.set(x);
-    }
+        head1 = new Line(0,0,0,0);
+        head2 = new Line(0,0,0,0);
+        getChildren().addAll(path, head1, head2);
 
-    public DoubleProperty inputPointYProperty(){
-        return inputPointY;
-    }
+        if(startNode == null){
+            // if there is no start node, draw a straight line from endNode
+            path.getElements().addAll(startPoint, endPoint);
+        } else {
+            path.getElements().addAll(startPoint,line1,line2,endPoint);
 
-    public final double getInputPointY() {
-        return inputPointY.get();
-    }
+            //TODO change arrow shape
+            startNode.boundsInParentProperty().addListener(new ChangeListener<Bounds>() {
+                @Override
+                public void changed(ObservableValue<? extends Bounds> observableValue, Bounds oldBounds, Bounds newBounds) {
+                    double startX = newBounds.getMinX() + (0.5 * newBounds.getWidth()); // centre
+                    double startY = newBounds.getMinY()  + newBounds.getHeight();
+                    startPoint.setX(startX);
+                    startPoint.setY(startY);
+                    // start position can change when the parent node expands/collapses
+                    // always keep the distance (prevents the arrow facing upwards)
+                    endNode.setLayoutY(startPoint.getY() + Constants.NODE_VERTICAL_GAP);
+                    line1.setX(startX);
+                    line1.setY((startY + endPoint.getY())/2);
+                }
+            });
 
-    public final void setInputPointY(double y) {
-        this.inputPointY.set(y);
-    }
+        }
 
-    private StackPane stackPane;
-    private Line line;
-    private Line head1;
-    private Line head2;
-
-    public Arrow() {
-        stackPane = new StackPane();
-
-        line = new Line(0,0,0,50);
-        line.setStrokeWidth(3);
-
-        head1 = new Line(0,4,3,0);
-        head2 = new Line(0,4,-3,0);
-        head1.setStrokeWidth(3);
-        head2.setStrokeWidth(3);
-        head1.setTranslateX(2);
-        head1.setTranslateY(24);
-        head2.setTranslateX(-2);
-        head2.setTranslateY(24);
-
-        stackPane.getChildren().addAll(line, head1, head2);
-        getChildren().addAll(stackPane);
-    }
-
-    public Arrow(Node startNode, VBox endNode) {
-        stackPane = new StackPane();
-        //TODO merge path and line
-        Path path = new Path();
-        path.setStrokeWidth(3);
-
-        MoveTo startPoint = new MoveTo();
-        startPoint.setAbsolute(true);
-        startPoint.xProperty().bind(startNode.layoutXProperty());
-        startPoint.yProperty().bind(startNode.layoutYProperty());
-        LineTo endPoint = new LineTo();
-        endPoint.setAbsolute(true);
-        endPoint.xProperty().bind(endNode.layoutXProperty());
-        endPoint.yProperty().bind(endNode.layoutYProperty());
-//        MoveTo startPoint = new MoveTo(0,0);
-//        LineTo endPoint = new LineTo(-50, 50);
-
-        //endPoint.xProperty().bind();
-
-
-
-        path.getElements().addAll(startPoint, endPoint);
-
-       // path.proper
-
-
-//            double endX = Math.cos(Math.toRadians(-angle)) * 100.0;
-//            double endY = Math.sin(Math.toRadians(-angle)) * 100.0;
-//            line = new Line(0,0,endX,endY);
-//            line.setStrokeWidth(3);
-
-        stackPane.getChildren().addAll(path);
-
-        getChildren().addAll(stackPane);
+        endNode.boundsInParentProperty().addListener(new ChangeListener<Bounds>() {
+            @Override
+            public void changed(ObservableValue<? extends Bounds> observableValue, Bounds oldBounds, Bounds newBounds) {
+                double endX = newBounds.getMinX() + (0.5 * newBounds.getWidth()); // centre
+                double endY = newBounds.getMinY();
+                endPoint.setX(endX);
+                endPoint.setY(endY);
+                if(startNode == null){
+                    startPoint.setX(endX);
+                    startPoint.setY(endY - Constants.NODE_VERTICAL_GAP);
+                } else {
+                    line2.setX(endX);
+                    line2.setY((endY + startPoint.getY())/2);
+                }
+                head1.setStartX(endX);
+                head1.setStartY(endY);
+                head1.setEndX(endX-5);
+                head1.setEndY(endY-5);
+                head2.setStartX(endX);
+                head2.setStartY(endY);
+                head2.setEndX(endX+5);
+                head2.setEndY(endY-5);
+            }
+        });
     }
 }

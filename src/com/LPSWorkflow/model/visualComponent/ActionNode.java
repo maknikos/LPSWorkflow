@@ -1,67 +1,129 @@
 package com.LPSWorkflow.model.visualComponent;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Bounds;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Visual component representing an action
  */
 public class ActionNode extends Node {
-    private Group group;
+    private VBox vBox;
     private Label text;
     private Button expandButton;
 
-    private VBox goalDefinition;
+    private Group goalDefinition;
     private boolean isExpanded;
 
-    public ActionNode(String name, VBox goalDefinition) {
+    public ActionNode(String name, Group goalDefinition) {
         super(name);
 
         if(goalDefinition != null){
             goalDefinition.setStyle("-fx-border-color:black;");
             this.goalDefinition = goalDefinition;
         } else {
-            this.goalDefinition = new VBox();
+            this.goalDefinition = new Group();
         }
-
-        group = new Group();
+         //TODO cleanup the structure of the ActionNode
+        vBox = new VBox();
+        vBox.setStyle("-fx-border-color:black; -fx-border-radius:5px");
+        vBox.setAlignment(Pos.CENTER);
 
         expandButton = new Button("+");
         expandButton.setVisible(hasGoalDefinition());
         text = new Label(name);
-        text.setStyle("-fx-border-color:black; -fx-font-size:25px");
-        text.setPrefSize(width, height);
         text.setAlignment(Pos.CENTER);
+        text.setPrefSize(width, height);
+        text.setMinWidth(width);
 
-        group.getChildren().addAll(text, this.goalDefinition);
-        getChildren().addAll(group, expandButton);
-
+        vBox.getChildren().add(text);
+        getChildren().addAll(vBox, expandButton);
         setExpanded(false);
 
         // When clicked on expand button, it will show goal definitions ("expand")
         expandButton.setOnAction(new EventHandler<ActionEvent>() {
+            private Map<javafx.scene.Node, Double> nodesPushed = new HashMap<javafx.scene.Node, Double>();
+
             @Override
             public void handle(ActionEvent actionEvent) {
-                ActionNode sourceNode = (ActionNode) ((Button) actionEvent.getSource()).getParent();
-                sourceNode.setExpanded(!sourceNode.isExpanded());
+                ActionNode source = (ActionNode) ((Button) actionEvent.getSource()).getParent();
+                boolean isExpanded = !source.isExpanded();
+
+                Bounds prevSourceBounds = source.getBoundsInParent();
+                source.setExpanded(isExpanded);
+                if(isExpanded){
+                    pushOutNodes(prevSourceBounds, source);
+                } else {
+                    revertNodes();
+                }
+            }
+
+            private void pushOutNodes(Bounds prevSourceBounds, ActionNode source){
+                Group parentGroup = (Group) getParent();
+                Bounds sourceBounds = source.getBoundsInParent();
+
+                // check if it intersects with any nodes
+                boolean intersects = false;
+                List<Node> relevantChildren = new ArrayList<Node>();
+                for(javafx.scene.Node node : parentGroup.getChildren()){
+                    // should only include Nodes, excluding itself
+                    if(node instanceof Node && !source.equals(node)){
+                        relevantChildren.add((Node)node);
+                        intersects = intersects || sourceBounds.intersects(node.getBoundsInParent());
+                    }
+                }
+
+                if(intersects){
+                    for(Node node : relevantChildren){
+                        Bounds nodeBounds = node.getBoundsInParent();
+                        // push sideways
+                        double prevX = node.getLayoutX();
+                        if(prevSourceBounds.getMaxX() < nodeBounds.getMinX()
+                                && sourceBounds.getMaxY() > nodeBounds.getMinY()){
+                            double moveX = sourceBounds.getWidth() - prevSourceBounds.getWidth();
+                            nodesPushed.put(node, moveX);
+                            node.setLayoutX(prevX + moveX);
+                        }
+
+                    }
+                }
+            }
+            private void revertNodes(){
+                // revert to previous positions
+                for(javafx.scene.Node node : nodesPushed.keySet()){
+                    node.setLayoutX(node.getLayoutX() - nodesPushed.get(node));
+                }
+                nodesPushed.clear();
             }
         });
     }
 
+
     private void setExpanded(boolean b) {
         isExpanded = b;
-        goalDefinition.setVisible(b);
 
         //TODO there may be a better way to show the label
         if(b){
-            text.setStyle("-fx-border-color:transparent; -fx-font-size:25px");
+            vBox.getChildren().add(goalDefinition);
+            text.setStyle("-fx-font-size:18px; -fx-border-color:black; -fx-border-width:0 0 1 0");
+            text.setPrefSize(vBox.getBoundsInParent().getWidth(), 22);
         } else {
-            text.setStyle("-fx-border-color:black; -fx-font-size:25px");
+            vBox.getChildren().remove(goalDefinition);
+            text.setStyle("-fx-font-size:25px; -fx-border-color:transparent;");
+            text.setPrefSize(width, height);
         }
     }
 

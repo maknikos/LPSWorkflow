@@ -6,15 +6,16 @@ import com.LPSWorkflow.model.FileData;
 import com.LPSWorkflow.model.abstractComponent.Entity;
 import com.LPSWorkflow.model.abstractComponent.MultiChildEntity;
 import com.LPSWorkflow.model.visualComponent.*;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
+import javafx.scene.Group;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.*;
 
 import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -26,12 +27,14 @@ public class CanvasController implements Initializable {
     private List<String> fluents;
     private FileData fileData;
     private LPSFileManager fileManager;
+    private Map<Entity, Node> displayMap; // stores mappings from Entities to corresponding Nodes
+    private Map<String,Entity> entityMap;
 
     @FXML
     private GridPane parentGridPane;
 
     @FXML
-    private ScrollPane contentScrollPane;
+    private Pane contentPane; // TODO BorderPane?
 
     @FXML
     private Label filePathLabel;
@@ -40,6 +43,7 @@ public class CanvasController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         fileData = FileData.getInstance();
         filePathLabel.textProperty().bind(fileData.filePathProperty());
+        displayMap = new HashMap<Entity, Node>();
 
         // Use the custom LPS parser to get data
         fileManager = new LPSFileManager();
@@ -60,82 +64,126 @@ public class CanvasController implements Initializable {
     }
 
     private void drawProgram() {
-        Map<String,Entity> entityMap = fileManager.getEntityMap();
+        contentPane.getChildren().clear();
+        entityMap = fileManager.getEntityMap();
         fluents = fileManager.getFluents();
 
-        // each independent horizontal chain is stacked vertically
-        HBox rootsHBox = new HBox();
-        rootsHBox.setAlignment(Pos.CENTER);
+        final HBox resultHBox = new HBox();
+        Group resultGroup;
+        double initX = 0;
+        double initY = 0;
 
         //for each root entity, go through the chain and build the workflow diagram
         for(Entity rootEntity : entityMap.values()){
-            rootsHBox.getChildren().add(buildWorkflowDiagram(rootEntity));
+            resultGroup = new Group();
+            buildWorkflowDiagram(resultGroup, rootEntity, initX, initY, true);
+            resultHBox.getChildren().add(resultGroup);
+            //initX += resultGroup.getLayoutBounds().getWidth() + Constants.NODE_HORIZONTAL_GAP;
         }
-        contentScrollPane.setContent(rootsHBox);
+        contentPane.getChildren().add(resultHBox);
+        //contentPane.setContent(resultGroup);
+
+        //TODO allow SPACE + mouse-drag as well?
+        // move view point using scroll
+        contentPane.setOnScroll(new EventHandler<ScrollEvent>() {
+            @Override
+            public void handle(ScrollEvent e) {
+                double translateX = e.getDeltaX();
+                double translateY = e.getDeltaY();
+                resultHBox.setTranslateX(resultHBox.getTranslateX() + translateX);
+                resultHBox.setTranslateY(resultHBox.getTranslateY() + translateY);
+            }
+        });
     }
 
-    private VBox buildWorkflowDiagram(Entity rootEntity) {
-        VBox resultVBox = new VBox();
+    private void buildWorkflowDiagram(Group resultGroup, Entity rootEntity, double initX, double initY, boolean drawRoot) {
+        double nextX = initX;
+        double nextY = initY;
 
-        if(rootEntity == null){
-            return resultVBox; // TODo return null? will give an exception when trying to add it to rootsHBox above
+        if(rootEntity == null || resultGroup == null){
+            return;
         }
 
-        resultVBox.setAlignment(Pos.TOP_CENTER);
-        resultVBox.setPadding(new Insets(Constants.PADDING_WIDTH));
-        resultVBox.getChildren().add(new Arrow()); // initial entry arrow
+        Entity currEntity = rootEntity;
+        Entity nextEntity;
+        Node currNode;
+        Node nextNode;
+        // draw the root first
+        if(drawRoot){
+            currNode = createNodeFor(currEntity, initX, initY);
+            resultGroup.getChildren().add(currNode);
+        }
 
-        Entity currentEntity = rootEntity;
+//        //TODO
+//        if(entityMap.values().contains(rootEntity)){
+//            // TODO It is a root of a reactive rule. Draw a special arrow
+//        }
 
-        while(currentEntity != null){
-            String currName = currentEntity.getName();
-            Node currNode;
+        while(currEntity != null){
+            nextY += Constants.NODE_HEIGHT + Constants.NODE_VERTICAL_GAP;
+            nextEntity = currEntity.getNext();
+            // Draw next node
+            currNode = displayMap.get(currEntity);
 
-            if(currName.equals("OR") || currName.equals("AND")){  //TODO better way to distinguish multi-child entities?
-                if(currName.equals("OR")){
-                    currNode = new OrNode(currName);
+            if(nextEntity == null){
+                // if next is null, check if current entity is a multiChildEntity
+                if(!currEntity.hasSingleChild()){
+                    // if current node is a multiChildEntity, next should be its 'nextEntities'.
+                    List<Entity> nextEntities = ((MultiChildEntity) currEntity).getNextEntities();
+                    int n = nextEntities.size();
+                    double totalWidth = ((n-1)*Constants.NODE_HORIZONTAL_GAP) + (n* Constants.NODE_WIDTH);
+                    nextX -= ((totalWidth/2) - (Constants.NODE_WIDTH/2));
+                    // spread them out and draw each path
+                    // TODO possibly taking care of partial ordering in a similar way?
+                    for(Entity child : nextEntities){
+                        buildWorkflowDiagram(resultGroup, child, nextX, nextY, true);
+                        nextX += Constants.NODE_WIDTH + Constants.NODE_HORIZONTAL_GAP;
+                        resultGroup.getChildren().add(new Arrow(currNode, displayMap.get(child)));
+                    }
+                    //TODO use getLayoutBounds().getWidth() from resultGroup each time to get the next y?
+
+                    nextX = currNode.getLayoutX();
+                    nextY = resultGroup.getLayoutBounds().getHeight() + Constants.NODE_VERTICAL_GAP;
                 } else {
-                    currNode = new AndNode(currName);
+                    // otherwise, there is no next entity, so stop.
+                    break;
                 }
-
-                // draw the node and an arrow
-                resultVBox.getChildren().addAll(currNode, new Arrow());
-
-                HBox optionsHBox = new HBox();
-                HBox optionsArrowHBox = new HBox();
-                optionsHBox.setAlignment(Pos.CENTER);
-                optionsArrowHBox.setAlignment(Pos.CENTER);
-
-                List<Entity> optionEntities = ((MultiChildEntity) currentEntity).getEntities();
-
-                for(Entity option : optionEntities){
-                    VBox optionChain = buildWorkflowDiagram(option);
-                    optionsArrowHBox.getChildren().add(new Arrow(/*currNode, optionChain*/));
-                    optionsHBox.getChildren().add(optionChain);
-                }
-                resultVBox.getChildren().add(optionsArrowHBox);
-                resultVBox.getChildren().add(optionsHBox);
             } else {
-                if(isFluent(currName, fluents)){
-                    currNode = new FluentNode(currName);
-                } else {
-                    currNode = new ActionNode(currName, buildWorkflowDiagram(currentEntity.getDefinition()));
-                }
+                // draw the next entity TODO
+                nextNode = createNodeFor(nextEntity, nextX, nextY);
+                resultGroup.getChildren().add(nextNode);
+                // todo could be the beginning of a multiChildEntity. need a special case?
 
-                // draw the node and an arrow
-                if(fileManager.getEntityMap().keySet().contains(currName)){
-                    // use a special arrow for antecedent of a reactive rule
-                    resultVBox.getChildren().addAll(currNode, new ReactiveArrow());
-                } else {
-                    resultVBox.getChildren().addAll(currNode, new Arrow());
-                }
+                // Draw connection from prev to current node TODO
+                resultGroup.getChildren().add(new Arrow(currNode, nextNode));
             }
 
-            currentEntity = currentEntity.getNext();
+            // Update currEntity and continue
+            currEntity = nextEntity;
         }
-        //remove the first redundant arrow
-        resultVBox.getChildren().remove(0);
-        return resultVBox;
+    }
+
+    // Create a Node for given Entity, and store the mapping in displayMap.
+    private Node createNodeFor(Entity entity, double x, double y) {
+        String name = entity.getName();
+        Node node;
+        if(!entity.hasSingleChild()){ // a MultiChildEntity
+            if(entity.getName().equals("OR")){ //TODO use Enum to distinguish?
+                node = new OrNode();
+            } else/* if(entity.getName().equals("AND")) */{
+                node = new AndNode();
+            }
+        } else if(isFluent(name, fluents)) {
+            node = new FluentNode(name);
+        } else {
+            Group goalDef = new Group();
+            buildWorkflowDiagram(goalDef, entity.getDefinition(), 0, 0, false);
+            node = new ActionNode(name, goalDef);
+        }
+        node.setLayoutX(x);
+        node.setLayoutY(y);
+        displayMap.put(entity, node);
+        return node;
     }
 
     private boolean isFluent(String currName, List<String> fluents) {
@@ -143,29 +191,4 @@ public class CanvasController implements Initializable {
                 || (currName.contains("!") && fluents.contains(currName.substring(1))) // negation
                 || (currName.contains(":")); // concurrent
     }
-
-
-    // TODO clear up
-//    //TODO crude angle calculation.... replace with actual start and end coordinates
-//    private double[] calculateAngleOfArrow(int childCount) {
-//        // assume height of an entity is 40, width of arrow is 50 for simplicity
-//        double[] resultArray = new double[childCount];
-//        int numHeights = childCount - 1;
-//
-//        double maxAngle = Math.toDegrees(Math.atan((numHeights * 60) / 50.0));
-//
-//        double intervalAngle = maxAngle/(childCount/2);
-//
-//        for(int i = 0; i < childCount/2; i++){
-//            resultArray[i] = maxAngle - (intervalAngle * i);
-//            resultArray[childCount - i - 1] = resultArray[i] * -1;
-//        }
-//
-//        //if odd number, need to put the centre arrow
-//        if(childCount % 2 == 1){
-//            resultArray[((childCount + 1)/2) + 1] = 0;
-//        }
-//
-//        return resultArray;
-//    }
 }
