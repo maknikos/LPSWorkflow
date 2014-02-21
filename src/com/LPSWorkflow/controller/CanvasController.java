@@ -10,8 +10,11 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Group;
+import javafx.scene.effect.InnerShadow;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 
 import java.net.URL;
 import java.util.HashMap;
@@ -30,10 +33,10 @@ public class CanvasController implements Initializable {
     private Map<String,Entity> entityMap;
 
     @FXML
-    private GridPane parentGridPane;
+    private BorderPane parentPane;
 
     @FXML
-    private Pane contentPane; // TODO BorderPane?
+    private Pane contentPane;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -42,10 +45,21 @@ public class CanvasController implements Initializable {
 
         // Use the custom LPS parser to get data
         fileManager = new LPSFileManager();
-        ColumnConstraints cc = new ColumnConstraints();
-        cc.setFillWidth(true);
-        cc.setHgrow(Priority.ALWAYS);
-        parentGridPane.getColumnConstraints().add(cc);
+
+//        ColumnConstraints cc = new ColumnConstraints();
+//        cc.setFillWidth(true);
+//        cc.setHgrow(Priority.ALWAYS);
+//        parentPane.getColumnConstraints().add(cc); TODO
+
+        // set clip (viewing region)
+        Rectangle clip = new Rectangle(0,0,0,0);
+        clip.widthProperty().bind(contentPane.widthProperty());
+        clip.heightProperty().bind(contentPane.heightProperty());
+        contentPane.setClip(clip);
+
+        contentPane.setStyle("-fx-fill:black;");
+        final InnerShadow innerShadow = new InnerShadow(2,0,0, Color.valueOf("Black"));
+        contentPane.setEffect(innerShadow);
     }
 
     //TODO change the name
@@ -75,6 +89,7 @@ public class CanvasController implements Initializable {
             resultHBox.getChildren().add(resultGroup);
             //initX += resultGroup.getLayoutBounds().getWidth() + Constants.NODE_HORIZONTAL_GAP; TODO
         }
+
         contentPane.getChildren().add(resultHBox);
 
         //TODO allow SPACE + mouse-drag as well?

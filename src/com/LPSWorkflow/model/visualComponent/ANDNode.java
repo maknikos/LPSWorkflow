@@ -1,5 +1,6 @@
 package com.LPSWorkflow.model.visualComponent;
 
+import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Paint;
@@ -16,6 +17,8 @@ public class AndNode extends Node {
     public AndNode() {
         super("AND");
         stackPane = new StackPane();
+        stackPane.setAlignment(Pos.CENTER);
+        stackPane.setMinSize(width, height);
         circleBorder = new Circle();
         circleBorder.setRadius(30);
         circleBorder.setFill(Paint.valueOf("Transparent"));
