@@ -21,7 +21,7 @@ public class Arrow extends Parent {
 
     public Arrow(final Node startNode, final Node endNode) {
         path = new Path();
-        path.setStrokeWidth(1);
+        path.setStyle("-fx-stroke-width:1;");
 
         startPoint = new MoveTo(0, 0);
         line1 = new LineTo(0, 0); // intermediate points

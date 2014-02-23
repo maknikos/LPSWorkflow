@@ -10,10 +10,10 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Group;
-import javafx.scene.effect.InnerShadow;
 import javafx.scene.input.ScrollEvent;
-import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.shape.Rectangle;
 
 import java.net.URL;
@@ -33,7 +33,7 @@ public class CanvasController implements Initializable {
     private Map<String,Entity> entityMap;
 
     @FXML
-    private BorderPane parentPane;
+    private BorderPane parentPane; // TODO set border around the canvas?
 
     @FXML
     private Pane contentPane;
@@ -46,20 +46,11 @@ public class CanvasController implements Initializable {
         // Use the custom LPS parser to get data
         fileManager = new LPSFileManager();
 
-//        ColumnConstraints cc = new ColumnConstraints();
-//        cc.setFillWidth(true);
-//        cc.setHgrow(Priority.ALWAYS);
-//        parentPane.getColumnConstraints().add(cc); TODO
-
         // set clip (viewing region)
         Rectangle clip = new Rectangle(0,0,0,0);
         clip.widthProperty().bind(contentPane.widthProperty());
         clip.heightProperty().bind(contentPane.heightProperty());
         contentPane.setClip(clip);
-
-        contentPane.setStyle("-fx-fill:black;");
-        final InnerShadow innerShadow = new InnerShadow(2,0,0, Color.valueOf("Black"));
-        contentPane.setEffect(innerShadow);
     }
 
     //TODO change the name
@@ -123,11 +114,6 @@ public class CanvasController implements Initializable {
             resultGroup.getChildren().add(currNode);
         }
 
-//        //TODO
-//        if(entityMap.values().contains(rootEntity)){
-//            // TODO It is a root of a reactive rule. Draw a special arrow
-//        }
-
         while(currEntity != null){
             nextY += Constants.NODE_HEIGHT + Constants.NODE_VERTICAL_GAP;
             nextEntity = currEntity.getNext();
@@ -161,10 +147,14 @@ public class CanvasController implements Initializable {
                 // draw the next entity TODO
                 nextNode = createNodeFor(nextEntity, nextX, nextY);
                 resultGroup.getChildren().add(nextNode);
-                // todo could be the beginning of a multiChildEntity. need a special case?
 
-                // Draw connection from prev to current node TODO
-                resultGroup.getChildren().add(new Arrow(currNode, nextNode));
+                if(entityMap.values().contains(currEntity)){
+                    // it is antecedent of a reactive rule.
+                    resultGroup.getChildren().add(new ReactiveArrow(currNode, nextNode));
+                } else {
+                    // Draw connection from prev to current node
+                    resultGroup.getChildren().add(new Arrow(currNode, nextNode));
+                }
             }
 
             // Update currEntity and continue
@@ -175,12 +165,14 @@ public class CanvasController implements Initializable {
     // Create a Node for given Entity, and store the mapping in displayMap.
     private Node createNodeFor(Entity entity, double x, double y) {
         String name = entity.getName();
-        Node node;
+        Node node = null;
         if(!entity.hasSingleChild()){ // a MultiChildEntity
             if(entity.getName().equals("OR")){ //TODO use Enum to distinguish?
                 node = new OrNode();
-            } else/* if(entity.getName().equals("AND")) */{
+            } else if(entity.getName().equals("AND")) {
                 node = new AndNode();
+            } else if(entity.getName().equals("||")) {
+                node = new PartialOrderNode(); // TODO if the shapes are the same, we can use MultiChildNode for all three. (left distinct in case their shape may differ)
             }
         } else if(isFluent(name, fluents)) {
             node = new FluentNode(name);

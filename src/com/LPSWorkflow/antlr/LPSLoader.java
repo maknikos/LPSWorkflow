@@ -145,8 +145,10 @@ public class LPSLoader extends LPSBaseListener {
 
         String firstFormula = formulas.get(0).getText();
         String secondFormula = formulas.get(1).getText();
-
-        PartialOrder partialOrder = new PartialOrder(firstFormula, secondFormula);
+        List entities = new ArrayList();
+        entities.add(new Action(firstFormula));
+        entities.add(new Action(secondFormula));
+        PartialOrder partialOrder = new PartialOrder(entities);
 
         // Replace the PartialOrderContext with PartialOrder entity
         replaceKey(ctx, partialOrder);
