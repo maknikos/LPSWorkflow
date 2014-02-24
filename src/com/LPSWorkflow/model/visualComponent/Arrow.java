@@ -7,6 +7,8 @@ import javafx.geometry.Bounds;
 import javafx.scene.Parent;
 import javafx.scene.shape.*;
 
+import java.util.Set;
+
 /**
  * Draw an arrow consisting of three lines (line and two heads)
  */
@@ -19,7 +21,7 @@ public class Arrow extends Parent {
     final Line head1;
     final Line head2;
 
-    public Arrow(final Node startNode, final Node endNode) {
+    public Arrow(final Node startNode, final Node endNode, final Set<Arrow> arrowsToEndNode) {
         path = new Path();
         path.setStyle("-fx-stroke-width:1;");
 
@@ -32,11 +34,20 @@ public class Arrow extends Parent {
         head2 = new Line(0,0,0,0);
         getChildren().addAll(path, head1, head2);
 
+        head1.startXProperty().bind(endPoint.xProperty());
+        head1.startYProperty().bind(endPoint.yProperty());
+        head2.startXProperty().bind(endPoint.xProperty());
+        head2.startYProperty().bind(endPoint.yProperty());
+
         if(startNode == null){
             // if there is no start node, draw a straight line from endNode
             path.getElements().addAll(startPoint, endPoint);
+            startPoint.xProperty().bind(endPoint.xProperty());
         } else {
             path.getElements().addAll(startPoint,line1,line2,endPoint);
+            line1.yProperty().bind(line2.yProperty());
+            line1.xProperty().bind(startPoint.xProperty());
+            line2.xProperty().bind(endPoint.xProperty());
 
             //TODO change arrow shape
             startNode.boundsInParentProperty().addListener(new ChangeListener<Bounds>() {
@@ -47,10 +58,13 @@ public class Arrow extends Parent {
                     startPoint.setX(startX);
                     startPoint.setY(startY);
                     // start position can change when the parent node expands/collapses
-                    // always keep the distance (prevents the arrow facing upwards)
-                    endNode.setLayoutY(startPoint.getY() + Constants.NODE_VERTICAL_GAP);
-                    line1.setX(startX);
-                    line1.setY((startY + endPoint.getY())/2);
+                    // always keep the distance (prevents the arrow facing upwards).
+                    // use the minimum height between the arrows pointing to the same endNode;
+                    double maxStartY = 0.0;
+                    for(Arrow a : arrowsToEndNode){
+                        maxStartY = Math.max(a.startPoint.getY(), maxStartY);
+                    }
+                    endNode.setLayoutY(maxStartY + Constants.NODE_VERTICAL_GAP);
                 }
             });
 
@@ -64,18 +78,13 @@ public class Arrow extends Parent {
                 endPoint.setX(endX);
                 endPoint.setY(endY);
                 if(startNode == null){
-                    startPoint.setX(endX);
                     startPoint.setY(endY - Constants.NODE_VERTICAL_GAP);
                 } else {
-                    line2.setX(endX);
-                    line2.setY((endY + startPoint.getY())/2);
+                    line2.setY(endY - Constants.NODE_VERTICAL_GAP/2);
                 }
-                head1.setStartX(endX);
-                head1.setStartY(endY);
+
                 head1.setEndX(endX-5);
                 head1.setEndY(endY-5);
-                head2.setStartX(endX);
-                head2.setStartY(endY);
                 head2.setEndX(endX+5);
                 head2.setEndY(endY-5);
             }

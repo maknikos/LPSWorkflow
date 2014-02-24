@@ -17,10 +17,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.shape.Rectangle;
 
 import java.net.URL;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
+import java.util.*;
 
 /**
  * Controller for the main canvas
@@ -31,6 +28,8 @@ public class CanvasController implements Initializable {
     private LPSFileManager fileManager;
     private Map<Entity, Node> displayMap; // stores mappings from Entities to corresponding Nodes
     private Map<String,Entity> entityMap;
+    private Map<Node, Set<Arrow>> arrowsFrom; // arrows (value) from the node (key)
+    private Map<Node, Set<Arrow>> arrowsTo; // arrows (value) connected to the node (key)
 
     @FXML
     private BorderPane parentPane; // TODO set border around the canvas?
@@ -42,6 +41,8 @@ public class CanvasController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         fileData = FileData.getInstance();
         displayMap = new HashMap<Entity, Node>();
+        arrowsFrom = new HashMap<Node, Set<Arrow>>();
+        arrowsTo = new HashMap<Node, Set<Arrow>>();
 
         // Use the custom LPS parser to get data
         fileManager = new LPSFileManager();
@@ -120,29 +121,39 @@ public class CanvasController implements Initializable {
             // Draw next node
             currNode = displayMap.get(currEntity);
 
-            if(nextEntity == null){
-                // if next is null, check if current entity is a multiChildEntity
-                if(!currEntity.hasSingleChild()){
-                    // if current node is a multiChildEntity, next should be its 'nextEntities'.
-                    List<Entity> nextEntities = ((MultiChildEntity) currEntity).getNextEntities();
-                    int n = nextEntities.size();
-                    double totalWidth = ((n-1)*Constants.NODE_HORIZONTAL_GAP) + (n* Constants.NODE_WIDTH);
-                    nextX -= ((totalWidth/2) - (Constants.NODE_WIDTH/2));
-                    // spread them out and draw each path
-                    // TODO possibly taking care of partial ordering in a similar way?
-                    for(Entity child : nextEntities){
-                        buildWorkflowDiagram(resultGroup, child, nextX, nextY, true);
-                        nextX += Constants.NODE_WIDTH + Constants.NODE_HORIZONTAL_GAP;
-                        resultGroup.getChildren().add(new Arrow(currNode, displayMap.get(child)));
-                    }
-                    //TODO use getLayoutBounds().getWidth() from resultGroup each time to get the next y?
-
-                    nextX = currNode.getLayoutX();
-                    nextY = resultGroup.getLayoutBounds().getHeight() + Constants.NODE_VERTICAL_GAP;
-                } else {
-                    // otherwise, there is no next entity, so stop.
-                    break;
+            if(!currEntity.hasSingleChild()){
+                // if current node is a multiChildEntity, next should be its 'nextEntities'.
+                List<Entity> nextEntities = ((MultiChildEntity) currEntity).getNextEntities();
+                int n = nextEntities.size();
+                double totalWidth = ((n-1)*Constants.NODE_HORIZONTAL_GAP) + (n* Constants.NODE_WIDTH);
+                nextX -= ((totalWidth/2) - (Constants.NODE_WIDTH/2));
+                // spread them out and draw each path
+                for(Entity child : nextEntities){
+                    buildWorkflowDiagram(resultGroup, child, nextX, nextY, true);
+                    nextX += Constants.NODE_WIDTH + Constants.NODE_HORIZONTAL_GAP;
+                    resultGroup.getChildren().add(createArrow(currNode, displayMap.get(child)));
                 }
+                //TODO use getLayoutBounds().getWidth() from resultGroup each time to get the next y?
+
+                nextX = currNode.getLayoutX();
+                nextY = resultGroup.getLayoutBounds().getHeight() + Constants.NODE_VERTICAL_GAP;
+
+                // if it has next entity, need to merge all paths to point to that.
+                nextNode = createNodeFor(nextEntity, nextX, nextY);
+                if(nextNode == null){
+                    nextNode = new EmptyNode();
+                }
+                resultGroup.getChildren().add(nextNode);
+
+                // for the last node in each path for the multiChildEntity, connect arrows
+                for(Entity next : nextEntities){
+                    Entity last = getLastEntityInThePath(next);
+                    Node lastNode = displayMap.get(last);
+                    resultGroup.getChildren().add(createArrow(lastNode, nextNode));
+                }
+            } else if(nextEntity == null){
+                // there is no next entity, so stop.
+                break;
             } else {
                 // draw the next entity TODO
                 nextNode = createNodeFor(nextEntity, nextX, nextY);
@@ -153,7 +164,7 @@ public class CanvasController implements Initializable {
                     resultGroup.getChildren().add(new ReactiveArrow(currNode, nextNode));
                 } else {
                     // Draw connection from prev to current node
-                    resultGroup.getChildren().add(new Arrow(currNode, nextNode));
+                    resultGroup.getChildren().add(createArrow(currNode, nextNode));
                 }
             }
 
@@ -162,8 +173,39 @@ public class CanvasController implements Initializable {
         }
     }
 
+    private Entity getLastEntityInThePath(Entity entity) {
+        Entity result = entity;
+        if(result == null){
+            return null;
+        }
+        while(result.getNext() != null){
+            result = result.getNext();
+        }
+        return result;
+    }
+
+    private Arrow createArrow(Node nodeFrom, Node nodeTo){
+        Set<Arrow> fromSet = arrowsFrom.get(nodeFrom);
+        Set<Arrow> toSet = arrowsTo.get(nodeTo);
+        if(fromSet == null){
+            fromSet = new HashSet<Arrow>();
+            arrowsFrom.put(nodeFrom, fromSet);
+        }
+        if(toSet == null){
+            toSet = new HashSet<Arrow>();
+            arrowsTo.put(nodeTo, toSet);
+        }
+        Arrow arrow = new Arrow(nodeFrom, nodeTo, toSet);
+        fromSet.add(arrow);
+        toSet.add(arrow);
+        return arrow;
+    }
+
     // Create a Node for given Entity, and store the mapping in displayMap.
     private Node createNodeFor(Entity entity, double x, double y) {
+        if(entity == null){
+            return null;
+        }
         String name = entity.getName();
         Node node = null;
         if(!entity.hasSingleChild()){ // a MultiChildEntity

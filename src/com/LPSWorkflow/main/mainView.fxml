@@ -1,12 +1,19 @@
+<?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.Pane?>
 <BorderPane fx:controller="com.LPSWorkflow.main.Controller"
             xmlns:fx="http://javafx.com/fxml">
     <!-- Top MenuBar -->
     <top>
-        <fx:include source="../view/menuBar.fxml" />
+        <fx:include source="../view/menuBarView.fxml" />
     </top>
     <!-- Main contents for the workflow -->
     <center>
-        <fx:include source="../view/canvas.fxml" />
+        <SplitPane dividerPositions="0.7f">
+            <items>
+                <fx:include source="../view/canvasView.fxml"  SplitPane.resizableWithParent="true" />
+                <fx:include source="../view/databaseView.fxml"  SplitPane.resizableWithParent="true" />
+            </items>
+        </SplitPane>
     </center>
 </BorderPane>

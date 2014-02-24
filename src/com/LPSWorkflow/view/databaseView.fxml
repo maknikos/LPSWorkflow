@@ -1,0 +1,9 @@
+<?import javafx.scene.layout.*?>
+
+<BorderPane fx:controller="com.LPSWorkflow.controller.DatabaseViewController"
+          xmlns:fx="http://javafx.com/fxml"
+        fx:id="parentPane">
+    <center>
+        <Pane fx:id="contentPane" prefHeight="500"/>
+    </center>
+</BorderPane>
