@@ -66,7 +66,7 @@ public class CanvasController implements Initializable {
 
     private void drawProgram() {
         contentPane.getChildren().clear();
-        entityMap = fileManager.getEntityMap();
+        entityMap = fileManager.getRootMap();
         fluents = fileManager.getFluents();
 
         final HBox resultHBox = new HBox();

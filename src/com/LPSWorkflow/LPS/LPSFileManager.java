@@ -20,15 +20,15 @@ import java.util.Map;
  */
 public class LPSFileManager {
     private boolean isFileOpen;
-    private Map<String,Entity> entityMap;
+    private Map<String,Entity> rootMap;
     private List<String> fluents;
 
     public LPSFileManager() {
         isFileOpen = false;
     }
 
-    public Map<String, Entity> getEntityMap() {
-        return entityMap;
+    public Map<String, Entity> getRootMap() {
+        return rootMap;
     }
 
     /**
@@ -64,9 +64,8 @@ public class LPSFileManager {
         StructureBuilder structureBuilder = new StructureBuilder();
         structureBuilder.build(loader.getReactiveRuleRoots(), loader.getReactiveRuleConnections(),
                 loader.getGoalRoots(), loader.getGoalConnections());
-        this.entityMap = structureBuilder.getReactiveRulesRootMap();
+        this.rootMap = structureBuilder.getReactiveRulesRootMap();
         this.fluents = loader.getFluents();
-
         this.isFileOpen = true;
     }
 
