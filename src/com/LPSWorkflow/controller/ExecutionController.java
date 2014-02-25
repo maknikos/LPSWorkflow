@@ -11,16 +11,13 @@ import java.util.ResourceBundle;
 /**
  * Controller for displaying database status (databaseView)
  */
-public class DatabaseController implements Initializable{
-    @FXML
-    private TextArea factField;
+public class ExecutionController implements Initializable{
     @FXML
     private Pane contentPane;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         // For each fluent in the program, add a checkbox (ticked box will mean it holds)
-        factField.prefWidthProperty().bind(contentPane.widthProperty());
-        factField.prefHeightProperty().bind(contentPane.heightProperty());
+
     }
 }

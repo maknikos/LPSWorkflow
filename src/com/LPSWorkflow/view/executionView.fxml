@@ -1,0 +1,12 @@
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.Pane?>
+<BorderPane fx:controller="com.LPSWorkflow.controller.ExecutionController"
+          xmlns:fx="http://javafx.com/fxml"
+        fx:id="parentPane">
+    <center>
+        <Pane fx:id="contentPane" prefHeight="500">
+            <Button>Test</Button>
+        </Pane>
+    </center>
+</BorderPane>

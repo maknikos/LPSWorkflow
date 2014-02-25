@@ -11,7 +11,12 @@
         <SplitPane dividerPositions="0.7f">
             <items>
                 <fx:include source="../view/canvasView.fxml"  SplitPane.resizableWithParent="true" />
-                <fx:include source="../view/databaseView.fxml"  SplitPane.resizableWithParent="true" />
+                <SplitPane orientation="VERTICAL">
+                    <items>
+                        <fx:include source="../view/databaseView.fxml"  SplitPane.resizableWithParent="true" />
+                        <fx:include source="../view/executionView.fxml"  SplitPane.resizableWithParent="true" />
+                    </items>
+                </SplitPane>
             </items>
         </SplitPane>
     </center>
