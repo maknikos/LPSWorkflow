@@ -30,7 +30,7 @@ public class Main extends Application {
             }
         });
 
-        primaryStage.setScene(new Scene(root, 1000, 550));
+        primaryStage.setScene(new Scene(root, 1200, 800));
         primaryStage.show();
     }
 
