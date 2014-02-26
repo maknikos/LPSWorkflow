@@ -4,6 +4,6 @@
 <BorderPane fx:controller="com.LPSWorkflow.controller.DatabaseController"
             xmlns:fx="http://javafx.com/fxml">
     <center>
-        <TextArea fx:id="factArea" minHeight="200"/>
+        <TextArea fx:id="factArea" minHeight="200">p</TextArea>
     </center>
 </BorderPane>

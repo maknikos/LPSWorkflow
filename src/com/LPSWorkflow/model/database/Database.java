@@ -32,7 +32,6 @@ public class Database {
     }
 
     private StringProperty facts = new SimpleStringProperty(this, "str", "");
-    //TODO remove default path (or use xml config for default?)
 
     public StringProperty factsProperty(){
         return facts;
@@ -42,17 +41,16 @@ public class Database {
         facts.set(str);
     }
 
-    public final String getFilePath(){
+    public final String getFacts(){
         return facts.get();
     }
 
-
-
-    public List<Rule> getRules() {
-        return rules;
-    }
-
-    public void setRules(List<Rule> rules) {
-        this.rules = rules;
-    }
+//    TODO
+//    public List<Rule> getRules() {
+//        return rules;
+//    }
+//
+//    public void setRules(List<Rule> rules) {
+//        this.rules = rules;
+//    }
 }

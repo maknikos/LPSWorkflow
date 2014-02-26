@@ -1,5 +1,6 @@
 package com.LPSWorkflow.controller;
 
+import com.LPSWorkflow.LPS.ExecutionManager;
 import com.LPSWorkflow.LPS.LPSFileManager;
 import com.LPSWorkflow.common.Constants;
 import com.LPSWorkflow.model.FileData;
@@ -11,10 +12,12 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Group;
 import javafx.scene.input.ScrollEvent;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.StrokeType;
 
 import java.net.URL;
 import java.util.*;
@@ -30,9 +33,11 @@ public class CanvasController implements Initializable {
     private Map<String,Entity> entityMap;
     private Map<Node, Set<Arrow>> arrowsFrom; // arrows (value) from the node (key)
     private Map<Node, Set<Arrow>> arrowsTo; // arrows (value) connected to the node (key)
-
-    @FXML
-    private BorderPane parentPane; // TODO set border around the canvas?
+    private boolean diagramDrawn;
+    private HBox diagramLayer;
+    private Group executionLayer;
+    private ExecutionManager execManager;
+    private Circle execCircle;
 
     @FXML
     private Pane contentPane;
@@ -43,15 +48,34 @@ public class CanvasController implements Initializable {
         displayMap = new HashMap<Entity, Node>();
         arrowsFrom = new HashMap<Node, Set<Arrow>>();
         arrowsTo = new HashMap<Node, Set<Arrow>>();
+        diagramDrawn = false;
+        diagramLayer = new HBox();
+        executionLayer = new Group();
 
         // Use the custom LPS parser to get data
         fileManager = new LPSFileManager();
+
+        contentPane.getChildren().addAll(diagramLayer, executionLayer);
 
         // set clip (viewing region)
         Rectangle clip = new Rectangle(0,0,0,0);
         clip.widthProperty().bind(contentPane.widthProperty());
         clip.heightProperty().bind(contentPane.heightProperty());
         contentPane.setClip(clip);
+
+        //TODO allow SPACE + mouse-drag as well?
+        // move view point using scroll
+        contentPane.setOnScroll(new EventHandler<ScrollEvent>() {
+            @Override
+            public void handle(ScrollEvent e) {
+                double translateX = e.getDeltaX();
+                double translateY = e.getDeltaY();
+                diagramLayer.setTranslateX(diagramLayer.getTranslateX() + translateX);
+                diagramLayer.setTranslateY(diagramLayer.getTranslateY() + translateY);
+                executionLayer.setTranslateX(executionLayer.getTranslateX() + translateX);
+                executionLayer.setTranslateY(executionLayer.getTranslateY() + translateY);
+            }
+        });
     }
 
     @FXML
@@ -61,15 +85,51 @@ public class CanvasController implements Initializable {
         //only draw when the file is open
         if(fileManager.isFileOpen()){
             drawProgram();
+        } else {
+            //TODO error message
         }
     }
 
+    @FXML
+    private void handleNextAction(){
+        if(diagramDrawn){
+            // TODO if multiple paths are possible, spawn new position circles
+            if(execCircle == null){
+                execCircle = createExecCircle();
+                executionLayer.getChildren().add(execCircle);
+            }
+
+            Entity nextEntity = execManager.getNextEntity();
+            if(nextEntity == null){
+                return; // TODO end? special case?
+            } else {
+                Node node = displayMap.get(nextEntity);
+                execCircle.setCenterX(node.getParent().getBoundsInParent().getMinX() + node.getBoundsInParent().getMaxX());
+                execCircle.setCenterY(node.getBoundsInParent().getMaxY());
+            }
+
+
+        } else {
+            //TODO Error message
+        }
+    }
+
+    private Circle createExecCircle() { // TODO make into class
+        Circle circle = new Circle(10);
+        circle.setFill(Color.GOLD.deriveColor(1, 1, 1, 0.5));
+        circle.setStroke(Color.GOLD);
+        circle.setStrokeWidth(2);
+        circle.setStrokeType(StrokeType.OUTSIDE);
+        return circle;
+    }
+
+
     private void drawProgram() {
-        contentPane.getChildren().clear();
+        diagramLayer.getChildren().clear();
         entityMap = fileManager.getRootMap();
+        execManager = new ExecutionManager(entityMap); //TODO group initialisations?
         fluents = fileManager.getFluents();
 
-        final HBox resultHBox = new HBox();
         Group resultGroup;
         double initX = 0;
         double initY = 0;
@@ -78,23 +138,11 @@ public class CanvasController implements Initializable {
         for(Entity rootEntity : entityMap.values()){
             resultGroup = new Group();
             buildWorkflowDiagram(resultGroup, rootEntity, initX, initY, true);
-            resultHBox.getChildren().add(resultGroup);
+            diagramLayer.getChildren().add(resultGroup);
             //initX += resultGroup.getLayoutBounds().getWidth() + Constants.NODE_HORIZONTAL_GAP; TODO
         }
 
-        contentPane.getChildren().add(resultHBox);
-
-        //TODO allow SPACE + mouse-drag as well?
-        // move view point using scroll
-        contentPane.setOnScroll(new EventHandler<ScrollEvent>() {
-            @Override
-            public void handle(ScrollEvent e) {
-                double translateX = e.getDeltaX();
-                double translateY = e.getDeltaY();
-                resultHBox.setTranslateX(resultHBox.getTranslateX() + translateX);
-                resultHBox.setTranslateY(resultHBox.getTranslateY() + translateY);
-            }
-        });
+        diagramDrawn = true;
     }
 
     private void buildWorkflowDiagram(Group resultGroup, Entity rootEntity, double initX, double initY, boolean drawRoot) {
