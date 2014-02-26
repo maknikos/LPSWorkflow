@@ -1,5 +1,8 @@
 package com.LPSWorkflow.model.database;
 
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,11 +12,11 @@ import java.util.List;
  */
 public class Database {
     private static Database instance = null;
-    private List<String> facts;
+    //TODO private List<String> facts;
     private List<Rule> rules;
 
     private Database() {
-        this.facts = new ArrayList<String>();
+        //TODO this.facts = new ArrayList<String>();
         this.rules = new ArrayList<Rule>();
     }
 
@@ -28,13 +31,22 @@ public class Database {
         return instance;
     }
 
-    public List<String> getFacts() {
+    private StringProperty facts = new SimpleStringProperty(this, "str", "");
+    //TODO remove default path (or use xml config for default?)
+
+    public StringProperty factsProperty(){
         return facts;
     }
 
-    public void setFacts(List<String> facts) {
-        this.facts = facts;
+    public final void setFacts(String str){
+        facts.set(str);
     }
+
+    public final String getFilePath(){
+        return facts.get();
+    }
+
+
 
     public List<Rule> getRules() {
         return rules;

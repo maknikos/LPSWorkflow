@@ -54,8 +54,8 @@ public class CanvasController implements Initializable {
         contentPane.setClip(clip);
     }
 
-    //TODO change the name
-    public void handleDrawAction() {
+    @FXML
+    private void handleDrawAction() {
         fileManager.openFile(fileData.getFilePath());
 
         //only draw when the file is open

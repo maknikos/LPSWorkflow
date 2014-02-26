@@ -2,11 +2,8 @@
 
 <?import javafx.scene.control.TextArea?>
 <BorderPane fx:controller="com.LPSWorkflow.controller.DatabaseController"
-          xmlns:fx="http://javafx.com/fxml"
-        fx:id="parentPane">
+            xmlns:fx="http://javafx.com/fxml">
     <center>
-        <Pane fx:id="contentPane" prefHeight="500">
-            <TextArea fx:id="factField" minHeight="200">Test</TextArea>
-        </Pane>
+        <TextArea fx:id="factArea" minHeight="200"/>
     </center>
 </BorderPane>
