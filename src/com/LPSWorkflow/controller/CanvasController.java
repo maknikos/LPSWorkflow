@@ -188,12 +188,13 @@ public class CanvasController implements Initializable {
 
                 // if it has next entity, need to merge all paths to point to that.
                 nextNode = createNodeFor(nextEntity, nextX, nextY);
+
                 if(nextNode == null){
-                    nextNode = new EmptyNode();
+                    break; // finish if there is no next node.
                 }
-                resultGroup.getChildren().add(nextNode);
 
                 // for the last node in each path for the multiChildEntity, connect arrows
+                resultGroup.getChildren().add(nextNode);
                 for(Entity next : nextEntities){
                     Entity last = getLastEntityInThePath(next);
                     Node lastNode = displayMap.get(last);
