@@ -18,13 +18,13 @@ public class AndNode extends Node {
         super("AND");
         stackPane = new StackPane();
         stackPane.setAlignment(Pos.CENTER);
-        stackPane.setMinSize(width, height);
+        stackPane.setMinWidth(width);
         circleBorder = new Circle();
-        circleBorder.setRadius(30);
+        circleBorder.setRadius(15);
         circleBorder.setFill(Paint.valueOf("Transparent"));
         circleBorder.setStroke(Paint.valueOf("Black"));
         text = new Label("AND");
-        text.setStyle("-fx-padding:15px; -fx-font-size:25px");
+        text.setStyle("-fx-font-size:12px");
 
         stackPane.getChildren().addAll(text, circleBorder);
         getChildren().addAll(stackPane);
