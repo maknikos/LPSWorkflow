@@ -152,13 +152,13 @@ public class StructureBuilder {
         return reactiveRulesRootMap;
     }
 
-    private void connectEntities(Entity e, Map<Object, Object> reactiveRuleConnections) {
+    private void connectEntities(Entity e, Map<Object, Object> connections) {
         if(e == null){
             return;
         }
-        Entity entity = (Entity) reactiveRuleConnections.get(e);
+        Entity entity = (Entity) connections.get(e);
         e.setNext(entity);
-        connectEntities(entity, reactiveRuleConnections);
+        connectEntities(entity, connections);
     }
 
     private boolean isOr(Entity e) {
