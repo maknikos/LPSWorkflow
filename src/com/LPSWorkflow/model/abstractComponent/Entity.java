@@ -40,6 +40,8 @@ public abstract class Entity {
         return name;
     }
 
+    public abstract EntityType getType();
+
     public String toString(){
         return name;
     }

@@ -63,7 +63,7 @@ public class LPSFileManager {
 
         StructureBuilder structureBuilder = new StructureBuilder();
         structureBuilder.build(loader.getReactiveRuleRoots(), loader.getReactiveRuleConnections(),
-                loader.getGoalRoots(), loader.getGoalConnections());
+                loader.getGoalRoots(), loader.getGoalConnections(), loader.getFluents());
         this.rootMap = structureBuilder.getReactiveRulesRootMap();
         this.fluents = loader.getFluents();
         this.isFileOpen = true;

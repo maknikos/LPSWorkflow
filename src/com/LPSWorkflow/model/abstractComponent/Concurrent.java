@@ -20,4 +20,9 @@ public class Concurrent extends Entity {
     public List<Entity> getEntities(){
         return entities;
     }
+
+    @Override
+    public EntityType getType() {
+        return EntityType.CONCURRENT;
+    }
 }

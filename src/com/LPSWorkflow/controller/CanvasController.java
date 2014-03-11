@@ -5,6 +5,7 @@ import com.LPSWorkflow.LPS.LPSFileManager;
 import com.LPSWorkflow.common.Constants;
 import com.LPSWorkflow.model.FileData;
 import com.LPSWorkflow.model.abstractComponent.Entity;
+import com.LPSWorkflow.model.abstractComponent.EntityType;
 import com.LPSWorkflow.model.abstractComponent.MultiChildEntity;
 import com.LPSWorkflow.model.visualComponent.*;
 import javafx.event.EventHandler;
@@ -26,7 +27,6 @@ import java.util.*;
  * Controller for the main canvas
  */
 public class CanvasController implements Initializable {
-    private List<String> fluents;
     private FileData fileData;
     private LPSFileManager fileManager;
     private Map<Entity, Node> displayMap; // stores mappings from Entities to corresponding Nodes
@@ -129,7 +129,6 @@ public class CanvasController implements Initializable {
         diagramLayer.getChildren().clear();
         entityMap = fileManager.getRootMap();
         execManager = new ExecutionManager(entityMap); //TODO group initialisations?
-        fluents = fileManager.getFluents();
 
         Group resultGroup;
         double initX = 0;
@@ -258,15 +257,15 @@ public class CanvasController implements Initializable {
         String name = entity.getName();
         Node node = null;
         if(!entity.hasSingleChild()){ // a MultiChildEntity
-            if(entity.getName().equals("OR")){ //TODO use Enum to distinguish?
+            if(entity.getType() == EntityType.OR){
                 node = new OrNode();
-            } else if(entity.getName().equals("AND")) {
+            } else if(entity.getType() == EntityType.AND) {
                 node = new AndNode();
-            } else if(entity.getName().equals("||")) {
+            } else if(entity.getType() == EntityType.PARTIAL_ORDER) {
                 node = new PartialOrderNode(); // TODO if the shapes are the same, we can use MultiChildNode for all three. (left distinct in case their shape may differ)
             }
-        } else if(isFluent(name, fluents)) {
-            node = new FluentNode(name); // TODO if distinguished in abstract level, use that to create FluentNode rather than its name
+        } else if(entity.getType() == EntityType.FLUENT) {
+            node = new FluentNode(name);
         } else {
             Group goalDef = new Group();
             buildWorkflowDiagram(goalDef, entity.getDefinition(), 0, 0, false);
@@ -276,11 +275,5 @@ public class CanvasController implements Initializable {
         node.setLayoutY(y);
         displayMap.put(entity, node);
         return node;
-    }
-
-    private boolean isFluent(String currName, List<String> fluents) {
-        return fluents.contains(currName)
-                || (currName.contains("!") && fluents.contains(currName.substring(1))) // negation
-                || (currName.contains(":")); // concurrent
     }
 }

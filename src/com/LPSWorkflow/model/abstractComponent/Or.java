@@ -9,4 +9,9 @@ public class Or extends MultiChildEntity {
     public Or(List<Entity> entities) {
         super("OR", entities);
     }
+
+    @Override
+    public EntityType getType() {
+        return EntityType.OR;
+    }
 }

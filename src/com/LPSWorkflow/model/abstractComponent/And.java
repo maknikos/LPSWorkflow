@@ -9,4 +9,9 @@ public class And extends MultiChildEntity {
     public And(List<Entity> entities) {
         super("AND", entities);
     }
+
+    @Override
+    public EntityType getType() {
+        return EntityType.AND;
+    }
 }

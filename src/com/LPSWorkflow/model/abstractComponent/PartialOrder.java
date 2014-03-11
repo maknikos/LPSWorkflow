@@ -11,4 +11,9 @@ public class PartialOrder extends MultiChildEntity {
     public PartialOrder(List entities) {
         super("||", entities);
     }
+
+    @Override
+    public EntityType getType() {
+        return EntityType.PARTIAL_ORDER;
+    }
 }

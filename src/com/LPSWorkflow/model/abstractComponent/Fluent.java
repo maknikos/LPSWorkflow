@@ -1,15 +1,15 @@
 package com.LPSWorkflow.model.abstractComponent;
 
 /**
- * Action entity (a box)
+ * Fluent entity (diamond)
  */
-public class Action extends Entity {
-    public Action(String name) {
+public class Fluent extends Entity{
+    public Fluent(String name) {
         super(name);
     }
 
     @Override
     public EntityType getType() {
-        return EntityType.ACTION;
+        return EntityType.FLUENT;
     }
 }
