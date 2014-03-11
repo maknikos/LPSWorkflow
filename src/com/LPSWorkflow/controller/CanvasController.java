@@ -101,13 +101,14 @@ public class CanvasController implements Initializable {
 
             Entity nextEntity = execManager.getNextEntity();
             if(nextEntity == null){
-                return; // TODO end? special case?
+                executionLayer.getChildren().remove(execCircle);
+                execCircle = null;
+                return;
             } else {
                 Node node = displayMap.get(nextEntity);
                 execCircle.setCenterX(node.getParent().getBoundsInParent().getMinX() + node.getBoundsInParent().getMaxX());
                 execCircle.setCenterY(node.getBoundsInParent().getMaxY());
             }
-
 
         } else {
             //TODO Error message
@@ -181,7 +182,6 @@ public class CanvasController implements Initializable {
                     nextX += Constants.NODE_WIDTH + Constants.NODE_HORIZONTAL_GAP;
                     resultGroup.getChildren().add(createArrow(currNode, displayMap.get(child)));
                 }
-                //TODO use getLayoutBounds().getWidth() from resultGroup each time to get the next y?
 
                 nextX = currNode.getLayoutX();
                 nextY = resultGroup.getLayoutBounds().getHeight() + Constants.NODE_VERTICAL_GAP;
@@ -266,7 +266,7 @@ public class CanvasController implements Initializable {
                 node = new PartialOrderNode(); // TODO if the shapes are the same, we can use MultiChildNode for all three. (left distinct in case their shape may differ)
             }
         } else if(isFluent(name, fluents)) {
-            node = new FluentNode(name);
+            node = new FluentNode(name); // TODO if distinguished in abstract level, use that to create FluentNode rather than its name
         } else {
             Group goalDef = new Group();
             buildWorkflowDiagram(goalDef, entity.getDefinition(), 0, 0, false);

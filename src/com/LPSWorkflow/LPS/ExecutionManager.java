@@ -34,6 +34,10 @@ public class ExecutionManager {
             currentStep = currentStep.getNext();
         }
         return currentStep;
+
+
+
+        //TODO deal with multiChildNodes
     }
 
     private boolean holds(String root, List<String> facts) {
