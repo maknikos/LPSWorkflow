@@ -1,7 +1,6 @@
 package com.LPSWorkflow.LPS;
 
 import com.LPSWorkflow.model.abstractComponent.*;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,7 +31,117 @@ public class StructureBuilder {
         replaceFluents(reactiveRulesRootMap, fluents);
         replaceFluents(goalsRootMap, fluents);
 
+        // merge common starts of multiChildEntities (e.g. OR)
+        mergeCommonPaths(reactiveRulesRootMap);
+        mergeCommonPaths(goalsRootMap);
+
         addGoalDefinitions();
+    }
+
+    private void mergeCommonPaths(Map<String, Entity> rootMap) {
+        for(Entity e : rootMap.values()){
+            mergeCommonPathsNext(e);
+        }
+    }
+
+    private void mergeCommonPathsNext(Entity e) {
+        if(e == null){
+            return;
+        }
+
+        // jump to multiChildNode
+        Entity prev = e;
+        Entity current = e.getNext();
+        while(current != null && current.hasSingleChild()){
+            prev = current;
+            current = current.getNext();
+        }
+
+        if(current == null){
+            return;
+        }
+
+        // current is a multiChildNode.
+        EntityType currentMultiType = current.getType();
+        List<Entity> nextEntities = ((MultiChildEntity) current).getNextEntities();
+
+        // sort the next paths into groups according to shared entities
+        Map<String, List<Entity>> commonStartGroups = new HashMap<String, List<Entity>>();
+        for(Entity next : nextEntities){
+            String name = next.getName();
+
+            // if next.getNext() is null, then merging it will remove the path altogether. so pass.
+            if(next.getNext() != null) {
+                if(commonStartGroups.containsKey(name)){
+                    commonStartGroups.get(name).add(next);
+                } else {
+                    ArrayList<Entity> entities = new ArrayList<Entity>();
+                    entities.add(next);
+                    commonStartGroups.put(name, entities);
+                }
+            }
+        }
+        // if a group has more than one entity, then merge & group their children
+        for(List<Entity> group : commonStartGroups.values()){
+            if(group.size() > 1){
+                // create a separate entity
+                Entity entity = group.get(0);
+                Entity mergedEntity = createEntityFor(entity.getType(), entity.getName());
+
+                // create a multiChildNode to group the next entities
+                List<Entity> newNextEntities = new ArrayList<Entity>();
+                for(Entity member : group){
+                    Entity memberNext = member.getNext();
+                    nextEntities.remove(member);
+                    newNextEntities.add(memberNext);
+                }
+                Entity nextMultiChildEntity = createMultiChildEntityFor(currentMultiType, newNextEntities);
+
+                // set the multiChildNode as the mergedEntity's next
+                mergedEntity.setNext(nextMultiChildEntity);
+                nextEntities.add(mergedEntity);
+
+                // repeat until the end reached, or no more common paths.
+                mergeCommonPathsNext(mergedEntity);
+            }
+
+        }
+
+        // if current multiChildEntity has only one child, then connect directly to its child
+        if(nextEntities.size() == 1){
+            prev.setNext(nextEntities.get(0));
+        }
+
+        // proceed with the trailing path
+        mergeCommonPathsNext(current.getNext());
+    }
+
+    private Entity createMultiChildEntityFor(EntityType type, List<Entity> nextEntities) {
+        switch(type){
+            case AND:
+                return new And(nextEntities);
+            case OR:
+                return new Or(nextEntities);
+            case PARTIAL_ORDER:
+                return new PartialOrder(nextEntities);
+            default:
+                return null;
+        }
+    }
+
+    private Entity createEntityFor(EntityType type, String name) {
+        switch (type){
+            case ACTION:
+                return new Action(name);
+            case FLUENT:
+                return new Fluent(name);
+            case CONCURRENT:
+                String[] split = name.split(":");
+                return new Concurrent(split[0], split[1]);
+            default:
+                return null;
+        }
+
     }
 
     private void replaceFluents(Map<String, Entity> rootMap, List<String> fluents) {
