@@ -122,11 +122,13 @@ public class ActionNode extends Node {
         if(b){
             vBox.getChildren().add(goalDefinition);
             text.setStyle("-fx-font-size:18px; -fx-border-color:black; -fx-border-width:0 0 1 0");
-            text.setPrefSize(vBox.getBoundsInParent().getWidth(), 22);
+            text.prefWidthProperty().bind(vBox.widthProperty());
+            text.setPrefHeight(22);
             expandButton.setText("-");
         } else {
             vBox.getChildren().remove(goalDefinition);
             text.setStyle("-fx-font-size:25px; -fx-border-color:transparent;");
+            text.prefWidthProperty().unbind();
             text.setPrefSize(width, height);
             expandButton.setText("+");
         }

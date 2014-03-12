@@ -8,6 +8,8 @@ import com.LPSWorkflow.model.abstractComponent.Entity;
 import com.LPSWorkflow.model.abstractComponent.EntityType;
 import com.LPSWorkflow.model.abstractComponent.Fluent;
 import com.LPSWorkflow.model.abstractComponent.MultiChildEntity;
+import com.LPSWorkflow.model.execution.ExecAgent;
+import com.LPSWorkflow.model.execution.ExecCircle;
 import com.LPSWorkflow.model.visualComponent.*;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -16,11 +18,8 @@ import javafx.scene.Group;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.shape.StrokeType;
-
 import java.net.URL;
 import java.util.*;
 
@@ -38,7 +37,6 @@ public class CanvasController implements Initializable {
     private HBox diagramLayer;
     private Group executionLayer;
     private ExecutionManager execManager;
-    private Circle execCircle;
 
     @FXML
     private Pane contentPane;
@@ -94,37 +92,21 @@ public class CanvasController implements Initializable {
     @FXML
     private void handleNextAction(){
         if(diagramDrawn){
-            // TODO if multiple paths are possible, spawn new position circles
-            if(execCircle == null){
-                execCircle = createExecCircle();
-                executionLayer.getChildren().add(execCircle);
-            }
+            executionLayer.getChildren().clear();
+            List<ExecAgent> agents = execManager.getNextStep();
 
-            Entity nextEntity = execManager.getNextEntity();
-            if(nextEntity == null){
-                executionLayer.getChildren().remove(execCircle);
-                execCircle = null;
-                return;
-            } else {
-                Node node = displayMap.get(nextEntity);
-                execCircle.setCenterX(node.getParent().getBoundsInParent().getMinX() + node.getBoundsInParent().getMaxX());
-                execCircle.setCenterY(node.getBoundsInParent().getMaxY());
-            }
+            for(ExecAgent agent : agents){
+                ExecCircle circle = new ExecCircle();
 
+                Node node = displayMap.get(agent.getCurrentEntity());
+                circle.setCenterX(node.getParent().getBoundsInParent().getMinX() + node.getBoundsInParent().getMaxX());
+                circle.setCenterY(node.getBoundsInParent().getMinY());
+                executionLayer.getChildren().add(circle);
+            }
         } else {
             //TODO Error message
         }
     }
-
-    private Circle createExecCircle() { // TODO make into class
-        Circle circle = new Circle(10);
-        circle.setFill(Color.GOLD.deriveColor(1, 1, 1, 0.5));
-        circle.setStroke(Color.GOLD);
-        circle.setStrokeWidth(2);
-        circle.setStrokeType(StrokeType.OUTSIDE);
-        return circle;
-    }
-
 
     private void drawProgram() {
         diagramLayer.getChildren().clear();
