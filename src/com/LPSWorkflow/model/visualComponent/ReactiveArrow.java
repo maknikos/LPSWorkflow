@@ -18,10 +18,14 @@ public class ReactiveArrow extends Parent {
     final Line head1;
     final Line head2;
 
-    public ReactiveArrow(final Node startNode, final Node endNode) {
+    public ReactiveArrow(final Node startNode, final Node endNode, boolean arrowForTrue) {
         path = new Path();
 
         path.setStyle("-fx-stroke-width:3px; -fx-stroke-dash-array:8 6;");
+        if(!arrowForTrue){
+            path.setStroke(Paint.valueOf("Red")); //TODO change shape as well?
+        }
+
 
         startPoint = new MoveTo(0, 0);
         endPoint = new LineTo(0, 0);

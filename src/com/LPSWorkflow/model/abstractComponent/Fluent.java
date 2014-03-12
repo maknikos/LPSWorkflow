@@ -18,6 +18,15 @@ public class Fluent extends Entity {
         FalseNext = falseNext;
     }
 
+    public String getNameWithoutNeg(){
+        String name = getName();
+        if(name.contains("!")){
+            return getName().split("!")[1];
+        } else {
+            return getName();
+        }
+    }
+
     @Override
     public EntityType getType() {
         return EntityType.FLUENT;

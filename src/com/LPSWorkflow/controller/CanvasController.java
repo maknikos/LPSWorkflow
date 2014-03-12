@@ -6,6 +6,7 @@ import com.LPSWorkflow.common.Constants;
 import com.LPSWorkflow.model.FileData;
 import com.LPSWorkflow.model.abstractComponent.Entity;
 import com.LPSWorkflow.model.abstractComponent.EntityType;
+import com.LPSWorkflow.model.abstractComponent.Fluent;
 import com.LPSWorkflow.model.abstractComponent.MultiChildEntity;
 import com.LPSWorkflow.model.visualComponent.*;
 import javafx.event.EventHandler;
@@ -168,7 +169,6 @@ public class CanvasController implements Initializable {
             nextEntity = currEntity.getNext();
             // Draw next node
             currNode = displayMap.get(currEntity);
-
             if(!currEntity.hasSingleChild()){
                 // if current node is a multiChildEntity, next should be its 'nextEntities'.
                 List<Entity> nextEntities = ((MultiChildEntity) currEntity).getNextEntities();
@@ -179,7 +179,7 @@ public class CanvasController implements Initializable {
                 for(Entity child : nextEntities){
                     buildWorkflowDiagram(resultGroup, child, nextX, nextY, true);
                     nextX += Constants.NODE_WIDTH + Constants.NODE_HORIZONTAL_GAP;
-                    resultGroup.getChildren().add(createArrow(currNode, displayMap.get(child)));
+                    resultGroup.getChildren().add(createArrow(currNode, displayMap.get(child), true));
                 }
 
                 nextX = currNode.getLayoutX();
@@ -197,24 +197,66 @@ public class CanvasController implements Initializable {
                 for(Entity next : nextEntities){
                     Entity last = getLastEntityInThePath(next);
                     Node lastNode = displayMap.get(last);
-                    resultGroup.getChildren().add(createArrow(lastNode, nextNode));
+                    resultGroup.getChildren().add(createArrow(lastNode, nextNode, true));
                 }
+
+            } else if(currEntity.getType() == EntityType.FLUENT
+                    && ((Fluent)currEntity).getFalseNext() != null) {
+                // for a fluent with FalseNext, we need to draw both True and False cases.
+                Fluent fluent = (Fluent) currEntity;
+                Entity trueNext = fluent.getNext();
+                Entity falseNext = fluent.getFalseNext();
+
+                if(trueNext != null){
+                    // need to draw both
+                    double totalWidth = Constants.NODE_HORIZONTAL_GAP + (2 * Constants.NODE_WIDTH);
+                    nextX -= ((totalWidth/2) - (Constants.NODE_WIDTH/2));
+
+                    // spread them out and draw each path
+                    //Draw True branch
+                    buildWorkflowDiagram(resultGroup, trueNext, nextX, nextY, true);
+                    nextX += Constants.NODE_WIDTH + Constants.NODE_HORIZONTAL_GAP;
+                    resultGroup.getChildren().add(createArrow(currNode, displayMap.get(trueNext), true));
+                    //Draw False branch
+                    buildWorkflowDiagram(resultGroup, falseNext, nextX, nextY, true);
+                    resultGroup.getChildren().add(createArrow(currNode, displayMap.get(falseNext), false));
+
+                    // nothing to merge, so finish.
+                    break;
+                } else {
+                    // only has falseNext
+                    nextEntity = falseNext;
+                    nextNode = createNodeFor(nextEntity, nextX, nextY);
+                    resultGroup.getChildren().add(nextNode);
+
+                    if(entityMap.values().contains(currEntity)){
+                        // it is antecedent of a reactive rule.
+                        resultGroup.getChildren().add(new ReactiveArrow(currNode, nextNode, false));
+                    } else {
+                        // Draw connection from prev to current node
+                        resultGroup.getChildren().add(createArrow(currNode, nextNode, false));
+                    }
+                }
+
+                // select the next entity TODO
+
             } else if(nextEntity == null){
                 // there is no next entity, so stop.
                 break;
             } else {
-                // draw the next entity TODO
+                // draw the next entity
                 nextNode = createNodeFor(nextEntity, nextX, nextY);
                 resultGroup.getChildren().add(nextNode);
 
                 if(entityMap.values().contains(currEntity)){
                     // it is antecedent of a reactive rule.
-                    resultGroup.getChildren().add(new ReactiveArrow(currNode, nextNode));
+                    resultGroup.getChildren().add(new ReactiveArrow(currNode, nextNode, true));
                 } else {
                     // Draw connection from prev to current node
-                    resultGroup.getChildren().add(createArrow(currNode, nextNode));
+                    resultGroup.getChildren().add(createArrow(currNode, nextNode, true));
                 }
             }
+
 
             // Update currEntity and continue
             currEntity = nextEntity;
@@ -232,7 +274,7 @@ public class CanvasController implements Initializable {
         return result;
     }
 
-    private Arrow createArrow(Node nodeFrom, Node nodeTo){
+    private Arrow createArrow(Node nodeFrom, Node nodeTo, boolean arrowForTrue){
         Set<Arrow> fromSet = arrowsFrom.get(nodeFrom);
         Set<Arrow> toSet = arrowsTo.get(nodeTo);
         if(fromSet == null){
@@ -243,7 +285,7 @@ public class CanvasController implements Initializable {
             toSet = new HashSet<Arrow>();
             arrowsTo.put(nodeTo, toSet);
         }
-        Arrow arrow = new Arrow(nodeFrom, nodeTo, toSet);
+        Arrow arrow = new Arrow(nodeFrom, nodeTo, toSet, arrowForTrue);
         fromSet.add(arrow);
         toSet.add(arrow);
         return arrow;

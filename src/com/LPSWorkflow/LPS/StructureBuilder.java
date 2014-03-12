@@ -35,7 +35,90 @@ public class StructureBuilder {
         mergeCommonPaths(reactiveRulesRootMap);
         mergeCommonPaths(goalsRootMap);
 
+        // merge fluents and their negations
+        mergeFluents(reactiveRulesRootMap);
+        mergeFluents(goalsRootMap);
+
         addGoalDefinitions();
+    }
+
+    private void mergeFluents(Map<String, Entity> rootMap) {
+        for(Entity e : rootMap.values()){
+            mergeFluentsNext(e);
+        }
+    }
+
+    private void mergeFluentsNext(Entity e) {
+        if(e == null){
+            return;
+        }
+
+        // jump to multiChildNode
+        Entity prev = e;
+        Entity current = e.getNext();
+        while(current != null && current.hasSingleChild()){
+            prev = current;
+            current = current.getNext();
+        }
+
+        if(current == null){
+            return;
+        }
+
+        // current is a multiChildNode.
+        List<Entity> nextEntities = ((MultiChildEntity) current).getNextEntities();
+
+        // sort the next fluents into groups according to shared entities
+        Map<String, List<Fluent>> commonFluentGroups = new HashMap<String, List<Fluent>>();
+        for(Entity next : nextEntities){
+            // if next.getNext() is null, then merging it will remove the path altogether. so pass.
+            if(next.getNext() != null && next.getType() == EntityType.FLUENT) {
+                Fluent nextFluent = (Fluent) next;
+                String name = nextFluent.getNameWithoutNeg();
+                if(commonFluentGroups.containsKey(name)){
+                    commonFluentGroups.get(name).add(nextFluent);
+                } else {
+                    ArrayList<Fluent> fluents = new ArrayList<Fluent>();
+                    fluents.add(nextFluent);
+                    commonFluentGroups.put(name, fluents);
+                }
+            }
+        }
+        // if a group has more than one entity, then merge & group their children
+        for(String key : commonFluentGroups.keySet()){
+            List<Fluent> group = commonFluentGroups.get(key);
+            if(group.size() > 1){
+                // create a separate fluent
+                Fluent mergedFluent = (Fluent) createEntityFor(EntityType.FLUENT, key);
+
+                // for a fluent f, assume there are only f and !f (single instances)
+                for(Fluent member : group){
+                    Entity memberNext = member.getNext();
+                    nextEntities.remove(member);
+                    if(member.getName().equals(member.getNameWithoutNeg())){
+                        mergedFluent.setNext(memberNext);
+                    } else {
+                        mergedFluent.setFalseNext(memberNext);
+                    }
+                }
+
+                nextEntities.add(mergedFluent);
+                // repeat until the end reached, or no more common fluents.
+                mergeFluentsNext(mergedFluent);
+            }
+        }
+
+        // if current multiChildEntity has only one child, then connect directly to its child
+        if(nextEntities.size() == 1){
+            prev.setNext(nextEntities.get(0));
+        } else {
+            for(Entity next : nextEntities){
+                mergeFluentsNext(next);
+            }
+        }
+
+        // proceed with the trailing path
+        mergeFluentsNext(current.getNext());
     }
 
     private void mergeCommonPaths(Map<String, Entity> rootMap) {
@@ -104,7 +187,6 @@ public class StructureBuilder {
                 // repeat until the end reached, or no more common paths.
                 mergeCommonPathsNext(mergedEntity);
             }
-
         }
 
         // if current multiChildEntity has only one child, then connect directly to its child

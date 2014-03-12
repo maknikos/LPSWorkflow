@@ -5,6 +5,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Bounds;
 import javafx.scene.Parent;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.*;
 
 import java.util.Set;
@@ -21,9 +22,13 @@ public class Arrow extends Parent {
     final Line head1;
     final Line head2;
 
-    public Arrow(final Node startNode, final Node endNode, final Set<Arrow> arrowsToEndNode) {
+    public Arrow(final Node startNode, final Node endNode, final Set<Arrow> arrowsToEndNode, boolean arrowForTrue) {
         path = new Path();
         path.setStyle("-fx-stroke-width:1;");
+
+        if(!arrowForTrue){
+            path.setStroke(Paint.valueOf("Red")); //TODo change shape instead?
+        }
 
         startPoint = new MoveTo(0, 0);
         line1 = new LineTo(0, 0); // intermediate points
