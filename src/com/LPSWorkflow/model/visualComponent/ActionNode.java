@@ -1,6 +1,5 @@
 package com.LPSWorkflow.model.visualComponent;
 
-import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
 import javafx.geometry.Pos;
@@ -86,7 +85,7 @@ public class ActionNode extends Node {
                     // should only include Nodes, excluding itself
                     // also, only the ones not below this expanding node, and to the right.
                     if (node instanceof Node && !source.equals(node)
-                            && prevSourceBounds.getMaxX() < nodeBounds.getMinX()
+                            && prevSourceBounds.getMinX() < nodeBounds.getMinX()
                             && sourceBounds.getMaxY() > nodeBounds.getMinY()) {
                         relevantChildren.add((Node) node);
                         intersects = intersects || sourceBounds.intersects(node.getBoundsInParent());
@@ -122,7 +121,7 @@ public class ActionNode extends Node {
         if(b){
             vBox.getChildren().add(goalDefinition);
             text.setStyle("-fx-font-size:18px; -fx-border-color:black; -fx-border-width:0 0 1 0");
-            text.prefWidthProperty().bind(vBox.widthProperty());
+            text.prefWidthProperty().bind(vBox.widthProperty()); // TODO mouseover on a node causes the whole group to grow bit by bit...
             text.setPrefHeight(22);
             expandButton.setText("-");
         } else {

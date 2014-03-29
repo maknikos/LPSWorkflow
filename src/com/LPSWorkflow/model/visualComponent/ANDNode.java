@@ -35,8 +35,4 @@ public class AndNode extends Node {
         return null;
     }
 
-    @Override
-    public void setName(String name) {
-
-    }
 }

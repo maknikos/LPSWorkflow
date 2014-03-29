@@ -11,6 +11,8 @@ import com.LPSWorkflow.model.abstractComponent.MultiChildEntity;
 import com.LPSWorkflow.model.execution.ExecAgent;
 import com.LPSWorkflow.model.execution.ExecCircle;
 import com.LPSWorkflow.model.visualComponent.*;
+import javafx.animation.TranslateTransition;
+import javafx.animation.TranslateTransitionBuilder;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -20,6 +22,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
+import javafx.util.Duration;
+
 import java.net.URL;
 import java.util.*;
 
@@ -32,7 +36,7 @@ public class CanvasController implements Initializable {
     private Map<Entity, Node> displayMap; // stores mappings from Entities to corresponding Nodes
     private Map<String,Entity> entityMap;
     private Map<Node, Set<Arrow>> arrowsFrom; // arrows (value) from the node (key)
-    private Map<Node, Set<Arrow>> arrowsTo; // arrows (value) connected to the node (key)
+    private Map<Node, Set<Arrow>> arrowsTo; // arrows (value) connected to the node (key) TODO is this used?
     private boolean diagramDrawn;
     private HBox diagramLayer;
     private Group executionLayer;
@@ -63,12 +67,14 @@ public class CanvasController implements Initializable {
         contentPane.setClip(clip);
 
         //TODO allow SPACE + mouse-drag as well?
+        //TODO smooth scrolling?
         // move view point using scroll
         contentPane.setOnScroll(new EventHandler<ScrollEvent>() {
             @Override
             public void handle(ScrollEvent e) {
                 double translateX = e.getDeltaX();
                 double translateY = e.getDeltaY();
+
                 diagramLayer.setTranslateX(diagramLayer.getTranslateX() + translateX);
                 diagramLayer.setTranslateY(diagramLayer.getTranslateY() + translateY);
                 executionLayer.setTranslateX(executionLayer.getTranslateX() + translateX);
