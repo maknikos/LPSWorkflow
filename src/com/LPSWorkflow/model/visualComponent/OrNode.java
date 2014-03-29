@@ -34,9 +34,4 @@ public class OrNode extends Node {
     public String getName() {
         return null;
     }
-
-    @Override
-    public void setName(String name) {
-
-    }
 }

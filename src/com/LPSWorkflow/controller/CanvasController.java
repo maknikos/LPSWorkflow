@@ -110,6 +110,7 @@ public class CanvasController implements Initializable {
 
     private void drawProgram() {
         diagramLayer.getChildren().clear();
+        executionLayer.getChildren().clear();
         entityMap = fileManager.getRootMap();
         execManager = new ExecutionManager(entityMap); //TODO group initialisations?
 

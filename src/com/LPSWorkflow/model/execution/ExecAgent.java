@@ -6,12 +6,12 @@ import com.LPSWorkflow.model.abstractComponent.Entity;
  * Agent responsible for execution along a single path
  */
 public class ExecAgent {
-    private Entity CurrentEntity;
+    private Entity currentEntity;
     private boolean isReady;
     private int cycleNum;
 
     public ExecAgent(Entity currentEntity) {
-        CurrentEntity = currentEntity;
+        this.currentEntity = currentEntity;
         isReady = false;
         cycleNum = 0;
     }
@@ -21,11 +21,11 @@ public class ExecAgent {
     }
 
     public Entity getCurrentEntity() {
-        return CurrentEntity;
+        return currentEntity;
     }
 
     public void setCurrentEntity(Entity currentEntity) {
-        CurrentEntity = currentEntity;
+        this.currentEntity = currentEntity;
     }
 
     public boolean isReady() {
@@ -34,5 +34,20 @@ public class ExecAgent {
 
     public void setReady(boolean isReady) {
         this.isReady = isReady;
+    }
+
+    public int getCycleNum() {
+        return cycleNum;
+    }
+
+    public void setCycleNum(int cycleNum) {
+        this.cycleNum = cycleNum;
+    }
+
+    public ExecAgent clone(){
+        ExecAgent clone = new ExecAgent(currentEntity);
+        clone.setReady(isReady);
+        clone.setCycleNum(cycleNum);
+        return clone;
     }
 }

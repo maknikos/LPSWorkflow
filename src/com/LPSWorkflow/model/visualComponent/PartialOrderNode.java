@@ -23,7 +23,7 @@ public class PartialOrderNode extends Node {
         circleBorder.setRadius(15);
         circleBorder.setFill(Paint.valueOf("Transparent"));
         circleBorder.setStroke(Paint.valueOf("Black"));
-        text = new Label("||");
+        text = new Label("AND");
         text.setStyle("-fx-font-size:12px");
 
         stackPane.getChildren().addAll(text, circleBorder);
@@ -33,10 +33,5 @@ public class PartialOrderNode extends Node {
     @Override
     public String getName() {
         return null;
-    }
-
-    @Override
-    public void setName(String name) {
-
     }
 }

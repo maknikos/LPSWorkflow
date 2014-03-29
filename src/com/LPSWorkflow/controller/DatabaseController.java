@@ -20,6 +20,7 @@ public class DatabaseController implements Initializable{
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         // For each fluent in the program, add a checkbox (ticked box will mean it holds)
+        factArea.setStyle("-fx-font-size:20px");
         database = Database.getInstance();
         database.factsProperty().bind(factArea.textProperty());
     }

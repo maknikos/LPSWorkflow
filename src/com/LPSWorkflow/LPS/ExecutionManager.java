@@ -33,6 +33,7 @@ public class ExecutionManager {
             Entity curr = agent.getCurrentEntity();
             if(holds(curr.getName(), facts)){
                 agent.setCurrentEntity(curr.getNext());
+                agent.increment();
             }
 
             // if next is null, remove from the list
