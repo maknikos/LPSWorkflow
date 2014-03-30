@@ -1,22 +1,23 @@
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.Group?>
+<?import javafx.scene.layout.Pane?>
 <BorderPane fx:controller="com.LPSWorkflow.main.Controller"
             xmlns:fx="http://javafx.com/fxml">
     <!-- Top MenuBar -->
+    <!-- Main contents for the workflow -->
     <top>
         <fx:include source="../view/menuBarView.fxml" />
     </top>
-    <!-- Main contents for the workflow -->
-    <center>
-        <SplitPane dividerPositions="0.7f">
-            <items>
-                <Group>
-                    <fx:include source="../view/canvasView.fxml"  SplitPane.resizableWithParent="true" />
 
-                </Group>
-                <fx:include source="../view/databaseView.fxml"  SplitPane.resizableWithParent="true" />
-            </items>
-        </SplitPane>
+    <center>
+        <Pane fx:id="mainPane">
+            <SplitPane fx:id="mainSplitPane" dividerPositions="0.7f" >
+                <items>
+                    <fx:include source="../view/canvasView.fxml"  SplitPane.resizableWithParent="true" />
+                    <fx:include source="../view/databaseView.fxml"  SplitPane.resizableWithParent="true" />
+                </items>
+            </SplitPane>
+            <fx:include source="../view/messageView.fxml" />
+        </Pane>
     </center>
 </BorderPane>

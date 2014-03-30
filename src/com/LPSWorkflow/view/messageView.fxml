@@ -1,16 +1,9 @@
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-
-<BorderPane fx:controller="com.LPSWorkflow.controller.CanvasController"
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.control.Label?>
+<BorderPane fx:controller="com.LPSWorkflow.controller.MessageViewController"
           xmlns:fx="http://javafx.com/fxml"
-        fx:id="parentPane">
+        fx:id="messagePane">
     <center>
-        <Pane fx:id="contentPane" prefHeight="500"/>
+        <Label>LABEL</Label>
     </center>
-    <bottom>
-        <HBox>
-            <Button text="Draw" onAction="#handleDrawAction"/>
-            <Button text="Next" onAction="#handleNextAction"/>
-        </HBox>
-    </bottom>
 </BorderPane>
