@@ -1,5 +1,6 @@
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.Group?>
 <BorderPane fx:controller="com.LPSWorkflow.main.Controller"
             xmlns:fx="http://javafx.com/fxml">
     <!-- Top MenuBar -->
@@ -10,7 +11,10 @@
     <center>
         <SplitPane dividerPositions="0.7f">
             <items>
-                <fx:include source="../view/canvasView.fxml"  SplitPane.resizableWithParent="true" />
+                <Group>
+                    <fx:include source="../view/canvasView.fxml"  SplitPane.resizableWithParent="true" />
+
+                </Group>
                 <fx:include source="../view/databaseView.fxml"  SplitPane.resizableWithParent="true" />
             </items>
         </SplitPane>

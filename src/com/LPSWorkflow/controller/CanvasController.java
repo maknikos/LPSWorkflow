@@ -36,7 +36,7 @@ public class CanvasController implements Initializable {
     private Map<Entity, Node> displayMap; // stores mappings from Entities to corresponding Nodes
     private Map<String,Entity> entityMap;
     private Map<Node, Set<Arrow>> arrowsFrom; // arrows (value) from the node (key)
-    private Map<Node, Set<Arrow>> arrowsTo; // arrows (value) connected to the node (key) TODO is this used?
+    private Map<Node, Set<Arrow>> arrowsTo; // arrows (value) connected to the node (key) (used for merging multiple arrows)
     private boolean diagramDrawn;
     private HBox diagramLayer;
     private Group executionLayer;
@@ -74,7 +74,6 @@ public class CanvasController implements Initializable {
             public void handle(ScrollEvent e) {
                 double translateX = e.getDeltaX();
                 double translateY = e.getDeltaY();
-
                 diagramLayer.setTranslateX(diagramLayer.getTranslateX() + translateX);
                 diagramLayer.setTranslateY(diagramLayer.getTranslateY() + translateY);
                 executionLayer.setTranslateX(executionLayer.getTranslateX() + translateX);
