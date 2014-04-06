@@ -8,7 +8,7 @@
     <top>
         <VBox fx:id="messageBox">
             <padding>
-                <Insets top="10" bottom="10" left="10" right="10"/>
+                <Insets top="5" bottom="5" left="5" right="5"/>
             </padding>
         </VBox>
     </top>

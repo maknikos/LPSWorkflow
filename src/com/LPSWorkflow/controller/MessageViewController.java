@@ -10,7 +10,6 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.Group;
 import javafx.scene.layout.VBox;
 
 import java.net.URL;
@@ -36,7 +35,7 @@ public class MessageViewController implements Initializable {
         });
     }
 
-    private Group createMessage(String message) {
+    private MessageShape createMessage(String message) {
         return new MessageShape(new Message(message, MessageType.ERROR));
     }
 
