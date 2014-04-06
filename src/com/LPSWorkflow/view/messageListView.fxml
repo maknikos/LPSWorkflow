@@ -1,0 +1,15 @@
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.control.TableColumn?>
+<BorderPane fx:controller="com.LPSWorkflow.controller.MessageViewController"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:id="messagePane">
+    <center>
+        <TableView>
+            <columns>
+                <TableColumn text="Content" editable="false" minWidth="300"/>
+                <TableColumn text="Type" editable="false"/>
+            </columns>
+        </TableView>
+    </center>
+</BorderPane>

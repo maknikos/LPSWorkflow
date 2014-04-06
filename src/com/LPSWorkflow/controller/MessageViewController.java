@@ -10,11 +10,18 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -45,7 +52,6 @@ public class MessageViewController implements Initializable {
                     count++;
 
                     if(count > 2){
-                        // TODO make a group/list of messages
                         messageBox.getChildren().add(moreButton);
                         msgCountStr.setValue("More (" + messages.size() + " messages)");
                         break;
@@ -62,13 +68,35 @@ public class MessageViewController implements Initializable {
         moreLabel.setStyle("-fx-border-color:#FF9999BB; -fx-border-radius:5px; " +
                 "-fx-background-color:#FF999999; -fx-background-radius:5px;" +
                 "-fx-text-fill:#771111FF; -fx-font-size:11px;" +
-                "-fx-padding:2 10 2 10");
+                "-fx-padding:2 10 2 10;" +
+                "-fx-alignment:center");
+        moreLabel.setMaxWidth(Double.MAX_VALUE);
+
+        //TODO handler for mouse-click ... launch new window?
+        moreLabel.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent mouseEvent) {
+                try {
+                    Parent root = FXMLLoader.load(getClass().getResource("../view/messageListView.fxml"));
+                    Stage messageStage = new Stage();
+                    messageStage.setScene(new Scene(root, 600, 150));
+                    messageStage.show();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
         return moreLabel;
     }
 
     private MessageShape createMessage(Message message) {
         return new MessageShape(message);
     }
+
+
+
+
 
     //***** TEST ****** TODO clear up
     private int count = 0;
