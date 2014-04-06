@@ -41,6 +41,8 @@ public class MessageViewController implements Initializable {
         moreButton = createMoreButton();
         messageData = MessageData.getInstance();
 
+        // if ChangeListener is used, it stops listening when a binding in MessageListViewController
+        // is introduced, so using invalidation listener instead.
         messageData.messageListProperty().addListener(new InvalidationListener() {
             @Override
             public void invalidated(Observable observable) {
