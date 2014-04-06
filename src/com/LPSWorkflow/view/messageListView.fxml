@@ -1,14 +1,21 @@
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.control.TableColumn?>
-<BorderPane fx:controller="com.LPSWorkflow.controller.MessageViewController"
+<BorderPane fx:controller="com.LPSWorkflow.controller.MessageListViewController"
             xmlns:fx="http://javafx.com/fxml"
             fx:id="messagePane">
     <center>
-        <TableView>
+        <TableView fx:id="messageTable">
             <columns>
-                <TableColumn text="Content" editable="false" minWidth="300"/>
-                <TableColumn text="Type" editable="false"/>
+                <TableColumn text="Content" editable="false" minWidth="300">
+                    <cellValueFactory><PropertyValueFactory property="content" />
+                    </cellValueFactory>
+                </TableColumn>
+                <TableColumn text="Type" editable="false">
+                    <cellValueFactory><PropertyValueFactory property="typeName" />
+                    </cellValueFactory>
+                </TableColumn>
             </columns>
         </TableView>
     </center>

@@ -4,10 +4,10 @@ import com.LPSWorkflow.model.message.Message;
 import com.LPSWorkflow.model.message.MessageData;
 import com.LPSWorkflow.model.message.MessageShape;
 import com.LPSWorkflow.model.message.MessageType;
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -40,9 +40,12 @@ public class MessageViewController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         moreButton = createMoreButton();
         messageData = MessageData.getInstance();
-        messageData.messageListProperty().addListener(new ChangeListener<ObservableList<Message>>() {
+
+        messageData.messageListProperty().addListener(new InvalidationListener() {
             @Override
-            public void changed(ObservableValue<? extends ObservableList<Message>> observableValue, ObservableList<Message> oldMessages, ObservableList<Message> messages) {
+            public void invalidated(Observable observable) {
+                ObservableList<Message> messages = (ObservableList<Message>) observable;
+
                 // sync with messages stored in MessageData instance
                 messageBox.getChildren().clear();
 
@@ -53,7 +56,7 @@ public class MessageViewController implements Initializable {
 
                     if(count > 2){
                         messageBox.getChildren().add(moreButton);
-                        msgCountStr.setValue("More (" + messages.size() + " messages)");
+                        msgCountStr.setValue("More (" + (messages).size() + " messages)");
                         break;
                     }
                     messageBox.getChildren().add(createMessage(m));
@@ -77,6 +80,7 @@ public class MessageViewController implements Initializable {
             @Override
             public void handle(MouseEvent mouseEvent) {
                 try {
+                    // launch the message list view in a new window(Stage)
                     Parent root = FXMLLoader.load(getClass().getResource("../view/messageListView.fxml"));
                     Stage messageStage = new Stage();
                     messageStage.setScene(new Scene(root, 600, 150));
