@@ -24,8 +24,8 @@ public class StructureBuilder {
                       Map<Object, Object> goalConnections,
                       List<String> fluents)
     {
-        buildReactiveRuleChains(reactiveRulesRootMap, reactiveRuleRoots, reactiveRuleConnections);
-        buildGoalChains(goalsRootMap, goalRoots, goalConnections);
+        buildChains(reactiveRulesRootMap, reactiveRuleRoots, reactiveRuleConnections, true);
+        buildChains(goalsRootMap, goalRoots, goalConnections, false);
 
         // distinguish fluents from actions by replacing corresponding Action with Fluent object
         replaceFluents(reactiveRulesRootMap, fluents);
@@ -332,8 +332,9 @@ public class StructureBuilder {
         }
     }
 
-    private void buildReactiveRuleChains(Map<String, Entity> rootMap,
-                                         Map<Object, Object> ruleRoots, Map<Object, Object> ruleConnections) {
+    private void buildChains(Map<String, Entity> rootMap,
+                             Map<Object, Object> ruleRoots, Map<Object, Object> ruleConnections,
+                             boolean groupByAnd) {
         // Build connections of entities
         for(Object root : ruleRoots.keySet()){
             // connect Antecedent to the beginning of the Consequent
@@ -348,7 +349,7 @@ public class StructureBuilder {
             Entity root = (Entity) rootObj;
             String rootName = root.getName();
             if(rootMap.containsKey(rootName)){
-                // Same root already exists. Merge the reactive rule roots by AND.
+                // Same root already exists. Merge the roots by AND. TODO
                 Entity existingRoot = rootMap.get(rootName); //TODO may need to group together the antecedents?
                 Entity existingNext = existingRoot.getNext(); // Either the next entity or an AND
 
@@ -363,47 +364,14 @@ public class StructureBuilder {
                     ArrayList<Entity> entities = new ArrayList<Entity>();
                     entities.add(existingNext);
                     entities.add(root.getNext());
-                    And and = new And(entities); // TODO this is the reason to have separate methods for GoalChains and ReactiveRule chains.. should I merge?
-                    existingRoot.setNext(and);
-                }
-            } else {
-                rootMap.put(rootName, root);
-            }
-        }
-    }
 
-    private void buildGoalChains(Map<String, Entity> rootMap,
-                                 Map<Object, Object> goalRoots, Map<Object, Object> goalConnections) {
-        // Build connections of entities
-        for(Object root : goalRoots.keySet()){
-            // connect Antecedent to the beginning of the Consequent
-            Entity next = (Entity) goalRoots.get(root);
-            ((Entity)root).setNext(next);
-            // connect the rest
-            connectEntities(next, goalConnections);
-        }
-
-        for(Object rootObj : goalRoots.keySet()){
-            Entity root = (Entity) rootObj;
-            String rootName = root.getName();
-            if(rootMap.containsKey(rootName)){
-                // Same root already exists. Merge the goal roots by OR.
-                Entity existingRoot = rootMap.get(rootName);
-                Entity existingNext = existingRoot.getNext(); // Either the next entity or an OR
-
-                if(root.getNext() == null) {
-                    // if it does not have next entity, ignore it
-                    break;
-                } else if(!existingNext.hasSingleChild()) {
-                    // if the next is already multiChildEntity, add to its children
-                    ((MultiChildEntity)existingNext).getNextEntities().add(root.getNext());
-                } else {
-                    // if the next is a singleChildEntity, create OR entity and add
-                    ArrayList<Entity> entities = new ArrayList<Entity>();
-                    entities.add(existingNext);
-                    entities.add(root.getNext());
-                    Or or = new Or(entities);
-                    existingRoot.setNext(or);
+                    if(groupByAnd){
+                        And and = new And(entities); // TODO this is the reason to have separate methods for GoalChains and ReactiveRule chains.. should I merge?
+                        existingRoot.setNext(and);
+                    } else {
+                        Or or = new Or(entities); // TODO this is the reason to have separate methods for GoalChains and ReactiveRule chains.. should I merge?
+                        existingRoot.setNext(or);
+                    }
                 }
             } else {
                 rootMap.put(rootName, root);
