@@ -30,10 +30,13 @@ public class MessageShape extends Region {
                 "-fx-background-color:#FF999999; -fx-background-radius:5px;" +
                 "-fx-text-fill:#771111FF; -fx-font-size:12px;" +
                 "-fx-padding:3 15 3 10");
+        contentLabel.setMaxWidth(500);
         closeButton = new Button("x");
         containerPane.getChildren().addAll(contentLabel, closeButton);
         StackPane.setAlignment(closeButton, Pos.TOP_RIGHT);
         StackPane.setMargin(contentLabel, new Insets(3, 6, 3, 0));
+
+        //TODO when clicked, show details of the particular message
 
         closeButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override

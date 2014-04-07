@@ -10,9 +10,9 @@ import com.LPSWorkflow.model.abstractComponent.Fluent;
 import com.LPSWorkflow.model.abstractComponent.MultiChildEntity;
 import com.LPSWorkflow.model.execution.ExecAgent;
 import com.LPSWorkflow.model.execution.ExecCircle;
+import com.LPSWorkflow.model.message.MessageData;
+import com.LPSWorkflow.model.message.MessageType;
 import com.LPSWorkflow.model.visualComponent.*;
-import javafx.animation.TranslateTransition;
-import javafx.animation.TranslateTransitionBuilder;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -20,9 +20,7 @@ import javafx.scene.Group;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
-import javafx.util.Duration;
 
 import java.net.URL;
 import java.util.*;
@@ -33,6 +31,7 @@ import java.util.*;
 public class CanvasController implements Initializable {
     private FileData fileData;
     private LPSFileManager fileManager;
+    private MessageData messageData;
     private Map<Entity, Node> displayMap; // stores mappings from Entities to corresponding Nodes
     private Map<String,Entity> entityMap;
     private Map<Node, Set<Arrow>> arrowsFrom; // arrows (value) from the node (key)
@@ -47,6 +46,7 @@ public class CanvasController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        messageData = MessageData.getInstance();
         fileData = FileData.getInstance();
         displayMap = new HashMap<Entity, Node>();
         arrowsFrom = new HashMap<Node, Set<Arrow>>();
@@ -84,13 +84,13 @@ public class CanvasController implements Initializable {
 
     @FXML
     private void handleDrawAction() {
-        fileManager.openFile(fileData.getFilePath());
+        fileManager.openFile(fileData.getFilePath()); //TODO should I remove all messages every time a new file is opened?
 
         //only draw when the file is open
         if(fileManager.isFileOpen()){
             drawProgram();
         } else {
-            //TODO error message
+            messageData.sendMessage("No file opened yet. Use File->Open to select a program file.", MessageType.ERROR);
         }
     }
 
@@ -109,15 +109,18 @@ public class CanvasController implements Initializable {
                 executionLayer.getChildren().add(circle);
             }
         } else {
-            //TODO Error message
+            messageData.sendMessage("No LPS program is drawn yet. Nothing to execute.", MessageType.ERROR);
         }
     }
 
-    private void drawProgram() {
+    private void initDraw(){
         diagramLayer.getChildren().clear();
         executionLayer.getChildren().clear();
         entityMap = fileManager.getRootMap();
-        execManager = new ExecutionManager(entityMap); //TODO group initialisations?
+        execManager = new ExecutionManager(entityMap);
+    }
+    private void drawProgram() {
+        initDraw();
 
         Group resultGroup;
         double initX = 0;

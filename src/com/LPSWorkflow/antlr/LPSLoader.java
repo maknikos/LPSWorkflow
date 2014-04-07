@@ -3,6 +3,8 @@ package com.LPSWorkflow.antlr;
 import com.LPSWorkflow.model.abstractComponent.Action;
 import com.LPSWorkflow.model.abstractComponent.Concurrent;
 import com.LPSWorkflow.model.abstractComponent.PartialOrder;
+import com.LPSWorkflow.model.message.MessageData;
+import com.LPSWorkflow.model.message.MessageType;
 import org.antlr.v4.runtime.misc.NotNull;
 
 import java.util.ArrayList;
@@ -32,6 +34,7 @@ public class LPSLoader extends LPSBaseListener {
     private Map<Object, Object> goalConnections;
     private List<String> fluents;
     private Parse currentParseTarget;
+    private MessageData messageData;
 
     public LPSLoader() {
         this.fluents = new ArrayList<String>();
@@ -40,6 +43,7 @@ public class LPSLoader extends LPSBaseListener {
         this.reactiveRuleRoots = new HashMap<Object, Object>();
         this.goalRoots = new HashMap<Object, Object>();
         this.currentParseTarget = Parse.NONE;
+        this.messageData = MessageData.getInstance();
     }
 
     @Override
@@ -77,8 +81,10 @@ public class LPSLoader extends LPSBaseListener {
         // reactive rule, r, always has 2 child formulas
         List<LPSParser.FormulaContext> formulas = ctx.formula();
 
-        if(formulas.size() < 2){
-            handleErrorCase();
+        if(formulas.size() < 2
+                || formulas.get(0).exception != null
+                || formulas.get(1).exception != null){
+            sendErrorMessage("Parsing 'Reactive Rule' failed. Invalid format.");
             return;
         }
         getRoots().put(formulas.get(0), formulas.get(1));
@@ -87,13 +93,14 @@ public class LPSLoader extends LPSBaseListener {
     @Override
     public void enterAtomic(@NotNull LPSParser.AtomicContext ctx) {
         // Atomic case of a Formula. Only has an AtomContext as a child
-        if(ctx.getChildCount() < 1){
-            handleErrorCase();
+        LPSParser.AtomContext atom = ctx.atom();
+        if(atom == null || atom.exception != null){
+            sendErrorMessage("Parsing 'Atomic' element failed. Invalid format.");
             return;
         }
 
-        replaceKey(ctx, ctx.atom());
-        replaceValues(ctx, ctx.atom());
+        replaceKey(ctx, atom);
+        replaceValues(ctx, atom);
     }
 
     @Override
@@ -101,8 +108,10 @@ public class LPSLoader extends LPSBaseListener {
         // Sequences are Formulas in the form: Formula ',' Formula
         List<LPSParser.FormulaContext> formulas = ctx.formula();
 
-        if(formulas.size() < 2){
-            handleErrorCase();
+        if(formulas.size() < 2
+                || formulas.get(0).exception != null
+                || formulas.get(1).exception != null){
+            sendErrorMessage("Parsing 'Sequence' element failed. Invalid format.");
             return;
         }
 
@@ -120,12 +129,11 @@ public class LPSLoader extends LPSBaseListener {
     @Override
     public void enterBracket(@NotNull LPSParser.BracketContext ctx) {
         // Formulas of the form: '(' Formula ')'
-        if (ctx.getChildCount() < 1) {
-            handleErrorCase();
+        LPSParser.FormulaContext formula = ctx.formula();
+        if (formula == null || formula.exception != null) {
+            sendErrorMessage("Parsing brackets failed. Invalid formula between brackets");
             return;
         }
-
-        LPSParser.FormulaContext formula = ctx.formula();
         // Connection from the Sequence starts from the second Formula
         replaceKey(ctx, formula);
         // Connections to the Sequence are reconnected to the first Formula
@@ -138,8 +146,10 @@ public class LPSLoader extends LPSBaseListener {
         // PartialOrders are Formulas in the form: Formula '||' Formula
         List<LPSParser.FormulaContext> formulas = ctx.formula();
 
-        if(formulas.size() < 2){
-            handleErrorCase();
+        if(formulas.size() < 2
+                || formulas.get(0).exception != null
+                || formulas.get(1).exception != null){
+            sendErrorMessage("Parsing 'PartialOrder' element failed. Invalid format.");
             return;
         }
 
@@ -160,8 +170,10 @@ public class LPSLoader extends LPSBaseListener {
         // Concurrent formulas are in the form: Formula ':' Formula
         List<LPSParser.FormulaContext> formulas = ctx.formula();
         //TODO can it manager complex combination of other formulas?
-        if(formulas.size() < 2){
-            handleErrorCase();
+        if(formulas.size() < 2
+                || formulas.get(0).exception != null
+                || formulas.get(1).exception != null){
+            sendErrorMessage("Parsing 'Concurrent' element failed. Invalid format.");
             return;
         }
 
@@ -178,21 +190,24 @@ public class LPSLoader extends LPSBaseListener {
     @Override
     public void enterG(@NotNull LPSParser.GContext ctx) {
         // Goal, g, always has an Atom and a Formula as children.
-        if(ctx.getChildCount() < 2){
-            handleErrorCase();
+        LPSParser.AtomContext atom = ctx.atom();
+        LPSParser.FormulaContext formula = ctx.formula();
+        if(atom == null || atom.exception != null){
+            sendErrorMessage("Parsing 'Goal definition' failed. Invalid head of the definition.");
+            return;
+        } else if(formula == null || formula.exception != null){
+            sendErrorMessage("Parsing 'Goal definition' failed. Invalid tail of the definition.");
             return;
         }
-        getRoots().put(ctx.atom(), ctx.formula());
+        getRoots().put(atom, formula);
     }
 
     @Override
     public void enterAtom(@NotNull LPSParser.AtomContext ctx) {
-        if(ctx.getChildCount() < 1){
-            handleErrorCase();
+        if(ctx.getChildCount() < 1 || ctx.exception != null){
+            sendErrorMessage("Parsing 'Atom' element failed. Invalid format.");
             return;
         }
-
-
         if(currentParseTarget == Parse.FLUENTS){
             // when parsing fluents, just add their names
             fluents.add(ctx.getText());
@@ -247,8 +262,8 @@ public class LPSLoader extends LPSBaseListener {
         }
     }
 
-    private void handleErrorCase() {
-        // TODO error case handling?
+    private void sendErrorMessage(String msg) {
+        messageData.sendMessage(msg, MessageType.ERROR);
     }
 
     private Map<Object, Object> getConnections(){

@@ -77,7 +77,6 @@ public class MessageViewController implements Initializable {
                 "-fx-alignment:center");
         moreLabel.setMaxWidth(Double.MAX_VALUE);
 
-        //TODO handler for mouse-click ... launch new window?
         moreLabel.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent mouseEvent) {
@@ -107,7 +106,7 @@ public class MessageViewController implements Initializable {
     //***** TEST ****** TODO clear up
     private int count = 0;
     public void handleTest(ActionEvent actionEvent) {
-        messageData.getMessageList().add(new Message("This is an important message: Message list " + count, MessageType.ERROR));
+        messageData.getMessageList().add(new Message("This is an important messagesdfslkfjasdflshdf asdf klasdj flksjd flkas jelfj asldfjlasd fjlsad jflkasj dflkasj dlkfj asldfjlaksfj laskjd flsd jflasj fklsd jlfsafj: Message list " + count, MessageType.ERROR));
         count++;
     }
 }

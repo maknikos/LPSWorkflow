@@ -36,4 +36,8 @@ public class MessageData {
     public final List<Message> getMessageList(){
         return messageList.get();
     }
+
+    public void sendMessage(String content, MessageType type){
+        getMessageList().add(new Message(content, type));
+    }
 }

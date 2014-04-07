@@ -19,6 +19,6 @@ public class MessageListViewController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         messageData = MessageData.getInstance();
-        messageTable.itemsProperty().bind(messageData.messageListProperty()); //TODO this is probably removing existing listeners...
+        messageTable.itemsProperty().bind(messageData.messageListProperty());
     }
 }
