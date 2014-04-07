@@ -45,6 +45,7 @@ public class ActionNode extends Node {
         text.setAlignment(Pos.CENTER);
         text.setPrefSize(width, height);
         text.setMinWidth(width);
+        text.setMaxWidth(Double.MAX_VALUE);
 
         vBox.getChildren().add(text);
         getChildren().addAll(vBox, expandButton);
@@ -58,7 +59,7 @@ public class ActionNode extends Node {
             public void handle(MouseEvent mouseEvent) {
 
                 if(mouseEvent.isShiftDown()){
-
+                    //TODO open in a new window/panel
                 } else {
                     ActionNode source = (ActionNode) ((Button) mouseEvent.getSource()).getParent();
                     boolean isExpanded = !source.isExpanded();
@@ -121,13 +122,11 @@ public class ActionNode extends Node {
         if(b){
             vBox.getChildren().add(goalDefinition);
             text.setStyle("-fx-font-size:18px; -fx-border-color:black; -fx-border-width:0 0 1 0");
-            text.prefWidthProperty().bind(vBox.widthProperty()); // TODO mouseover on a node causes the whole group to grow bit by bit...
             text.setPrefHeight(22);
             expandButton.setText("-");
         } else {
             vBox.getChildren().remove(goalDefinition);
             text.setStyle("-fx-font-size:25px; -fx-border-color:transparent;");
-            text.prefWidthProperty().unbind();
             text.setPrefSize(width, height);
             expandButton.setText("+");
         }

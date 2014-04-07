@@ -16,7 +16,6 @@ public class FluentNode extends Node {
         super(name);
 
         this.group = new Group();
-
         this.text = new Label(name);
         this.text.setStyle("-fx-font-size:25px");
         this.text.setPrefSize(width, height);
