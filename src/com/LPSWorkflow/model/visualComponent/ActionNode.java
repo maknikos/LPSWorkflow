@@ -43,7 +43,7 @@ public class ActionNode extends Node {
         text.setMaxWidth(Double.MAX_VALUE);
 
         vBox.getChildren().add(text);
-        StackPane.setAlignment(expandButton, Pos.TOP_RIGHT);
+        StackPane.setAlignment(expandButton, Pos.TOP_LEFT);
         getChildren().addAll(vBox, expandButton);
         setExpanded(false);
 
