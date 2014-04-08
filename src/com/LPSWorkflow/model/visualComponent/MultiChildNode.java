@@ -1,8 +1,5 @@
 package com.LPSWorkflow.model.visualComponent;
 
-import javafx.geometry.Pos;
-import javafx.scene.control.Label;
-import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 
@@ -10,25 +7,20 @@ import javafx.scene.shape.Circle;
  * Circular OR node that has multiple arrows going out from it
  */
 public class MultiChildNode extends Node {
-    private StackPane stackPane;
-    private Label text;
     private Circle circleBorder;
 
     public MultiChildNode(String name) {
         super(name);
         this.setMinSize(width, 0);
-        stackPane = new StackPane();
-        stackPane.setAlignment(Pos.CENTER);
-        stackPane.setMinWidth(width);
         circleBorder = new Circle();
         circleBorder.setRadius(15);
         circleBorder.setFill(Paint.valueOf("Transparent"));
         circleBorder.setStroke(Paint.valueOf("Black"));
-        text = new Label(name);
+
+        text.setPrefSize(width, 0);
         text.setStyle("-fx-font-size:12px");
 
-        stackPane.getChildren().addAll(text, circleBorder);
-        getChildren().addAll(stackPane);
+        getChildren().addAll(text, circleBorder);
     }
 
     @Override

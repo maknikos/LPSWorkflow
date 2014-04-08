@@ -5,8 +5,8 @@ import javafx.geometry.Bounds;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
 import java.util.ArrayList;
@@ -19,9 +19,7 @@ import java.util.Map;
  */
 public class ActionNode extends Node {
     private VBox vBox;
-    private Label text;
     private Button expandButton;
-
     private Group goalDefinition;
     private boolean isExpanded;
 
@@ -41,13 +39,11 @@ public class ActionNode extends Node {
 
         expandButton = new Button("+");
         expandButton.setVisible(hasGoalDefinition());
-        text = new Label(name);
-        text.setAlignment(Pos.CENTER);
-        text.setPrefSize(width, height);
         text.setMinWidth(width);
         text.setMaxWidth(Double.MAX_VALUE);
 
         vBox.getChildren().add(text);
+        StackPane.setAlignment(expandButton, Pos.TOP_RIGHT);
         getChildren().addAll(vBox, expandButton);
         setExpanded(false);
 
@@ -113,7 +109,6 @@ public class ActionNode extends Node {
             }
         });
     }
-
 
     private void setExpanded(boolean b) {
         isExpanded = b;
