@@ -68,11 +68,11 @@ public class StructureBuilder {
         // current is a multiChildNode.
         List<Entity> nextEntities = ((MultiChildEntity) current).getNextEntities();
 
+        //TODO when there is only a negative output from a fluent (e.g. !f), make a fluentEntity f and set FalseNext
         // sort the next fluents into groups according to shared entities
         Map<String, List<Fluent>> commonFluentGroups = new HashMap<String, List<Fluent>>();
         for(Entity next : nextEntities){
-            // if next.getNext() is null, then merging it will remove the path altogether. so pass.
-            if(next.getNext() != null && next.getType() == EntityType.FLUENT) {
+            if(next.getType() == EntityType.FLUENT) {
                 Fluent nextFluent = (Fluent) next;
                 String name = nextFluent.getNameWithoutNeg();
                 if(commonFluentGroups.containsKey(name)){
@@ -132,14 +132,14 @@ public class StructureBuilder {
             return;
         }
 
-        // jump to multiChildNode
+        // jump to multiChildEntity to perform merge
         Entity prev = e;
         Entity current = e.getNext();
         while(current != null && current.hasSingleChild()){
             prev = current;
             current = current.getNext();
         }
-
+        // no multiChildEntity found
         if(current == null){
             return;
         }
@@ -153,15 +153,12 @@ public class StructureBuilder {
         for(Entity next : nextEntities){
             String name = next.getName();
 
-            // if next.getNext() is null, then merging it will remove the path altogether. so pass.
-            if(next.getNext() != null) {
-                if(commonStartGroups.containsKey(name)){
-                    commonStartGroups.get(name).add(next);
-                } else {
-                    ArrayList<Entity> entities = new ArrayList<Entity>();
-                    entities.add(next);
-                    commonStartGroups.put(name, entities);
-                }
+            if(commonStartGroups.containsKey(name)){
+                commonStartGroups.get(name).add(next);
+            } else {
+                ArrayList<Entity> entities = new ArrayList<Entity>();
+                entities.add(next);
+                commonStartGroups.put(name, entities);
             }
         }
         // if a group has more than one entity, then merge & group their children
@@ -176,13 +173,15 @@ public class StructureBuilder {
                 for(Entity member : group){
                     Entity memberNext = member.getNext();
                     nextEntities.remove(member);
-                    newNextEntities.add(memberNext);
+                    if(memberNext != null){
+                        newNextEntities.add(memberNext);
+                    }
                 }
                 Entity nextMultiChildEntity = createMultiChildEntityFor(currentMultiType, newNextEntities);
 
                 // set the multiChildNode as the mergedEntity's next
-                mergedEntity.setNext(nextMultiChildEntity);
                 nextEntities.add(mergedEntity);
+                mergedEntity.setNext(nextMultiChildEntity);
 
                 // repeat until the end reached, or no more common paths.
                 mergeCommonPathsNext(mergedEntity);
@@ -192,6 +191,8 @@ public class StructureBuilder {
         // if current multiChildEntity has only one child, then connect directly to its child
         if(nextEntities.size() == 1){
             prev.setNext(nextEntities.get(0));
+        } else if(nextEntities.size() == 0){
+            prev.setNext(null);
         }
 
         // proceed with the trailing path
@@ -220,6 +221,8 @@ public class StructureBuilder {
             case CONCURRENT:
                 String[] split = name.split(":");
                 return new Concurrent(split[0], split[1]);
+            case EXIT:
+                return new Exit();
             default:
                 return null;
         }
@@ -349,7 +352,7 @@ public class StructureBuilder {
             Entity root = (Entity) rootObj;
             String rootName = root.getName();
             if(rootMap.containsKey(rootName)){
-                // Same root already exists. Merge the roots by AND. TODO
+                // Same root already exists. Merge the roots by AND or OR.
                 Entity existingRoot = rootMap.get(rootName); //TODO may need to group together the antecedents?
                 Entity existingNext = existingRoot.getNext(); // Either the next entity or an AND
 
@@ -366,10 +369,10 @@ public class StructureBuilder {
                     entities.add(root.getNext());
 
                     if(groupByAnd){
-                        And and = new And(entities); // TODO this is the reason to have separate methods for GoalChains and ReactiveRule chains.. should I merge?
+                        And and = new And(entities);
                         existingRoot.setNext(and);
                     } else {
-                        Or or = new Or(entities); // TODO this is the reason to have separate methods for GoalChains and ReactiveRule chains.. should I merge?
+                        Or or = new Or(entities);
                         existingRoot.setNext(or);
                     }
                 }
@@ -388,7 +391,13 @@ public class StructureBuilder {
             return;
         }
         Entity entity = (Entity) connections.get(e);
-        e.setNext(entity);
-        connectEntities(entity, connections);
+
+        if(entity == null){
+            //there is no next entity for e. Exit.
+            e.setNext(new Exit());
+        } else {
+            e.setNext(entity);
+            connectEntities(entity, connections);
+        }
     }
 }

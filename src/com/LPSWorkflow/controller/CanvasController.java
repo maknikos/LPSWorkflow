@@ -289,6 +289,8 @@ public class CanvasController implements Initializable {
         }
         String name = entity.getName();
         Node node = null;
+
+        //TODO consider using Switch cases
         if(!entity.hasSingleChild()){ // a MultiChildEntity
             if(entity.getType() == EntityType.OR){
                 node = new OrNode();
@@ -299,7 +301,9 @@ public class CanvasController implements Initializable {
             }
         } else if(entity.getType() == EntityType.FLUENT) {
             node = new FluentNode(name);
-        } else {
+        } else if(entity.getType() == EntityType.EXIT){
+            node = new ExitNode(name);
+        } else { // for Action entity
             Group goalDef = new Group();
             buildWorkflowDiagram(goalDef, entity.getDefinition(), 0, 0, false);
             node = new ActionNode(name, goalDef);

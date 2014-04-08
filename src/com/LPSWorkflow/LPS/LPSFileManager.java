@@ -75,7 +75,7 @@ public class LPSFileManager {
             this.fluents = loader.getFluents();
             this.isFileOpen = true;
         } catch(Exception e){
-            messageData.sendMessage(e.getMessage(), MessageType.ERROR);
+            messageData.sendMessage("Failed to read file: " + e.toString(), MessageType.ERROR);
             e.printStackTrace();
         }
 
