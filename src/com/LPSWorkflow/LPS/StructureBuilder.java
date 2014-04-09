@@ -39,7 +39,56 @@ public class StructureBuilder {
         mergeFluents(reactiveRulesRootMap);
         mergeFluents(goalsRootMap);
 
+        //flip the sign of negated fluents and use FalseNext
+        flipNegatedFluents(reactiveRulesRootMap);
+        flipNegatedFluents(goalsRootMap);
+
         addGoalDefinitions();
+    }
+
+    private void flipNegatedFluents(Map<String, Entity> rootMap) {
+        for(Entity e : rootMap.values()){
+            flipNegatedFluentsNext(e);
+        }
+    }
+
+    private void flipNegatedFluentsNext(Entity e) {
+        if(e == null){
+            return;
+        }
+
+        // jump to Fluent
+        Entity prev = e;
+        Entity current = e.getNext();
+
+        // skip through the path until there is a negated fluent
+        while(current != null
+                && (current.getType() != EntityType.FLUENT || ((Fluent)current).getNameWithoutNeg().equals(current.getName()))){
+            // if the current entity is a multiChildEntity, go through its children
+            if(!current.hasSingleChild()){
+                List<Entity> nextEntities = ((MultiChildEntity) current).getNextEntities();
+                for(Entity next : nextEntities){
+                    flipNegatedFluentsNext(next);
+                }
+            }
+            prev = current;
+            current = current.getNext();
+        }
+
+        // no fluent in the path.
+        if(current == null){
+            return;
+        }
+
+        // make a new Fluent with FalseNext as the current fluent's Next
+        String name = ((Fluent)current).getNameWithoutNeg();
+        Entity next = current.getNext();
+        Fluent newFluent = new Fluent(name);
+        newFluent.setFalseNext(next);
+        prev.setNext(newFluent);
+
+        // proceed with the rest of the path
+        flipNegatedFluentsNext(next);
     }
 
     private void mergeFluents(Map<String, Entity> rootMap) {
@@ -68,7 +117,6 @@ public class StructureBuilder {
         // current is a multiChildNode.
         List<Entity> nextEntities = ((MultiChildEntity) current).getNextEntities();
 
-        //TODO when there is only a negative output from a fluent (e.g. !f), make a fluentEntity f and set FalseNext
         // sort the next fluents into groups according to shared entities
         Map<String, List<Fluent>> commonFluentGroups = new HashMap<String, List<Fluent>>();
         for(Entity next : nextEntities){
@@ -84,14 +132,15 @@ public class StructureBuilder {
                 }
             }
         }
+
         // if a group has more than one entity, then merge & group their children
         for(String key : commonFluentGroups.keySet()){
             List<Fluent> group = commonFluentGroups.get(key);
-            if(group.size() > 1){
+            if (group.size() > 1) {
                 // create a separate fluent
                 Fluent mergedFluent = (Fluent) createEntityFor(EntityType.FLUENT, key);
 
-                // for a fluent f, assume there are only f and !f (single instances)
+                // for a fluent f, assume there are only f and !f (single instances) since common paths merged already
                 for(Fluent member : group){
                     Entity memberNext = member.getNext();
                     nextEntities.remove(member);
@@ -101,7 +150,6 @@ public class StructureBuilder {
                         mergedFluent.setFalseNext(memberNext);
                     }
                 }
-
                 nextEntities.add(mergedFluent);
                 // repeat until the end reached, or no more common fluents.
                 mergeFluentsNext(mergedFluent);
@@ -249,7 +297,6 @@ public class StructureBuilder {
 
     private void replaceFluentsNext(Entity e, List<String> fluents) {
         // replace the next entity or the "nextEntities"
-
         if(e == null){
             return;
         }
@@ -291,6 +338,7 @@ public class StructureBuilder {
         return fluent;
     }
 
+    //TODO use more sophisticated logic to cover complex situations
     private boolean isFluent(String name, List<String> fluents) {
         return fluents.contains(name)
                 || (name.contains("!") && fluents.contains(name.substring(1))) // negation
