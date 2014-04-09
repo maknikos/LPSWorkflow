@@ -1,13 +1,17 @@
 package com.LPSWorkflow.model.visualComponent;
 
 import com.LPSWorkflow.common.Constants;
+import com.LPSWorkflow.common.EntityType;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Bounds;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.paint.Paint;
-import javafx.scene.shape.*;
+import javafx.scene.shape.Line;
+import javafx.scene.shape.LineTo;
+import javafx.scene.shape.MoveTo;
+import javafx.scene.shape.Path;
 
 import java.util.Set;
 
@@ -22,7 +26,7 @@ public class Arrow extends Parent {
     private final LineTo endPoint;
     private final Line head1;
     private final Line head2;
-    private final Label label;
+    private Label label;
 
     public Arrow(final Node startNode, final Node endNode, final Set<Arrow> arrowsToEndNode, boolean arrowForTrue) {
         path = new Path();
@@ -33,19 +37,15 @@ public class Arrow extends Parent {
         line1 = new LineTo(0, 0); // intermediate points
         line2 = new LineTo(0, 0); // TODO change shape
         endPoint = new LineTo(0, 0);
-
-        // T and F labels for Fluents
-
         label = new Label("T");
-        label.layoutXProperty().bind(line1.xProperty());
-        label.layoutYProperty().bind(line1.yProperty());
 
-        getChildren().addAll(path, head1, head2, label);
+        getChildren().addAll(path, head1, head2);
 
         if(!arrowForTrue){
             path.setStroke(Paint.valueOf("Red")); //TODo change shape instead?
             head1.setStroke(Paint.valueOf("Red"));
             head2.setStroke(Paint.valueOf("Red"));
+            label.setText("F");
         }
 
         head1.startXProperty().bind(endPoint.xProperty());
@@ -58,6 +58,16 @@ public class Arrow extends Parent {
             path.getElements().addAll(startPoint, endPoint);
             startPoint.xProperty().bind(endPoint.xProperty());
         } else {
+            // T and F labels for Fluents
+            if(startNode.getType() == EntityType.FLUENT){
+
+                label.setStyle("-fx-background-color:white; -fx-padding:2px");
+                label.layoutXProperty().bind(
+                        line1.xProperty().add(line2.xProperty()).divide(2).subtract(7));
+                label.layoutYProperty().bind(line1.yProperty().subtract(7));
+                getChildren().add(label);
+            }
+
             path.getElements().addAll(startPoint,line1,line2,endPoint);
             line1.yProperty().bind(line2.yProperty());
             line1.xProperty().bind(startPoint.xProperty());
