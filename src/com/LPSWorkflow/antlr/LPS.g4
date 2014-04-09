@@ -15,6 +15,9 @@ g       : atom '<-' formula ;
 fluents : 'Fluents' '{' (f (',' f)* )? ','? '}' ;
 f       : atom ;
 
+dset    : 'DSet' '{' d '}';
+d       : 'aaaaa' 'sdsd';
+
 formula : formula ',' formula  # Sequence
         | formula ':' formula  # Concurrent
         | formula '||' formula # PartialOrder

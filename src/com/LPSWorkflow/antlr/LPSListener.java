@@ -41,6 +41,16 @@ public interface LPSListener extends ParseTreeListener {
 	 */
 	void exitG(@NotNull LPSParser.GContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link LPSParser#d}.
+	 * @param ctx the parse tree
+	 */
+	void enterD(@NotNull LPSParser.DContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link LPSParser#d}.
+	 * @param ctx the parse tree
+	 */
+	void exitD(@NotNull LPSParser.DContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link LPSParser#reactiveRules}.
 	 * @param ctx the parse tree
 	 */
@@ -51,16 +61,6 @@ public interface LPSListener extends ParseTreeListener {
 	 */
 	void exitReactiveRules(@NotNull LPSParser.ReactiveRulesContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link LPSParser#Atomic}.
-	 * @param ctx the parse tree
-	 */
-	void enterAtomic(@NotNull LPSParser.AtomicContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link LPSParser#Atomic}.
-	 * @param ctx the parse tree
-	 */
-	void exitAtomic(@NotNull LPSParser.AtomicContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link LPSParser#PartialOrder}.
 	 * @param ctx the parse tree
 	 */
@@ -70,6 +70,16 @@ public interface LPSListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitPartialOrder(@NotNull LPSParser.PartialOrderContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link LPSParser#Atomic}.
+	 * @param ctx the parse tree
+	 */
+	void enterAtomic(@NotNull LPSParser.AtomicContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link LPSParser#Atomic}.
+	 * @param ctx the parse tree
+	 */
+	void exitAtomic(@NotNull LPSParser.AtomicContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link LPSParser#Bracket}.
 	 * @param ctx the parse tree
@@ -100,6 +110,16 @@ public interface LPSListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitConcurrent(@NotNull LPSParser.ConcurrentContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link LPSParser#dset}.
+	 * @param ctx the parse tree
+	 */
+	void enterDset(@NotNull LPSParser.DsetContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link LPSParser#dset}.
+	 * @param ctx the parse tree
+	 */
+	void exitDset(@NotNull LPSParser.DsetContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link LPSParser#goals}.
 	 * @param ctx the parse tree

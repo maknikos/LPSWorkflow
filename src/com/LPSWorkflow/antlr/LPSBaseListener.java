@@ -55,6 +55,18 @@ public class LPSBaseListener implements LPSListener {
 	 * <p/>
 	 * The default implementation does nothing.
 	 */
+	@Override public void enterD(@NotNull LPSParser.DContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void exitD(@NotNull LPSParser.DContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
 	@Override public void enterReactiveRules(@NotNull LPSParser.ReactiveRulesContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -67,18 +79,6 @@ public class LPSBaseListener implements LPSListener {
 	 * <p/>
 	 * The default implementation does nothing.
 	 */
-	@Override public void enterAtomic(@NotNull LPSParser.AtomicContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
-	@Override public void exitAtomic(@NotNull LPSParser.AtomicContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
 	@Override public void enterPartialOrder(@NotNull LPSParser.PartialOrderContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -86,6 +86,18 @@ public class LPSBaseListener implements LPSListener {
 	 * The default implementation does nothing.
 	 */
 	@Override public void exitPartialOrder(@NotNull LPSParser.PartialOrderContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void enterAtomic(@NotNull LPSParser.AtomicContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void exitAtomic(@NotNull LPSParser.AtomicContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 * <p/>
@@ -122,6 +134,18 @@ public class LPSBaseListener implements LPSListener {
 	 * The default implementation does nothing.
 	 */
 	@Override public void exitConcurrent(@NotNull LPSParser.ConcurrentContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void enterDset(@NotNull LPSParser.DsetContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void exitDset(@NotNull LPSParser.DsetContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 * <p/>
