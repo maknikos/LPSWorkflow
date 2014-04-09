@@ -1,4 +1,4 @@
-package com.LPSWorkflow.model.abstractComponent;
+package com.LPSWorkflow.common;
 
 /**
  * Entity types

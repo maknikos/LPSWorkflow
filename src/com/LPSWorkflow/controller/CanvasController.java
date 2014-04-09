@@ -5,7 +5,7 @@ import com.LPSWorkflow.LPS.LPSFileManager;
 import com.LPSWorkflow.common.Constants;
 import com.LPSWorkflow.model.FileData;
 import com.LPSWorkflow.model.abstractComponent.Entity;
-import com.LPSWorkflow.model.abstractComponent.EntityType;
+import com.LPSWorkflow.common.EntityType;
 import com.LPSWorkflow.model.abstractComponent.Fluent;
 import com.LPSWorkflow.model.abstractComponent.MultiChildEntity;
 import com.LPSWorkflow.model.execution.ExecAgent;

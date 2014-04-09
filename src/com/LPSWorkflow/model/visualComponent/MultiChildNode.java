@@ -6,7 +6,7 @@ import javafx.scene.shape.Circle;
 /**
  * Circular OR node that has multiple arrows going out from it
  */
-public class MultiChildNode extends Node {
+public abstract class MultiChildNode extends Node {
     private Circle circleBorder;
 
     public MultiChildNode(String name) {

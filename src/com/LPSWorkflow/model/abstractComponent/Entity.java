@@ -1,5 +1,7 @@
 package com.LPSWorkflow.model.abstractComponent;
 
+import com.LPSWorkflow.common.EntityType;
+
 /**
  * An abstract entity in the workflow diagram
  */

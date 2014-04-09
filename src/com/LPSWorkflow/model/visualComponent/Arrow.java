@@ -5,6 +5,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Bounds;
 import javafx.scene.Parent;
+import javafx.scene.control.Label;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.*;
 
@@ -14,30 +15,38 @@ import java.util.Set;
  * Draw an arrow consisting of three lines (line and two heads)
  */
 public class Arrow extends Parent {
-    final Path path;
-    final MoveTo startPoint;
-    final LineTo line1;
-    final LineTo line2;
-    final LineTo endPoint;
-    final Line head1;
-    final Line head2;
+    private final Path path;
+    private final MoveTo startPoint;
+    private final LineTo line1;
+    private final LineTo line2;
+    private final LineTo endPoint;
+    private final Line head1;
+    private final Line head2;
+    private final Label label;
 
     public Arrow(final Node startNode, final Node endNode, final Set<Arrow> arrowsToEndNode, boolean arrowForTrue) {
         path = new Path();
         path.setStyle("-fx-stroke-width:1;");
-
-        if(!arrowForTrue){
-            path.setStroke(Paint.valueOf("Red")); //TODo change shape instead?
-        }
-
+        head1 = new Line(0,0,0,0);
+        head2 = new Line(0,0,0,0);
         startPoint = new MoveTo(0, 0);
         line1 = new LineTo(0, 0); // intermediate points
         line2 = new LineTo(0, 0); // TODO change shape
         endPoint = new LineTo(0, 0);
 
-        head1 = new Line(0,0,0,0);
-        head2 = new Line(0,0,0,0);
-        getChildren().addAll(path, head1, head2);
+        // T and F labels for Fluents
+
+        label = new Label("T");
+        label.layoutXProperty().bind(line1.xProperty());
+        label.layoutYProperty().bind(line1.yProperty());
+
+        getChildren().addAll(path, head1, head2, label);
+
+        if(!arrowForTrue){
+            path.setStroke(Paint.valueOf("Red")); //TODo change shape instead?
+            head1.setStroke(Paint.valueOf("Red"));
+            head2.setStroke(Paint.valueOf("Red"));
+        }
 
         head1.startXProperty().bind(endPoint.xProperty());
         head1.startYProperty().bind(endPoint.yProperty());

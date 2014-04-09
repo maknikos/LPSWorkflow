@@ -1,5 +1,6 @@
 package com.LPSWorkflow.model.visualComponent;
 
+import com.LPSWorkflow.common.EntityType;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
 import javafx.geometry.Pos;
@@ -134,5 +135,10 @@ public class ActionNode extends Node {
     public boolean hasGoalDefinition(){
         return goalDefinition != null
                 && goalDefinition.getChildren().size() > 0;
+    }
+
+    @Override
+    public EntityType getType() {
+        return EntityType.ACTION;
     }
 }

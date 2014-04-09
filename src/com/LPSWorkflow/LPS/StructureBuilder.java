@@ -1,5 +1,6 @@
 package com.LPSWorkflow.LPS;
 
+import com.LPSWorkflow.common.EntityType;
 import com.LPSWorkflow.model.abstractComponent.*;
 import java.util.ArrayList;
 import java.util.HashMap;

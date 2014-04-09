@@ -1,6 +1,7 @@
 package com.LPSWorkflow.model.visualComponent;
 
 import com.LPSWorkflow.common.Constants;
+import com.LPSWorkflow.common.EntityType;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
@@ -30,4 +31,6 @@ public abstract class Node extends StackPane {
     public void setName(String name){
         this.name = name;
     }
+
+    public abstract EntityType getType();
 }

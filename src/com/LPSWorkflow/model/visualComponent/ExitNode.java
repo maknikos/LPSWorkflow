@@ -1,5 +1,6 @@
 package com.LPSWorkflow.model.visualComponent;
 
+import com.LPSWorkflow.common.EntityType;
 import javafx.geometry.Pos;
 import javafx.scene.layout.VBox;
 
@@ -22,5 +23,10 @@ public class ExitNode extends Node {
 
         vBox.getChildren().add(text);
         getChildren().addAll(vBox);
+    }
+
+    @Override
+    public EntityType getType() {
+        return EntityType.EXIT;
     }
 }

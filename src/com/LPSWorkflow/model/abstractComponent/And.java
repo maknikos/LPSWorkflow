@@ -1,5 +1,7 @@
 package com.LPSWorkflow.model.abstractComponent;
 
+import com.LPSWorkflow.common.EntityType;
+
 import java.util.List;
 
 /**
