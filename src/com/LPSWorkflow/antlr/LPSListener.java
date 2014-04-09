@@ -81,6 +81,36 @@ public interface LPSListener extends ParseTreeListener {
 	 */
 	void exitAtomic(@NotNull LPSParser.AtomicContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link LPSParser#condition}.
+	 * @param ctx the parse tree
+	 */
+	void enterCondition(@NotNull LPSParser.ConditionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link LPSParser#condition}.
+	 * @param ctx the parse tree
+	 */
+	void exitCondition(@NotNull LPSParser.ConditionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link LPSParser#terminates}.
+	 * @param ctx the parse tree
+	 */
+	void enterTerminates(@NotNull LPSParser.TerminatesContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link LPSParser#terminates}.
+	 * @param ctx the parse tree
+	 */
+	void exitTerminates(@NotNull LPSParser.TerminatesContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link LPSParser#initiates}.
+	 * @param ctx the parse tree
+	 */
+	void enterInitiates(@NotNull LPSParser.InitiatesContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link LPSParser#initiates}.
+	 * @param ctx the parse tree
+	 */
+	void exitInitiates(@NotNull LPSParser.InitiatesContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link LPSParser#Bracket}.
 	 * @param ctx the parse tree
 	 */
@@ -111,16 +141,6 @@ public interface LPSListener extends ParseTreeListener {
 	 */
 	void exitConcurrent(@NotNull LPSParser.ConcurrentContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link LPSParser#dset}.
-	 * @param ctx the parse tree
-	 */
-	void enterDset(@NotNull LPSParser.DsetContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link LPSParser#dset}.
-	 * @param ctx the parse tree
-	 */
-	void exitDset(@NotNull LPSParser.DsetContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link LPSParser#goals}.
 	 * @param ctx the parse tree
 	 */
@@ -130,6 +150,16 @@ public interface LPSListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitGoals(@NotNull LPSParser.GoalsContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link LPSParser#precond}.
+	 * @param ctx the parse tree
+	 */
+	void enterPrecond(@NotNull LPSParser.PrecondContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link LPSParser#precond}.
+	 * @param ctx the parse tree
+	 */
+	void exitPrecond(@NotNull LPSParser.PrecondContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link LPSParser#r}.
 	 * @param ctx the parse tree
@@ -141,6 +171,16 @@ public interface LPSListener extends ParseTreeListener {
 	 */
 	void exitR(@NotNull LPSParser.RContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link LPSParser#postcond}.
+	 * @param ctx the parse tree
+	 */
+	void enterPostcond(@NotNull LPSParser.PostcondContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link LPSParser#postcond}.
+	 * @param ctx the parse tree
+	 */
+	void exitPostcond(@NotNull LPSParser.PostcondContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link LPSParser#program}.
 	 * @param ctx the parse tree
 	 */
@@ -150,6 +190,16 @@ public interface LPSListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitProgram(@NotNull LPSParser.ProgramContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link LPSParser#domainTheory}.
+	 * @param ctx the parse tree
+	 */
+	void enterDomainTheory(@NotNull LPSParser.DomainTheoryContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link LPSParser#domainTheory}.
+	 * @param ctx the parse tree
+	 */
+	void exitDomainTheory(@NotNull LPSParser.DomainTheoryContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link LPSParser#Sequence}.
 	 * @param ctx the parse tree

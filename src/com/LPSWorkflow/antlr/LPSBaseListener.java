@@ -103,6 +103,42 @@ public class LPSBaseListener implements LPSListener {
 	 * <p/>
 	 * The default implementation does nothing.
 	 */
+	@Override public void enterCondition(@NotNull LPSParser.ConditionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void exitCondition(@NotNull LPSParser.ConditionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void enterTerminates(@NotNull LPSParser.TerminatesContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void exitTerminates(@NotNull LPSParser.TerminatesContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void enterInitiates(@NotNull LPSParser.InitiatesContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void exitInitiates(@NotNull LPSParser.InitiatesContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
 	@Override public void enterBracket(@NotNull LPSParser.BracketContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -139,18 +175,6 @@ public class LPSBaseListener implements LPSListener {
 	 * <p/>
 	 * The default implementation does nothing.
 	 */
-	@Override public void enterDset(@NotNull LPSParser.DsetContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
-	@Override public void exitDset(@NotNull LPSParser.DsetContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
 	@Override public void enterGoals(@NotNull LPSParser.GoalsContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -158,6 +182,18 @@ public class LPSBaseListener implements LPSListener {
 	 * The default implementation does nothing.
 	 */
 	@Override public void exitGoals(@NotNull LPSParser.GoalsContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void enterPrecond(@NotNull LPSParser.PrecondContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void exitPrecond(@NotNull LPSParser.PrecondContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 * <p/>
@@ -175,6 +211,18 @@ public class LPSBaseListener implements LPSListener {
 	 * <p/>
 	 * The default implementation does nothing.
 	 */
+	@Override public void enterPostcond(@NotNull LPSParser.PostcondContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void exitPostcond(@NotNull LPSParser.PostcondContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
 	@Override public void enterProgram(@NotNull LPSParser.ProgramContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -182,6 +230,18 @@ public class LPSBaseListener implements LPSListener {
 	 * The default implementation does nothing.
 	 */
 	@Override public void exitProgram(@NotNull LPSParser.ProgramContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void enterDomainTheory(@NotNull LPSParser.DomainTheoryContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void exitDomainTheory(@NotNull LPSParser.DomainTheoryContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 * <p/>
