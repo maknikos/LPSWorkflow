@@ -1,8 +1,12 @@
 package com.LPSWorkflow.LPS;
 
+import com.LPSWorkflow.common.EntityType;
+import com.LPSWorkflow.model.abstractComponent.Concurrent;
 import com.LPSWorkflow.model.abstractComponent.Entity;
 import com.LPSWorkflow.model.database.Database;
 import com.LPSWorkflow.model.execution.ExecAgent;
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,12 +20,21 @@ public class ExecutionManager {
     private final Map<String, Entity> entityMap;
     private Database database;
     private List<ExecAgent> agents;
+    private LPSFileManager fileManager;
 
-    // TODO now assuming there is one agent moving around. should allow multiple
     public ExecutionManager(Map<String, Entity> entityMap) {
         this.entityMap = entityMap;
         database = Database.getInstance();
         agents = new ArrayList<ExecAgent>();
+        fileManager = LPSFileManager.getInstance();
+
+        // reset agent list if file re-opened
+        fileManager.isFileOpenProperty().addListener(new InvalidationListener() {
+            @Override
+            public void invalidated(Observable observable) {
+                agents.clear();
+            }
+        });
     }
 
     public List<ExecAgent> getNextStep(){
@@ -31,7 +44,7 @@ public class ExecutionManager {
         // for each agent in the list, proceed to the next step
         for(ExecAgent agent : agents){
             Entity curr = agent.getCurrentEntity();
-            if(holds(curr.getName(), facts)){
+            if(holds(curr, facts)){
                 agent.setCurrentEntity(curr.getNext());
                 agent.increment();
             }
@@ -45,7 +58,7 @@ public class ExecutionManager {
         agents.removeAll(toBeRemoved);
 
         if(agents.isEmpty()){
-            for(String root : entityMap.keySet()){
+            for(Entity root : entityMap.values()){
                 if(holds(root, facts)){
                     agents.add(new ExecAgent(entityMap.get(root)));
                     break;
@@ -57,9 +70,24 @@ public class ExecutionManager {
         //TODO deal with multiChildNodes
     }
 
-    private boolean holds(String root, List<String> facts) {
-        //TODO include multiple conditions (:)
-        return facts.contains(root) ;
+    private boolean holds(Entity root, List<String> facts) {
+        //TODO deal with other types of entities, too
+
+        EntityType type = root.getType();
+        switch (type){
+            case ACTION:
+            case FLUENT:
+                return facts.contains(root.getName());
+            case CONCURRENT:
+                List<Entity> entities = ((Concurrent) root).getEntities();
+                List<String> names = new ArrayList<String>();
+                for(Entity e : entities){
+                    names.add(e.getName());
+                }
+                return facts.containsAll(names);
+        }
+
+        return false;
     }
 
 }
