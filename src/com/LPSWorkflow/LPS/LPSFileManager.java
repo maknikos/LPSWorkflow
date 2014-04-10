@@ -24,6 +24,7 @@ public class LPSFileManager {
     private boolean isFileOpen;
     private Map<String,Entity> rootMap;
     private List<String> fluents;
+    private List<List<Entity>> preconditions;
     private MessageData messageData;
 
     public LPSFileManager() {
@@ -73,6 +74,7 @@ public class LPSFileManager {
                     loader.getGoalRoots(), loader.getGoalConnections(), loader.getFluents());
             this.rootMap = structureBuilder.getReactiveRulesRootMap();
             this.fluents = loader.getFluents();
+            this.preconditions = loader.getPreconditions();
             this.isFileOpen = true;
         } catch(Exception e){
             messageData.sendMessage("Failed to read file: " + e.toString(), MessageType.ERROR);

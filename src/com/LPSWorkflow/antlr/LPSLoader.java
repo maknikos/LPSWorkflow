@@ -2,6 +2,7 @@ package com.LPSWorkflow.antlr;
 
 import com.LPSWorkflow.model.abstractComponent.Action;
 import com.LPSWorkflow.model.abstractComponent.Concurrent;
+import com.LPSWorkflow.model.abstractComponent.Entity;
 import com.LPSWorkflow.model.abstractComponent.PartialOrder;
 import com.LPSWorkflow.model.message.MessageData;
 import com.LPSWorkflow.model.message.MessageType;
@@ -33,11 +34,13 @@ public class LPSLoader extends LPSBaseListener {
     private Map<Object, Object> reactiveRuleConnections;
     private Map<Object, Object> goalConnections;
     private List<String> fluents;
+    private List<List<Entity>> preconditions;
     private Parse currentParseTarget;
     private MessageData messageData;
 
     public LPSLoader() {
         this.fluents = new ArrayList<String>();
+        this.preconditions = new ArrayList<List<Entity>>();
         this.reactiveRuleConnections = new HashMap<Object, Object>();
         this.goalConnections = new HashMap<Object, Object>();
         this.reactiveRuleRoots = new HashMap<Object, Object>();
@@ -222,7 +225,7 @@ public class LPSLoader extends LPSBaseListener {
             // when parsing fluents, just add their names
             fluents.add(ctx.getText());
         } else if(currentParseTarget == Parse.DOMAIN_THEORY) {
-            // for domain theories,TODO
+            // for domain theories, skip.
             return;
         }else {
             Action action = new Action(ctx.getText());
@@ -238,6 +241,32 @@ public class LPSLoader extends LPSBaseListener {
         super.enterF(ctx);
     }
 
+    @Override
+    public void enterInitiates(@NotNull LPSParser.InitiatesContext ctx) {
+        super.enterInitiates(ctx);
+    }
+
+    @Override
+    public void enterTerminates(@NotNull LPSParser.TerminatesContext ctx) {
+        super.enterTerminates(ctx);
+    }
+
+    @Override
+    public void enterPrecond(@NotNull LPSParser.PrecondContext ctx) {
+        if(ctx.exception != null){
+            sendErrorMessage("Parsing 'Precond' element failed. Invalid format.");
+            return;
+        }
+        LPSParser.ConjunctionContext conjunction = ctx.conjunction();
+        List<LPSParser.AtomContext> atoms = conjunction.atom();
+        List<Entity> entities = new ArrayList<Entity>();
+        for(LPSParser.AtomContext atom : atoms){
+            String name = atom.getText();
+            Action action = new Action(name);
+            entities.add(action);
+        }
+        preconditions.add(entities);
+    }
 
     private void replaceValues(Object oldValue, Object newValue) {
         Map<Object, Object> connections = getConnections();
@@ -304,6 +333,10 @@ public class LPSLoader extends LPSBaseListener {
 
     public List<String> getFluents() {
         return fluents;
+    }
+
+    public List<List<Entity>> getPreconditions(){
+        return preconditions;
     }
 
     public Map<Object, Object> getReactiveRuleConnections() {

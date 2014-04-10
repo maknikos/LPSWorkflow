@@ -61,16 +61,6 @@ public interface LPSListener extends ParseTreeListener {
 	 */
 	void exitReactiveRules(@NotNull LPSParser.ReactiveRulesContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link LPSParser#PartialOrder}.
-	 * @param ctx the parse tree
-	 */
-	void enterPartialOrder(@NotNull LPSParser.PartialOrderContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link LPSParser#PartialOrder}.
-	 * @param ctx the parse tree
-	 */
-	void exitPartialOrder(@NotNull LPSParser.PartialOrderContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link LPSParser#Atomic}.
 	 * @param ctx the parse tree
 	 */
@@ -81,15 +71,15 @@ public interface LPSListener extends ParseTreeListener {
 	 */
 	void exitAtomic(@NotNull LPSParser.AtomicContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link LPSParser#condition}.
+	 * Enter a parse tree produced by {@link LPSParser#PartialOrder}.
 	 * @param ctx the parse tree
 	 */
-	void enterCondition(@NotNull LPSParser.ConditionContext ctx);
+	void enterPartialOrder(@NotNull LPSParser.PartialOrderContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link LPSParser#condition}.
+	 * Exit a parse tree produced by {@link LPSParser#PartialOrder}.
 	 * @param ctx the parse tree
 	 */
-	void exitCondition(@NotNull LPSParser.ConditionContext ctx);
+	void exitPartialOrder(@NotNull LPSParser.PartialOrderContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link LPSParser#terminates}.
 	 * @param ctx the parse tree

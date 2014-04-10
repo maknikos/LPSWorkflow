@@ -79,18 +79,6 @@ public class LPSBaseListener implements LPSListener {
 	 * <p/>
 	 * The default implementation does nothing.
 	 */
-	@Override public void enterPartialOrder(@NotNull LPSParser.PartialOrderContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
-	@Override public void exitPartialOrder(@NotNull LPSParser.PartialOrderContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
 	@Override public void enterAtomic(@NotNull LPSParser.AtomicContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -103,13 +91,13 @@ public class LPSBaseListener implements LPSListener {
 	 * <p/>
 	 * The default implementation does nothing.
 	 */
-	@Override public void enterCondition(@NotNull LPSParser.ConditionContext ctx) { }
+	@Override public void enterPartialOrder(@NotNull LPSParser.PartialOrderContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 * <p/>
 	 * The default implementation does nothing.
 	 */
-	@Override public void exitCondition(@NotNull LPSParser.ConditionContext ctx) { }
+	@Override public void exitPartialOrder(@NotNull LPSParser.PartialOrderContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 * <p/>
