@@ -33,7 +33,11 @@ public class DomainTheoryController implements Initializable{
             public void invalidated(Observable observable) {
                 //TODO
                 List<Postcondition> postconditions = fileManager.getPostconditions();
-                domainTheoryLabel.setText(postconditions.get(0).toString());
+                String content = "";
+                for(Postcondition p : postconditions){
+                    content = content.concat(p.toString() + "\n");
+                }
+                domainTheoryLabel.setText(content);
             }
         });
     }

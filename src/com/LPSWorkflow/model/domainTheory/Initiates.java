@@ -36,8 +36,9 @@ public class Initiates implements Postcondition{
         for(Entity e : body){
             bodyStr = bodyStr.concat(e.getName() + " & ");
         }
-        bodyStr = bodyStr.substring(0, bodyStr.length() - 2); // remove trailing &
-
+        if(body.size() > 0) {
+            bodyStr = bodyStr.substring(0, bodyStr.length() - 2); // remove trailing &
+        }
         return String.format("initiates(%s) <- %s", headStr, bodyStr);
     }
 }

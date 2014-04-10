@@ -35,10 +35,11 @@ public class Terminates implements Postcondition{
         String headStr = head.getName();
         String bodyStr = "";
         for(Entity e : body){
-            bodyStr.concat(e.getName() + " & ");
+            bodyStr = bodyStr.concat(e.getName() + " & ");
         }
-        bodyStr.substring(0, bodyStr.length() - 2); // remove trailing &
-
+        if(body.size() > 0) {
+            bodyStr = bodyStr.substring(0, bodyStr.length() - 2); // remove trailing &
+        }
         return String.format("terminates(%s) <- %s", headStr, bodyStr);
     }
 }
