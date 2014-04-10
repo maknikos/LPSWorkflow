@@ -25,7 +25,7 @@ public class LPSLoader extends LPSBaseListener {
 
     // enum indicating what the parser is parsing at the moment
     public enum Parse{
-        NONE, REACTIVE_RULES, FLUENTS, GOALS
+        NONE, REACTIVE_RULES, FLUENTS, GOALS, DOMAIN_THEORY
     }
 
     private Map<Object, Object> reactiveRuleRoots;
@@ -73,6 +73,16 @@ public class LPSLoader extends LPSBaseListener {
 
     @Override
     public void exitFluents(@NotNull LPSParser.FluentsContext ctx) {
+        currentParseTarget = Parse.NONE;
+    }
+
+    @Override
+    public void enterDomainTheory(@NotNull LPSParser.DomainTheoryContext ctx) {
+        currentParseTarget = Parse.DOMAIN_THEORY;
+    }
+
+    @Override
+    public void exitDomainTheory(@NotNull LPSParser.DomainTheoryContext ctx) {
         currentParseTarget = Parse.NONE;
     }
 
@@ -211,7 +221,10 @@ public class LPSLoader extends LPSBaseListener {
         if(currentParseTarget == Parse.FLUENTS){
             // when parsing fluents, just add their names
             fluents.add(ctx.getText());
-        } else {
+        } else if(currentParseTarget == Parse.DOMAIN_THEORY) {
+            // for domain theories,TODO
+            return;
+        }else {
             Action action = new Action(ctx.getText());
             // Replace all AtomicContexts with Action object
             replaceKey(ctx, action);

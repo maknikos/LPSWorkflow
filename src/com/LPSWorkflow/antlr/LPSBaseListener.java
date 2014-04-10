@@ -139,6 +139,18 @@ public class LPSBaseListener implements LPSListener {
 	 * <p/>
 	 * The default implementation does nothing.
 	 */
+	@Override public void enterConjunction(@NotNull LPSParser.ConjunctionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void exitConjunction(@NotNull LPSParser.ConjunctionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
 	@Override public void enterBracket(@NotNull LPSParser.BracketContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -199,18 +211,6 @@ public class LPSBaseListener implements LPSListener {
 	 * <p/>
 	 * The default implementation does nothing.
 	 */
-	@Override public void enterR(@NotNull LPSParser.RContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
-	@Override public void exitR(@NotNull LPSParser.RContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
 	@Override public void enterPostcond(@NotNull LPSParser.PostcondContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -218,6 +218,18 @@ public class LPSBaseListener implements LPSListener {
 	 * The default implementation does nothing.
 	 */
 	@Override public void exitPostcond(@NotNull LPSParser.PostcondContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void enterR(@NotNull LPSParser.RContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void exitR(@NotNull LPSParser.RContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 * <p/>

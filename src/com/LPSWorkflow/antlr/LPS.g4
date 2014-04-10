@@ -4,7 +4,7 @@ grammar LPS;
 package com.LPSWorkflow.antlr;
 }
 
-program : (reactiveRules | goals | fluents)* ;
+program : (reactiveRules | goals | fluents | domainTheory)* ;
 
 reactiveRules   : 'ReactiveRules' '{' r* '}' ;
 r               : formula '->' formula END ;
@@ -17,13 +17,12 @@ f       : atom ;
 
 domainTheory : 'DomainTheory' '{' d* '}';
 d            : (postcond | precond) ;
-
-// the condition conjunction for the precond must have at least 2 conditions to be valid
 condition    : atom ;
-precond      : 'false' '<-' condition ('&' condition)+ END ;
+conjunction  : condition ('&' condition)* ;
+precond      : 'false' '<-' conjunction END ;
 postcond     : (initiates | terminates) END;
-initiates    : 'initiates' '(' atom ')' '<-' condition ('&' condition)+ ;
-terminates   : 'terminates' '(' atom ')' '<-' condition ('&' condition)+ ;
+initiates    : 'initiates' '(' atom ')' '<-' conjunction ;
+terminates   : 'terminates' '(' atom ')' '<-' conjunction ;
 
 
 formula : formula ',' formula  # Sequence
