@@ -1,11 +1,17 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
 <BorderPane fx:controller="com.LPSWorkflow.controller.DomainTheoryController"
             xmlns:fx="http://javafx.com/fxml">
     <top>
         <Label fx:id="title">Domain Theory</Label>
     </top>
     <center>
-        <Label fx:id="domainTheoryLabel" minHeight="200"/>
+        <VBox>
+            <Label fx:id="precondTitleLabel">Pre-conditions</Label>
+            <Label fx:id="precondLabel" />
+            <Label fx:id="postcondTitleLabel">Post-conditions</Label>
+            <Label fx:id="postcondLabel" />
+        </VBox>
     </center>
 </BorderPane>

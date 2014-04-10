@@ -56,6 +56,7 @@ public class LPSFileManager {
      * @param fileData The path of the file.
      */
     public void openFile(String fileData) {
+        setIsFileOpen(false);
         InputStream is;
         ANTLRInputStream input = null;
         try {
