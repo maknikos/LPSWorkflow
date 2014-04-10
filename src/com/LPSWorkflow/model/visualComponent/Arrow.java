@@ -64,7 +64,7 @@ public class Arrow extends Parent {
                 label.setStyle("-fx-background-color:white; -fx-padding:2px");
                 label.layoutXProperty().bind(
                         line1.xProperty().add(line2.xProperty()).divide(2).subtract(7));
-                label.layoutYProperty().bind(line1.yProperty().subtract(7));
+                label.layoutYProperty().bind(line1.yProperty().subtract(9));
                 getChildren().add(label);
             }
 
