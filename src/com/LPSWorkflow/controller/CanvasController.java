@@ -307,7 +307,7 @@ public class CanvasController implements Initializable {
         } else if(entity.getType() == EntityType.FLUENT) {
             node = new FluentNode(name);
         } else if(entity.getType() == EntityType.EXIT){
-            node = new ExitNode(name);
+            node = new ExitNode();
         } else { // for Action entity
             Group goalDef = new Group();
             buildWorkflowDiagram(goalDef, entity.getDefinition(), 0, 0, false);

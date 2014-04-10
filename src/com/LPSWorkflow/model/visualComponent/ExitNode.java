@@ -1,7 +1,6 @@
 package com.LPSWorkflow.model.visualComponent;
 
 import com.LPSWorkflow.common.EntityType;
-import javafx.geometry.Pos;
 import javafx.scene.layout.VBox;
 
 /**
@@ -10,19 +9,17 @@ import javafx.scene.layout.VBox;
 public class ExitNode extends Node {
     private VBox vBox;
 
-    public ExitNode(String name) {
-        super(name);
+    public ExitNode() {
+        super("Exit");
 
         //TODO cleanup the structure of the ActionNode
-        vBox = new VBox();
-        vBox.setStyle("-fx-border-color:black; -fx-border-radius:5px");
-        vBox.setAlignment(Pos.CENTER);
+        text.setText("");
+        text.setPrefSize(25, 25);
+        text.setStyle("-fx-font-size:12px; -fx-background-color:#33993355; -fx-background-radius:6px; " +
+                "-fx-border-color:#339933FF; -fx-border-radius:6px; -fx-border-width:4px");
 
-        text.setMinWidth(width);
-        text.setMaxWidth(Double.MAX_VALUE);
-
-        vBox.getChildren().add(text);
-        getChildren().addAll(vBox);
+        this.setMinHeight(0);
+        getChildren().addAll(text);
     }
 
     @Override
