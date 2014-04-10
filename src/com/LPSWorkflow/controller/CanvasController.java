@@ -165,7 +165,12 @@ public class CanvasController implements Initializable {
                 List<Entity> nextEntities = ((MultiChildEntity) currEntity).getNextEntities();
                 int n = nextEntities.size();
                 double totalWidth = ((n-1)*Constants.NODE_HORIZONTAL_GAP) + (n* Constants.NODE_WIDTH);
-                nextX -= ((totalWidth/2) - (Constants.NODE_WIDTH/2));
+
+
+                //TODO decide which method to use
+                //nextX -= ((totalWidth/2) - (Constants.NODE_WIDTH/2));
+                nextX -= Constants.NODE_HORIZONTAL_GAP/2;
+
                 // spread them out and draw each path
                 for(Entity child : nextEntities){
                     buildWorkflowDiagram(resultGroup, child, nextX, nextY, true);
