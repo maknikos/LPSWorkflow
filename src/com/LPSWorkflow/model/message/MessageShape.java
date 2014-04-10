@@ -29,12 +29,16 @@ public class MessageShape extends Region {
         contentLabel.setStyle("-fx-border-color:#FF9999BB; -fx-border-radius:5px; " +
                 "-fx-background-color:#FF999999; -fx-background-radius:5px;" +
                 "-fx-text-fill:#771111FF; -fx-font-size:12px;" +
-                "-fx-padding:3 15 3 10");
+                "-fx-padding:3 20 3 10");
         contentLabel.setMaxWidth(500);
         closeButton = new Button("x");
+        closeButton.setStyle("-fx-background-color: linear-gradient(#ff5400, #be1d00);" +
+                "-fx-background-radius: 30; -fx-background-insets: 0; -fx-text-fill: white;");
+
+
         containerPane.getChildren().addAll(contentLabel, closeButton);
         StackPane.setAlignment(closeButton, Pos.TOP_RIGHT);
-        StackPane.setMargin(contentLabel, new Insets(3, 6, 3, 0));
+        StackPane.setMargin(contentLabel, new Insets(3, 10, 3, 0));
 
         //TODO when clicked, show details of the particular message
 
