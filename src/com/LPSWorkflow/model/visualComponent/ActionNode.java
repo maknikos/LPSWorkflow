@@ -5,10 +5,13 @@ import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,7 +27,7 @@ public class ActionNode extends Node {
     private Group goalDefinition;
     private boolean isExpanded;
 
-    public ActionNode(String name, Group goalDefinition) {
+    public ActionNode(String name, final Group goalDefinition) {
         super(name);
 
         if(goalDefinition != null){
@@ -56,7 +59,33 @@ public class ActionNode extends Node {
             public void handle(MouseEvent mouseEvent) {
 
                 if(mouseEvent.isShiftDown()){
+
+
+
                     //TODO open in a new window/panel
+                    Stage stage = new Stage();
+                    stage.setTitle(getName());
+
+                    final Group goalDefClone = new Group(goalDefinition);
+                    Scene scene = new Scene(goalDefClone, 600, 600);
+                    // move view point using scroll
+                    scene.setOnScroll(new EventHandler<ScrollEvent>() {
+                        @Override
+                        public void handle(ScrollEvent e) {
+                            double translateX = e.getDeltaX();
+                            double translateY = e.getDeltaY();
+                            goalDefClone.setTranslateX(goalDefClone.getTranslateX() + translateX);
+                            goalDefClone.setTranslateY(goalDefClone.getTranslateY() + translateY);
+                            goalDefClone.setTranslateX(goalDefClone.getTranslateX() + translateX);
+                            goalDefClone.setTranslateY(goalDefClone.getTranslateY() + translateY);
+                        }
+                    });
+                    stage.setScene(scene);
+                    stage.show();
+
+
+
+
                 } else {
                     ActionNode source = (ActionNode) ((Button) mouseEvent.getSource()).getParent();
                     boolean isExpanded = !source.isExpanded();
