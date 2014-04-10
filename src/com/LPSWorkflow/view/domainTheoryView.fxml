@@ -1,0 +1,9 @@
+<?import javafx.scene.layout.*?>
+
+<?import javafx.scene.control.TextArea?>
+<BorderPane fx:controller="com.LPSWorkflow.controller.DomainTheoryController"
+            xmlns:fx="http://javafx.com/fxml">
+    <center>
+        <TextArea fx:id="domainTheoryArea" minHeight="200">p</TextArea>
+    </center>
+</BorderPane>

@@ -7,7 +7,7 @@ import com.LPSWorkflow.common.EntityType;
  */
 public class PartialOrderNode extends MultiChildNode {
     public PartialOrderNode() {
-        super("||");
+        super("AND");
     }
 
     @Override
