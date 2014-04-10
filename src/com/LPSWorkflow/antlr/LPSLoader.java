@@ -4,9 +4,9 @@ import com.LPSWorkflow.model.abstractComponent.Action;
 import com.LPSWorkflow.model.abstractComponent.Concurrent;
 import com.LPSWorkflow.model.abstractComponent.Entity;
 import com.LPSWorkflow.model.abstractComponent.PartialOrder;
-import com.LPSWorkflow.model.domainTheory.Initiate;
+import com.LPSWorkflow.model.domainTheory.Initiates;
 import com.LPSWorkflow.model.domainTheory.Postcondition;
-import com.LPSWorkflow.model.domainTheory.Terminate;
+import com.LPSWorkflow.model.domainTheory.Terminates;
 import com.LPSWorkflow.model.message.MessageData;
 import com.LPSWorkflow.model.message.MessageType;
 import org.antlr.v4.runtime.misc.NotNull;
@@ -258,8 +258,8 @@ public class LPSLoader extends LPSBaseListener {
         LPSParser.ConjunctionContext conjunction = ctx.conjunction();
         List<Entity> entities = makeConjunctionIntoList(conjunction);
 
-        Initiate initiate = new Initiate(head, entities);
-        postconditions.add(initiate);
+        Initiates initiates = new Initiates(head, entities);
+        postconditions.add(initiates);
     }
 
     @Override
@@ -274,8 +274,8 @@ public class LPSLoader extends LPSBaseListener {
         LPSParser.ConjunctionContext conjunction = ctx.conjunction();
         List<Entity> entities = makeConjunctionIntoList(conjunction);
 
-        Terminate terminate = new Terminate(head, entities);
-        postconditions.add(terminate);
+        Terminates terminates = new Terminates(head, entities);
+        postconditions.add(terminates);
     }
 
     @Override

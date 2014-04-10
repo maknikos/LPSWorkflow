@@ -6,11 +6,11 @@ import java.util.List;
 /**
  * Post-condition (initates)
  */
-public class Initiate implements Postcondition{
+public class Initiates implements Postcondition{
     private Entity head;
     private List<Entity> body;
 
-    public Initiate(Entity head, List<Entity> body) {
+    public Initiates(Entity head, List<Entity> body) {
         this.head = head;
         this.body = body;
     }
@@ -27,5 +27,17 @@ public class Initiate implements Postcondition{
     @Override
     public PostconditionType getType() {
         return PostconditionType.INITIATES;
+    }
+
+    @Override
+    public String toString() {
+        String headStr = head.getName();
+        String bodyStr = "";
+        for(Entity e : body){
+            bodyStr = bodyStr.concat(e.getName() + " & ");
+        }
+        bodyStr = bodyStr.substring(0, bodyStr.length() - 2); // remove trailing &
+
+        return String.format("initiates(%s) <- %s", headStr, bodyStr);
     }
 }

@@ -6,6 +6,6 @@
         <Label fx:id="title">Domain Theory</Label>
     </top>
     <center>
-        <Label fx:id="domainTheoryLabel" minHeight="200">p</Label>
+        <Label fx:id="domainTheoryLabel" minHeight="200"/>
     </center>
 </BorderPane>
