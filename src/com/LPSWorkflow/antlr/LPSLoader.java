@@ -4,6 +4,9 @@ import com.LPSWorkflow.model.abstractComponent.Action;
 import com.LPSWorkflow.model.abstractComponent.Concurrent;
 import com.LPSWorkflow.model.abstractComponent.Entity;
 import com.LPSWorkflow.model.abstractComponent.PartialOrder;
+import com.LPSWorkflow.model.domainTheory.Initiate;
+import com.LPSWorkflow.model.domainTheory.Postcondition;
+import com.LPSWorkflow.model.domainTheory.Terminate;
 import com.LPSWorkflow.model.message.MessageData;
 import com.LPSWorkflow.model.message.MessageType;
 import org.antlr.v4.runtime.misc.NotNull;
@@ -35,12 +38,15 @@ public class LPSLoader extends LPSBaseListener {
     private Map<Object, Object> goalConnections;
     private List<String> fluents;
     private List<List<Entity>> preconditions;
+    private List<Postcondition> postconditions;
     private Parse currentParseTarget;
     private MessageData messageData;
+
 
     public LPSLoader() {
         this.fluents = new ArrayList<String>();
         this.preconditions = new ArrayList<List<Entity>>();
+        this.postconditions = new ArrayList<Postcondition>();
         this.reactiveRuleConnections = new HashMap<Object, Object>();
         this.goalConnections = new HashMap<Object, Object>();
         this.reactiveRuleRoots = new HashMap<Object, Object>();
@@ -243,12 +249,33 @@ public class LPSLoader extends LPSBaseListener {
 
     @Override
     public void enterInitiates(@NotNull LPSParser.InitiatesContext ctx) {
-        super.enterInitiates(ctx);
+        if(ctx.exception != null){
+            sendErrorMessage("Parsing 'initiates' element failed. Invalid format.");
+            return;
+        }
+        LPSParser.AtomContext atom = ctx.atom();
+        Action head = new Action(atom.getText());
+        LPSParser.ConjunctionContext conjunction = ctx.conjunction();
+        List<Entity> entities = makeConjunctionIntoList(conjunction);
+
+        Initiate initiate = new Initiate(head, entities);
+        postconditions.add(initiate);
     }
 
     @Override
     public void enterTerminates(@NotNull LPSParser.TerminatesContext ctx) {
-        super.enterTerminates(ctx);
+        if(ctx.exception != null){
+            sendErrorMessage("Parsing 'terminates' element failed. Invalid format.");
+            return;
+        }
+
+        LPSParser.AtomContext atom = ctx.atom();
+        Action head = new Action(atom.getText());
+        LPSParser.ConjunctionContext conjunction = ctx.conjunction();
+        List<Entity> entities = makeConjunctionIntoList(conjunction);
+
+        Terminate terminate = new Terminate(head, entities);
+        postconditions.add(terminate);
     }
 
     @Override
@@ -258,14 +285,18 @@ public class LPSLoader extends LPSBaseListener {
             return;
         }
         LPSParser.ConjunctionContext conjunction = ctx.conjunction();
-        List<LPSParser.AtomContext> atoms = conjunction.atom();
+        List<Entity> entities = makeConjunctionIntoList(conjunction);
+        preconditions.add(entities);
+    }
+
+    private List<Entity> makeConjunctionIntoList(LPSParser.ConjunctionContext conjunction) {
         List<Entity> entities = new ArrayList<Entity>();
-        for(LPSParser.AtomContext atom : atoms){
+        for(LPSParser.AtomContext atom : conjunction.atom()){
             String name = atom.getText();
             Action action = new Action(name);
             entities.add(action);
         }
-        preconditions.add(entities);
+        return entities;
     }
 
     private void replaceValues(Object oldValue, Object newValue) {
@@ -337,6 +368,10 @@ public class LPSLoader extends LPSBaseListener {
 
     public List<List<Entity>> getPreconditions(){
         return preconditions;
+    }
+
+    public List<Postcondition> getPostconditions(){
+        return postconditions;
     }
 
     public Map<Object, Object> getReactiveRuleConnections() {

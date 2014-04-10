@@ -4,6 +4,7 @@ import com.LPSWorkflow.antlr.LPSLexer;
 import com.LPSWorkflow.antlr.LPSLoader;
 import com.LPSWorkflow.antlr.LPSParser;
 import com.LPSWorkflow.model.abstractComponent.Entity;
+import com.LPSWorkflow.model.domainTheory.Postcondition;
 import com.LPSWorkflow.model.message.MessageData;
 import com.LPSWorkflow.model.message.MessageType;
 import org.antlr.v4.runtime.ANTLRInputStream;
@@ -26,6 +27,7 @@ public class LPSFileManager {
     private List<String> fluents;
     private List<List<Entity>> preconditions;
     private MessageData messageData;
+    private List<Postcondition> postconditions;
 
     public LPSFileManager() {
         isFileOpen = false;
@@ -75,6 +77,7 @@ public class LPSFileManager {
             this.rootMap = structureBuilder.getReactiveRulesRootMap();
             this.fluents = loader.getFluents();
             this.preconditions = loader.getPreconditions();
+            this.postconditions= loader.getPostconditions();
             this.isFileOpen = true;
         } catch(Exception e){
             messageData.sendMessage("Failed to read file: " + e.toString(), MessageType.ERROR);
