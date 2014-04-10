@@ -30,7 +30,6 @@ public class Arrow extends Parent {
 
     public Arrow(final Node startNode, final Node endNode, final Set<Arrow> arrowsToEndNode, boolean arrowForTrue) {
         path = new Path();
-        path.setStyle("-fx-stroke-width:1;");
         head1 = new Line(0,0,0,0);
         head2 = new Line(0,0,0,0);
         startPoint = new MoveTo(0, 0);
@@ -38,6 +37,9 @@ public class Arrow extends Parent {
         line2 = new LineTo(0, 0); // TODO change shape
         endPoint = new LineTo(0, 0);
         label = new Label("T");
+        path.setStyle("-fx-stroke-width:2;");
+        head1.setStyle("-fx-stroke-width:2;");
+        head2.setStyle("-fx-stroke-width:2;");
 
         getChildren().addAll(path, head1, head2);
 

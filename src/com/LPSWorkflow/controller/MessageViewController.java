@@ -106,7 +106,7 @@ public class MessageViewController implements Initializable {
     //***** TEST ****** TODO clear up
     private int count = 0;
     public void handleTest(ActionEvent actionEvent) {
-        messageData.getMessageList().add(new Message("This is an important messagesdfslkfjasdflshdf asdf klasdj flksjd flkas jelfj asldfjlasd fjlsad jflkasj dflkasj dlkfj asldfjlaksfj laskjd flsd jflasj fklsd jlfsafj: Message list " + count, MessageType.ERROR));
+        messageData.getMessageList().add(new Message("This is an important message( " + count + " ) and very long as well. it will go over the edge.", MessageType.ERROR));
         count++;
     }
 }
