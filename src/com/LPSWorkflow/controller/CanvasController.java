@@ -56,7 +56,7 @@ public class CanvasController implements Initializable {
         executionLayer = new Group();
 
         // Use the custom LPS parser to get data
-        fileManager = new LPSFileManager();
+        fileManager = LPSFileManager.getInstance();
 
         contentPane.getChildren().addAll(diagramLayer, executionLayer);
 

@@ -28,8 +28,20 @@ public class LPSFileManager {
     private List<List<Entity>> preconditions;
     private MessageData messageData;
     private List<Postcondition> postconditions;
+    private static LPSFileManager instance = null;
 
-    public LPSFileManager() {
+    public final static LPSFileManager getInstance() {
+        if (LPSFileManager.instance == null) {
+            synchronized (LPSFileManager.class) {
+                if (LPSFileManager.instance == null) {
+                    LPSFileManager.instance = new LPSFileManager();
+                }
+            }
+        }
+        return instance;
+    }
+
+    private LPSFileManager() {
         isFileOpen = false;
         messageData = MessageData.getInstance();
     }
