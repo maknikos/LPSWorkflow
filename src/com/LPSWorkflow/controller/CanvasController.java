@@ -13,11 +13,14 @@ import com.LPSWorkflow.model.execution.ExecCircle;
 import com.LPSWorkflow.model.message.MessageData;
 import com.LPSWorkflow.model.message.MessageType;
 import com.LPSWorkflow.model.visualComponent.*;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Group;
 import javafx.scene.input.ScrollEvent;
+import javafx.scene.input.ZoomEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Rectangle;
@@ -41,11 +44,20 @@ public class CanvasController implements Initializable {
     private Group executionLayer;
     private ExecutionManager execManager;
 
+    private double currentScale;
+    private DoubleProperty scaleProperty; // unified scale factor for all layers
+    private DoubleProperty translateXProperty; // unified translate value in X axis
+    private DoubleProperty translateYProperty; // unified translate value in Y axis
+
     @FXML
     private Pane contentPane;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        currentScale = 1.0;
+        scaleProperty = new SimpleDoubleProperty(1.0);
+        translateXProperty = new SimpleDoubleProperty(0.0);
+        translateYProperty = new SimpleDoubleProperty(0.0);
         messageData = MessageData.getInstance();
         fileData = FileData.getInstance();
         displayMap = new HashMap<Entity, Node>();
@@ -54,11 +66,10 @@ public class CanvasController implements Initializable {
         diagramDrawn = false;
         diagramLayer = new HBox();
         executionLayer = new Group();
+        contentPane.getChildren().addAll(diagramLayer, executionLayer);
 
         // Use the custom LPS parser to get data
         fileManager = LPSFileManager.getInstance();
-
-        contentPane.getChildren().addAll(diagramLayer, executionLayer);
 
         // set clip (viewing region)
         Rectangle clip = new Rectangle(0,0,0,0);
@@ -66,20 +77,52 @@ public class CanvasController implements Initializable {
         clip.heightProperty().bind(contentPane.heightProperty());
         contentPane.setClip(clip);
 
+        // bind scaling and translation
+        diagramLayer.translateXProperty().bind(translateXProperty);
+        diagramLayer.translateYProperty().bind(translateYProperty);
+        executionLayer.translateXProperty().bind(translateXProperty);
+        executionLayer.translateYProperty().bind(translateYProperty);
+        diagramLayer.scaleXProperty().bind(scaleProperty);
+        diagramLayer.scaleYProperty().bind(scaleProperty);
+        executionLayer.scaleXProperty().bind(scaleProperty);
+        executionLayer.scaleYProperty().bind(scaleProperty);
+
+
         //TODO allow SPACE + mouse-drag as well?
         //TODO smooth scrolling?
+        // TODO limit area
         // move view point using scroll
         contentPane.setOnScroll(new EventHandler<ScrollEvent>() {
             @Override
             public void handle(ScrollEvent e) {
-                double translateX = e.getDeltaX();
-                double translateY = e.getDeltaY();
-                diagramLayer.setTranslateX(diagramLayer.getTranslateX() + translateX);
-                diagramLayer.setTranslateY(diagramLayer.getTranslateY() + translateY);
-                executionLayer.setTranslateX(executionLayer.getTranslateX() + translateX);
-                executionLayer.setTranslateY(executionLayer.getTranslateY() + translateY);
+                translateXProperty.set(translateXProperty.get() + e.getDeltaX());
+                translateYProperty.set(translateYProperty.get() + e.getDeltaY());
             }
         });
+
+        // TODO allow ctrl+scroll (or something similar) to zoom... for systems without Pinch-zoom capability
+        // TODO or introduce a slider/combobox (**% zoom)
+        contentPane.setOnZoomFinished(new EventHandler<ZoomEvent>() {
+            @Override
+            public void handle(ZoomEvent zoomEvent) {
+                currentScale = scaleProperty.get();
+            }
+        });
+        contentPane.setOnZoom(new EventHandler<ZoomEvent>() {
+            @Override
+            public void handle(ZoomEvent zoomEvent) {
+                double zoomFactor = currentScale * zoomEvent.getTotalZoomFactor();
+
+                // limit the scale
+                if(zoomFactor > Constants.SCALE_UPPER_LIMIT){
+                    zoomFactor = Constants.SCALE_UPPER_LIMIT ;
+                } else if (zoomFactor < Constants.SCALE_LOWER_LIMIT ){
+                    zoomFactor = Constants.SCALE_LOWER_LIMIT ;
+                }
+                scaleProperty.set(zoomFactor);
+            }
+        });
+
     }
 
     @FXML
