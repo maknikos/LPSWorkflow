@@ -90,13 +90,35 @@ public class CanvasController implements Initializable {
 
         //TODO allow SPACE + mouse-drag as well?
         //TODO smooth scrolling?
-        // TODO limit area
+        // TODO mini-map
         // move view point using scroll
         contentPane.setOnScroll(new EventHandler<ScrollEvent>() {
             @Override
             public void handle(ScrollEvent e) {
-                translateXProperty.set(translateXProperty.get() + e.getDeltaX());
-                translateYProperty.set(translateYProperty.get() + e.getDeltaY());
+                double translateX = translateXProperty.get() + e.getDeltaX();
+                double translateY = translateYProperty.get() + e.getDeltaY();
+                double addedValue = 100;
+
+                double maxX = contentPane.getLayoutBounds().getMaxX();
+                double minX = contentPane.getLayoutBounds().getMinX();
+                double maxY = contentPane.getLayoutBounds().getMaxY();
+                double minY = contentPane.getLayoutBounds().getMinY();
+                double width = diagramLayer.getWidth();
+                double height = diagramLayer.getHeight();
+
+                if(translateX + addedValue > maxX){
+                    translateX = maxX - addedValue;
+                } else if (translateX + width + addedValue < minX) {
+                    translateX = minX - width - addedValue;
+                }
+                if(translateY + addedValue > maxY){
+                    translateY = maxY - addedValue;
+                } else if (translateY + height + addedValue < minY) {
+                    translateY = minY - height - addedValue;
+                }
+
+                translateXProperty.set(translateX);
+                translateYProperty.set(translateY);
             }
         });
 
@@ -127,7 +149,7 @@ public class CanvasController implements Initializable {
 
     @FXML
     private void handleDrawAction() {
-        fileManager.openFile(fileData.getFilePath()); //TODO should I remove all messages every time a new file is opened?
+        fileManager.openFile(fileData.getFilePath());
 
         //only draw when the file is open
         if(fileManager.isFileOpen()){

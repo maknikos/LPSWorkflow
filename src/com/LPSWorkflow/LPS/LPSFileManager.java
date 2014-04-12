@@ -57,6 +57,7 @@ public class LPSFileManager {
      */
     public void openFile(String fileData) {
         setIsFileOpen(false);
+        messageData.getMessageList().clear(); // reset the message list
         InputStream is;
         ANTLRInputStream input = null;
         try {

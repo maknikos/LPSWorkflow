@@ -30,7 +30,9 @@ public class Main extends Application {
             }
         });
 
-        primaryStage.setScene(new Scene(root, 1200, 800));
+        Scene scene = new Scene(root, 1200, 800);
+        scene.getStylesheets().add("com/LPSWorkflow/styles/stylesheet.css");
+        primaryStage.setScene(scene);
         primaryStage.show();
     }
 
