@@ -5,8 +5,10 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Bounds;
 import javafx.scene.Parent;
-import javafx.scene.paint.Paint;
-import javafx.scene.shape.*;
+import javafx.scene.shape.Line;
+import javafx.scene.shape.LineTo;
+import javafx.scene.shape.MoveTo;
+import javafx.scene.shape.Path;
 
 /**
  * Draw an arrow consisting of three lines (line and two heads)
@@ -18,22 +20,16 @@ public class ReactiveArrow extends Parent {
     final Line head1;
     final Line head2;
 
-    public ReactiveArrow(final Node startNode, final Node endNode, boolean arrowForTrue) {
+    public ReactiveArrow(final Node startNode, final Node endNode) {
         path = new Path();
-
-        path.setStyle("-fx-stroke-width:3px; -fx-stroke-dash-array:8 6;");
-        if(!arrowForTrue){
-            path.setStroke(Paint.valueOf("Red")); //TODO change shape as well?
-        }
-
+        path.getStyleClass().add("reactive-arrow");
 
         startPoint = new MoveTo(0, 0);
         endPoint = new LineTo(0, 0);
-
         head1 = new Line(0,0,0,0);
         head2 = new Line(0,0,0,0);
-        head1.setStyle("-fx-stroke-width:3px;");
-        head2.setStyle("-fx-stroke-width:3px;");
+        head1.getStyleClass().add("reactive-arrow");
+        head2.getStyleClass().add("reactive-arrow");
         getChildren().addAll(path, head1, head2);
 
         path.getElements().addAll(startPoint, endPoint);

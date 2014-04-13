@@ -1,5 +1,66 @@
-.custom-button {
-    -fx-font: 16px "Serif";
-    -fx-padding: 10;
-    -fx-background-color: #CCFF99;
+.lps-node {
+    -fx-background-color: white;
+}
+
+.lps-node-text {
+    -fx-font-size: 25;
+}
+
+.multiChildNode {
+    -fx-font-size:12;
+}
+
+.multiChildNode-border {
+    -fx-stroke: black;
+    -fx-fill: white;
+}
+
+.fluent-diamond {
+    -fx-fill: white;
+    -fx-stroke: black;
+}
+
+.exit-node-text {
+    -fx-font-size: 12;
+    -fx-background-color: #33993355;
+    -fx-background-radius: 6;
+    -fx-border-color: #339933FF;
+    -fx-border-radius: 6;
+    -fx-border-width: 4;
+}
+
+.message-content-label {
+    -fx-border-color: #FF9999BB;
+    -fx-border-radius: 5;
+    -fx-background-color: #FF999999;
+    -fx-background-radius: 5px;
+    -fx-text-fill: #771111FF;
+    -fx-font-size: 12;
+    -fx-padding: 3 20 3 10
+}
+
+.message-close-button {
+    -fx-background-color: linear-gradient(#ff5400, #be1d00);
+    -fx-background-radius: 30;
+    -fx-background-insets: 0;
+    -fx-text-fill: white;
+}
+
+.reactive-arrow {
+    -fx-stroke-width: 3;
+    -fx-stroke-dash-array: 8 6;
+}
+
+.arrow {
+    -fx-stroke-width: 2;
+}
+
+.arrow:demo {
+    -fx-stroke-width: 2;
+    -fx-stroke: red;
+}
+
+.arrow-label {
+    -fx-background-color: white;
+    -fx-padding: 2;
 }

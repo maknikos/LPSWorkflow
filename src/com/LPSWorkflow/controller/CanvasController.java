@@ -292,7 +292,7 @@ public class CanvasController implements Initializable {
 
                     if(entityMap.values().contains(currEntity)){
                         // it is antecedent of a reactive rule.
-                        resultGroup.getChildren().add(new ReactiveArrow(currNode, nextNode, false));
+                        resultGroup.getChildren().add(new ReactiveArrow(currNode, nextNode));
                     } else {
                         // Draw connection from prev to current node
                         resultGroup.getChildren().add(createArrow(currNode, nextNode, false));
@@ -311,7 +311,7 @@ public class CanvasController implements Initializable {
 
                 if(entityMap.values().contains(currEntity)){
                     // it is antecedent of a reactive rule.
-                    resultGroup.getChildren().add(new ReactiveArrow(currNode, nextNode, true));
+                    resultGroup.getChildren().add(new ReactiveArrow(currNode, nextNode));
                 } else {
                     // Draw connection from prev to current node
                     resultGroup.getChildren().add(createArrow(currNode, nextNode, true));

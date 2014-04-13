@@ -1,6 +1,5 @@
 package com.LPSWorkflow.model.visualComponent;
 
-import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 
 /**
@@ -12,15 +11,11 @@ public abstract class MultiChildNode extends Node {
     public MultiChildNode(String name) {
         super(name);
         this.setMinSize(width, 0);
-        circleBorder = new Circle();
-        circleBorder.setRadius(15);
-        circleBorder.setFill(Paint.valueOf("Transparent"));
-        circleBorder.setStroke(Paint.valueOf("Black"));
-
+        circleBorder = new Circle(15);
+        circleBorder.getStyleClass().add("multiChildNode-border");
         text.setPrefSize(width, 0);
-        text.setStyle("-fx-font-size:12px");
-
-        getChildren().addAll(text, circleBorder);
+        text.getStyleClass().add("multiChildNode");
+        getChildren().addAll(circleBorder, text);
     }
 
     @Override

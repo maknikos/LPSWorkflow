@@ -18,11 +18,11 @@ public abstract class Node extends StackPane {
     protected Node(String name) {
         this.name = name;
         this.setMinSize(width, height);
-        setStyle("-fx-background-color:white;");
         text = new Label(name);
         text.setAlignment(Pos.CENTER);
         text.setPrefSize(width, height);
-        text.setStyle("-fx-font-size:25px");
+        this.getStyleClass().add("lps-node");
+        text.getStyleClass().add("lps-node-text");
     }
     public String getName(){
         return name;

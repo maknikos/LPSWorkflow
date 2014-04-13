@@ -2,12 +2,13 @@ package com.LPSWorkflow.model.visualComponent;
 
 import com.LPSWorkflow.common.Constants;
 import com.LPSWorkflow.common.EntityType;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Bounds;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
-import javafx.scene.paint.Paint;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
@@ -28,25 +29,55 @@ public class Arrow extends Parent {
     private final Line head2;
     private Label label;
 
+
+
+
+    private static final String DEMO_PSEUDO_CLASS = "demo";
+    private BooleanProperty demo = new SimpleBooleanProperty(false);
+
+    public final boolean isDemo() {
+        return null == demo ? false : demo.get();
+    }
+    public final void setDemo(final boolean b) {
+        demoProperty().set(b);
+    }
+
+    public final boolean getDemo(){
+        return demoProperty().get();
+    }
+
+    public final BooleanProperty demoProperty() {
+        return demo;
+    }
+
+
+
+
     public Arrow(final Node startNode, final Node endNode, final Set<Arrow> arrowsToEndNode, boolean arrowForTrue) {
         path = new Path();
         head1 = new Line(0,0,0,0);
         head2 = new Line(0,0,0,0);
         startPoint = new MoveTo(0, 0);
         line1 = new LineTo(0, 0); // intermediate points
-        line2 = new LineTo(0, 0); // TODO change shape
+        line2 = new LineTo(0, 0);
         endPoint = new LineTo(0, 0);
         label = new Label("T");
-        path.setStyle("-fx-stroke-width:2;");
-        head1.setStyle("-fx-stroke-width:2;");
-        head2.setStyle("-fx-stroke-width:2;");
+        label.getStyleClass().add("arrow-label");
 
         getChildren().addAll(path, head1, head2);
 
-        if(!arrowForTrue){
-            path.setStroke(Paint.valueOf("Red")); //TODo change shape instead?
-            head1.setStroke(Paint.valueOf("Red"));
-            head2.setStroke(Paint.valueOf("Red"));
+        if (arrowForTrue) {
+            path.getStyleClass().add("arrow");
+            head1.getStyleClass().add("arrow");
+            head2.getStyleClass().add("arrow");
+        } else {
+            path.getStyleClass().add("arrow");
+            head1.getStyleClass().add("arrow");
+            head2.getStyleClass().add("arrow");
+//            path.getStyleClass().add("arrow-false");
+//            head1.getStyleClass().add("arrow-false");
+//            head2.getStyleClass().add("arrow-false");
+            setDemo(true);
             label.setText("F");
         }
 
@@ -62,10 +93,7 @@ public class Arrow extends Parent {
         } else {
             // T and F labels for Fluents
             if(startNode.getType() == EntityType.FLUENT){
-
-                label.setStyle("-fx-background-color:white; -fx-padding:2px");
-                label.layoutXProperty().bind(
-                        line1.xProperty().add(line2.xProperty()).divide(2).subtract(7));
+                label.layoutXProperty().bind(line1.xProperty().add(line2.xProperty()).divide(2).subtract(7));
                 label.layoutYProperty().bind(line1.yProperty().subtract(9));
                 getChildren().add(label);
             }
@@ -75,7 +103,6 @@ public class Arrow extends Parent {
             line1.xProperty().bind(startPoint.xProperty());
             line2.xProperty().bind(endPoint.xProperty());
 
-            //TODO change arrow shape
             startNode.boundsInParentProperty().addListener(new ChangeListener<Bounds>() {
                 @Override
                 public void changed(ObservableValue<? extends Bounds> observableValue, Bounds oldBounds, Bounds newBounds) {

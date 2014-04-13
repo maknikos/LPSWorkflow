@@ -31,7 +31,6 @@ public class ActionNode extends Node {
         super(name);
 
         if(goalDefinition != null){
-            goalDefinition.setStyle("-fx-border-color:black;");
             this.goalDefinition = goalDefinition;
         } else {
             this.goalDefinition = new Group();
