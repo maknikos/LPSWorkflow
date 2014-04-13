@@ -10,11 +10,10 @@ public abstract class MultiChildNode extends Node {
 
     public MultiChildNode(String name) {
         super(name);
-        this.setMinSize(width, 0);
+        this.getStyleClass().add("multiChildNode");
         circleBorder = new Circle(15);
         circleBorder.getStyleClass().add("multiChildNode-border");
-        text.setPrefSize(width, 0);
-        text.getStyleClass().add("multiChildNode");
+        text.getStyleClass().add("multiChildNode-text");
         getChildren().addAll(circleBorder, text);
     }
 

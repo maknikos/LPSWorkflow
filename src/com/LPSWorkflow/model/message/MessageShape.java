@@ -24,7 +24,6 @@ public class MessageShape extends Region {
 
         containerPane = new StackPane();
         contentLabel = new Label(msg.getContent());
-        contentLabel.setMaxWidth(500);
         closeButton = new Button("x");
         contentLabel.getStyleClass().add("message-content-label");
         closeButton.getStyleClass().add("message-close-button");

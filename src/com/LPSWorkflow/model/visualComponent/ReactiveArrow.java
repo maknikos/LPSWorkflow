@@ -31,6 +31,7 @@ public class ReactiveArrow extends Parent {
 
         path.getElements().addAll(startPoint, endPoint);
 
+        //TODO use binding as in Arrow class
         //TODO change arrow shape
         startNode.boundsInParentProperty().addListener((observableValue, oldBounds, newBounds) -> {
             double startX = newBounds.getMinX() + (0.5 * newBounds.getWidth()); // centre

@@ -33,7 +33,6 @@ public class ActionNode extends Node {
         this.getStyleClass().add("action-node");
 
         vBox = new VBox();
-        text.setMinWidth(width);
         text.setMaxWidth(Double.MAX_VALUE);
         text.getStyleClass().add("action-node-label");
         vBox.getChildren().add(text);
@@ -136,16 +135,13 @@ public class ActionNode extends Node {
 
     private void setExpanded(boolean b) {
         isExpanded = b;
-
         if(b){
             vBox.getChildren().add(goalDefinition);
             text.pseudoClassStateChanged(PseudoClass.getPseudoClass("expanded"), true);
-            text.setPrefHeight(22);
             expandButton.setText("-");
         } else {
             vBox.getChildren().remove(goalDefinition);
             text.pseudoClassStateChanged(PseudoClass.getPseudoClass("expanded"), false);
-            text.setPrefSize(width, height);
             expandButton.setText("+");
         }
     }

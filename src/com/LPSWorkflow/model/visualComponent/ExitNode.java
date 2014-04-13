@@ -9,9 +9,8 @@ public class ExitNode extends Node {
     public ExitNode() {
         super("Exit");
         text.setText("");
-        text.setPrefSize(25, 25);
+        this.getStyleClass().add("exit-node");
         text.getStyleClass().add("exit-node-text");
-        this.setMinHeight(0);
         getChildren().addAll(text);
     }
 

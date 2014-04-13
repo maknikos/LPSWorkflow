@@ -3,7 +3,6 @@ package com.LPSWorkflow.model.visualComponent;
 import com.LPSWorkflow.common.Constants;
 import com.LPSWorkflow.common.EntityType;
 import javafx.geometry.Bounds;
-import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
@@ -22,7 +21,6 @@ public abstract class Node extends StackPane {
         this.name = name;
         this.setMinSize(width, height);
         text = new Label(name);
-        text.setAlignment(Pos.CENTER);
         text.setPrefSize(width, height);
         this.getStyleClass().add("lps-node");
         text.getStyleClass().add("lps-node-text");

@@ -4,10 +4,15 @@
 
 .lps-node-text {
     -fx-font-size: 25;
+    -fx-alignment: center;
 }
 
 .multiChildNode {
+    -fx-min-height: 0;
+}
+.multiChildNode-text {
     -fx-font-size:12;
+    -fx-pref-height: 0;
 }
 
 .multiChildNode-border {
@@ -20,6 +25,10 @@
     -fx-stroke: black;
 }
 
+.exit-node {
+    -fx-min-height: 0;
+}
+
 .exit-node-text {
     -fx-font-size: 12;
     -fx-background-color: #33993355;
@@ -27,6 +36,8 @@
     -fx-border-color: #339933FF;
     -fx-border-radius: 6;
     -fx-border-width: 4;
+    -fx-pref-width: 25;
+    -fx-pref-height: 25;
 }
 
 .action-node {
@@ -43,6 +54,7 @@
     -fx-font-size: 18;
     -fx-border-color: black;
     -fx-border-width: 0 0 1 0;
+    -fx-pref-height: 22;
 }
 
 .message-content-label {
@@ -52,7 +64,8 @@
     -fx-background-radius: 5px;
     -fx-text-fill: #771111FF;
     -fx-font-size: 12;
-    -fx-padding: 3 20 3 10
+    -fx-padding: 3 20 3 10;
+    -fx-max-width: 500;
 }
 
 .message-close-button {
