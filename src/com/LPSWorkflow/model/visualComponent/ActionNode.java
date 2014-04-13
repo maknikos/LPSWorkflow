@@ -1,6 +1,7 @@
 package com.LPSWorkflow.model.visualComponent;
 
 import com.LPSWorkflow.common.EntityType;
+import javafx.css.PseudoClass;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
 import javafx.geometry.Pos;
@@ -29,27 +30,26 @@ public class ActionNode extends Node {
 
     public ActionNode(String name, final Group goalDefinition) {
         super(name);
+        this.getStyleClass().add("action-node");
 
-        if(goalDefinition != null){
-            this.goalDefinition = goalDefinition;
-        } else {
-            this.goalDefinition = new Group();
-        }
-         //TODO cleanup the structure of the ActionNode
         vBox = new VBox();
-        vBox.setStyle("-fx-border-color:black; -fx-border-radius:5px");
-        vBox.setAlignment(Pos.CENTER);
-
-        expandButton = new Button("+");
-        expandButton.setVisible(hasGoalDefinition());
         text.setMinWidth(width);
         text.setMaxWidth(Double.MAX_VALUE);
-
+        text.getStyleClass().add("action-node-label");
         vBox.getChildren().add(text);
-        StackPane.setAlignment(expandButton, Pos.TOP_LEFT);
-        getChildren().addAll(vBox, expandButton);
-        setExpanded(false);
+        getChildren().add(vBox);
 
+        if (goalDefinition != null) {
+            this.goalDefinition = goalDefinition;
+            expandButton = new Button("+");
+            StackPane.setAlignment(expandButton, Pos.TOP_LEFT);
+            initExpandButton();
+            getChildren().add(expandButton);
+            setExpanded(false);
+        }
+    }
+
+    private void initExpandButton() {
         // When clicked on expand button, it will show goal definitions ("expand")
         expandButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
             private Map<javafx.scene.Node, Double> nodesPushed = new HashMap<javafx.scene.Node, Double>();
@@ -57,10 +57,9 @@ public class ActionNode extends Node {
             @Override
             public void handle(MouseEvent mouseEvent) {
 
+
+
                 if(mouseEvent.isShiftDown()){
-
-
-
                     //TODO open in a new window/panel
                     Stage stage = new Stage();
                     stage.setTitle(getName());
@@ -142,15 +141,14 @@ public class ActionNode extends Node {
     private void setExpanded(boolean b) {
         isExpanded = b;
 
-        //TODO there may be a better way to show the label
         if(b){
             vBox.getChildren().add(goalDefinition);
-            text.setStyle("-fx-font-size:18px; -fx-border-color:black; -fx-border-width:0 0 1 0");
+            text.pseudoClassStateChanged(PseudoClass.getPseudoClass("expanded"), true);
             text.setPrefHeight(22);
             expandButton.setText("-");
         } else {
             vBox.getChildren().remove(goalDefinition);
-            text.setStyle("-fx-font-size:25px; -fx-border-color:transparent;");
+            text.pseudoClassStateChanged(PseudoClass.getPseudoClass("expanded"), false);
             text.setPrefSize(width, height);
             expandButton.setText("+");
         }
@@ -158,11 +156,6 @@ public class ActionNode extends Node {
 
     private boolean isExpanded() {
         return isExpanded;
-    }
-
-    public boolean hasGoalDefinition(){
-        return goalDefinition != null
-                && goalDefinition.getChildren().size() > 0;
     }
 
     @Override

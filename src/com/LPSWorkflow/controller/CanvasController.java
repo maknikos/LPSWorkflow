@@ -3,9 +3,9 @@ package com.LPSWorkflow.controller;
 import com.LPSWorkflow.LPS.ExecutionManager;
 import com.LPSWorkflow.LPS.LPSFileManager;
 import com.LPSWorkflow.common.Constants;
+import com.LPSWorkflow.common.EntityType;
 import com.LPSWorkflow.model.FileData;
 import com.LPSWorkflow.model.abstractComponent.Entity;
-import com.LPSWorkflow.common.EntityType;
 import com.LPSWorkflow.model.abstractComponent.Fluent;
 import com.LPSWorkflow.model.abstractComponent.MultiChildEntity;
 import com.LPSWorkflow.model.execution.ExecAgent;
@@ -15,7 +15,6 @@ import com.LPSWorkflow.model.message.MessageType;
 import com.LPSWorkflow.model.visualComponent.*;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Group;
@@ -60,9 +59,9 @@ public class CanvasController implements Initializable {
         translateYProperty = new SimpleDoubleProperty(0.0);
         messageData = MessageData.getInstance();
         fileData = FileData.getInstance();
-        displayMap = new HashMap<Entity, Node>();
-        arrowsFrom = new HashMap<Node, Set<Arrow>>();
-        arrowsTo = new HashMap<Node, Set<Arrow>>();
+        displayMap = new HashMap<>();
+        arrowsFrom = new HashMap<>();
+        arrowsTo = new HashMap<>();
         diagramDrawn = false;
         diagramLayer = new HBox();
         executionLayer = new Group();
@@ -92,57 +91,49 @@ public class CanvasController implements Initializable {
         //TODO smooth scrolling?
         // TODO mini-map
         // move view point using scroll
-        contentPane.setOnScroll(new EventHandler<ScrollEvent>() {
-            @Override
-            public void handle(ScrollEvent e) {
-                double translateX = translateXProperty.get() + e.getDeltaX();
-                double translateY = translateYProperty.get() + e.getDeltaY();
-                double addedValue = 100;
+        contentPane.setOnScroll((ScrollEvent e) -> {
+            double translateX = translateXProperty.get() + e.getDeltaX();
+            double translateY = translateYProperty.get() + e.getDeltaY();
+            double addedValue = 100;
 
-                double maxX = contentPane.getLayoutBounds().getMaxX();
-                double minX = contentPane.getLayoutBounds().getMinX();
-                double maxY = contentPane.getLayoutBounds().getMaxY();
-                double minY = contentPane.getLayoutBounds().getMinY();
-                double width = diagramLayer.getWidth();
-                double height = diagramLayer.getHeight();
+            double maxX = contentPane.getLayoutBounds().getMaxX();
+            double minX = contentPane.getLayoutBounds().getMinX();
+            double maxY = contentPane.getLayoutBounds().getMaxY();
+            double minY = contentPane.getLayoutBounds().getMinY();
+            double width = diagramLayer.getWidth();
+            double height = diagramLayer.getHeight();
 
-                if(translateX + addedValue > maxX){
-                    translateX = maxX - addedValue;
-                } else if (translateX + width + addedValue < minX) {
-                    translateX = minX - width - addedValue;
-                }
-                if(translateY + addedValue > maxY){
-                    translateY = maxY - addedValue;
-                } else if (translateY + height + addedValue < minY) {
-                    translateY = minY - height - addedValue;
-                }
-
-                translateXProperty.set(translateX);
-                translateYProperty.set(translateY);
+            if(translateX + addedValue > maxX){
+                translateX = maxX - addedValue;
+            } else if (translateX + width + addedValue < minX) {
+                translateX = minX - width - addedValue;
             }
+            if(translateY + addedValue > maxY){
+                translateY = maxY - addedValue;
+            } else if (translateY + height + addedValue < minY) {
+                translateY = minY - height - addedValue;
+            }
+
+            translateXProperty.set(translateX);
+            translateYProperty.set(translateY);
         });
 
         // TODO allow ctrl+scroll (or something similar) to zoom... for systems without Pinch-zoom capability
         // TODO or introduce a slider/combobox (**% zoom)
-        contentPane.setOnZoomFinished(new EventHandler<ZoomEvent>() {
-            @Override
-            public void handle(ZoomEvent zoomEvent) {
-                currentScale = scaleProperty.get();
-            }
+        contentPane.setOnZoomFinished(zoomEvent -> {
+            currentScale = scaleProperty.get();
         });
-        contentPane.setOnZoom(new EventHandler<ZoomEvent>() {
-            @Override
-            public void handle(ZoomEvent zoomEvent) {
-                double zoomFactor = currentScale * zoomEvent.getTotalZoomFactor();
 
-                // limit the scale
-                if(zoomFactor > Constants.SCALE_UPPER_LIMIT){
-                    zoomFactor = Constants.SCALE_UPPER_LIMIT ;
-                } else if (zoomFactor < Constants.SCALE_LOWER_LIMIT ){
-                    zoomFactor = Constants.SCALE_LOWER_LIMIT ;
-                }
-                scaleProperty.set(zoomFactor);
+        contentPane.setOnZoom((ZoomEvent zoomEvent) -> {
+            double zoomFactor = currentScale * zoomEvent.getTotalZoomFactor();
+
+            // limit the scale
+            if(zoomFactor > Constants.SCALE_UPPER_LIMIT){
+                zoomFactor = Constants.SCALE_UPPER_LIMIT ;
+            } else if (zoomFactor < Constants.SCALE_LOWER_LIMIT ){
+                zoomFactor = Constants.SCALE_LOWER_LIMIT ;
             }
+            scaleProperty.set(zoomFactor);
         });
 
     }

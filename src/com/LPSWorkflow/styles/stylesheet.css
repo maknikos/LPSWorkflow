@@ -29,6 +29,22 @@
     -fx-border-width: 4;
 }
 
+.action-node {
+    -fx-border-color: black;
+    -fx-border-radius: 5;
+}
+
+.action-node-label {
+    -fx-font-size: 25;
+    -fx-border-color: transparent;
+}
+
+.action-node-label:expanded {
+    -fx-font-size: 18;
+    -fx-border-color: black;
+    -fx-border-width: 0 0 1 0;
+}
+
 .message-content-label {
     -fx-border-color: #FF9999BB;
     -fx-border-radius: 5;
@@ -53,9 +69,10 @@
 
 .arrow {
     -fx-stroke-width: 2;
+    -fx-stroke: black;
 }
 
-.arrow:demo {
+.arrow:false {
     -fx-stroke-width: 2;
     -fx-stroke: red;
 }
@@ -63,4 +80,11 @@
 .arrow-label {
     -fx-background-color: white;
     -fx-padding: 2;
+}
+
+.token {
+    -fx-fill: derive(gold, 50%);
+    -fx-stroke: gold;
+    -fx-stroke-width: 2;
+    -fx-stroke-type: outside;
 }

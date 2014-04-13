@@ -2,10 +2,9 @@ package com.LPSWorkflow.model.visualComponent;
 
 import com.LPSWorkflow.common.Constants;
 import com.LPSWorkflow.common.EntityType;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.css.PseudoClass;
 import javafx.geometry.Bounds;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
@@ -29,30 +28,6 @@ public class Arrow extends Parent {
     private final Line head2;
     private Label label;
 
-
-
-
-    private static final String DEMO_PSEUDO_CLASS = "demo";
-    private BooleanProperty demo = new SimpleBooleanProperty(false);
-
-    public final boolean isDemo() {
-        return null == demo ? false : demo.get();
-    }
-    public final void setDemo(final boolean b) {
-        demoProperty().set(b);
-    }
-
-    public final boolean getDemo(){
-        return demoProperty().get();
-    }
-
-    public final BooleanProperty demoProperty() {
-        return demo;
-    }
-
-
-
-
     public Arrow(final Node startNode, final Node endNode, final Set<Arrow> arrowsToEndNode, boolean arrowForTrue) {
         path = new Path();
         head1 = new Line(0,0,0,0);
@@ -63,21 +38,15 @@ public class Arrow extends Parent {
         endPoint = new LineTo(0, 0);
         label = new Label("T");
         label.getStyleClass().add("arrow-label");
-
+        path.getStyleClass().add("arrow");
+        head1.getStyleClass().add("arrow");
+        head2.getStyleClass().add("arrow");
         getChildren().addAll(path, head1, head2);
 
-        if (arrowForTrue) {
-            path.getStyleClass().add("arrow");
-            head1.getStyleClass().add("arrow");
-            head2.getStyleClass().add("arrow");
-        } else {
-            path.getStyleClass().add("arrow");
-            head1.getStyleClass().add("arrow");
-            head2.getStyleClass().add("arrow");
-//            path.getStyleClass().add("arrow-false");
-//            head1.getStyleClass().add("arrow-false");
-//            head2.getStyleClass().add("arrow-false");
-            setDemo(true);
+        if (!arrowForTrue) {
+            path.pseudoClassStateChanged(PseudoClass.getPseudoClass("false"), true);
+            head1.pseudoClassStateChanged(PseudoClass.getPseudoClass("false"), true);
+            head2.pseudoClassStateChanged(PseudoClass.getPseudoClass("false"), true);
             label.setText("F");
         }
 
