@@ -4,7 +4,7 @@ import com.LPSWorkflow.common.EntityType;
 import com.LPSWorkflow.model.abstractComponent.Concurrent;
 import com.LPSWorkflow.model.abstractComponent.Entity;
 import com.LPSWorkflow.model.database.Database;
-import com.LPSWorkflow.model.execution.ExecAgent;
+import com.LPSWorkflow.model.execution.Token;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 public class ExecutionManager {
     private final Map<String, Entity> entityMap;
     private Database database;
-    private List<ExecAgent> agents;
+    private List<Token> agents;
     private LPSFileManager fileManager;
 
     public ExecutionManager(Map<String, Entity> entityMap) {
@@ -31,12 +31,12 @@ public class ExecutionManager {
         fileManager.isFileOpenProperty().addListener(observable -> agents.clear());
     }
 
-    public List<ExecAgent> getNextStep(){
+    public List<Token> getNextStep(){
         List<String> facts = Arrays.asList(database.getFacts().split(" "));
-        List<ExecAgent> toBeRemoved = new ArrayList<>();
+        List<Token> toBeRemoved = new ArrayList<>();
 
         // for each agent in the list, proceed to the next step
-        for(ExecAgent agent : agents){
+        for(Token agent : agents){
             Entity curr = agent.getCurrentEntity();
             if(holds(curr, facts)){
                 agent.setCurrentEntity(curr.getNext());
@@ -54,7 +54,7 @@ public class ExecutionManager {
         if(agents.isEmpty()){
             for(Entity root : entityMap.values()){
                 if(holds(root, facts)){
-                    agents.add(new ExecAgent(entityMap.get(root)));
+                    agents.add(new Token(entityMap.get(root)));
                     break;
                 }
             }

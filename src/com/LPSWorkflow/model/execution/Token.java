@@ -5,12 +5,12 @@ import com.LPSWorkflow.model.abstractComponent.Entity;
 /**
  * Agent responsible for execution along a single path
  */
-public class ExecAgent {
+public class Token {
     private Entity currentEntity;
     private boolean isReady;
     private int cycleNum;
 
-    public ExecAgent(Entity currentEntity) {
+    public Token(Entity currentEntity) {
         this.currentEntity = currentEntity;
         isReady = false;
         cycleNum = 0;
@@ -45,8 +45,8 @@ public class ExecAgent {
     }
 
     @Override
-    public ExecAgent clone(){
-        ExecAgent clone = new ExecAgent(currentEntity);
+    public Token clone(){
+        Token clone = new Token(currentEntity);
         clone.setReady(isReady);
         clone.setCycleNum(cycleNum);
         return clone;

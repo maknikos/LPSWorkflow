@@ -8,8 +8,8 @@ import com.LPSWorkflow.model.FileData;
 import com.LPSWorkflow.model.abstractComponent.Entity;
 import com.LPSWorkflow.model.abstractComponent.Fluent;
 import com.LPSWorkflow.model.abstractComponent.MultiChildEntity;
-import com.LPSWorkflow.model.execution.ExecAgent;
-import com.LPSWorkflow.model.execution.ExecCircle;
+import com.LPSWorkflow.model.execution.Token;
+import com.LPSWorkflow.model.execution.TokenShape;
 import com.LPSWorkflow.model.message.MessageData;
 import com.LPSWorkflow.model.message.MessageType;
 import com.LPSWorkflow.model.visualComponent.*;
@@ -154,10 +154,10 @@ public class CanvasController implements Initializable {
     private void handleNextAction(){
         if(diagramDrawn){
             executionLayer.getChildren().clear();
-            List<ExecAgent> agents = execManager.getNextStep();
+            List<Token> agents = execManager.getNextStep();
 
-            for(ExecAgent agent : agents){
-                ExecCircle circle = new ExecCircle();
+            for(Token agent : agents){
+                TokenShape circle = new TokenShape();
 
                 Node node = displayMap.get(agent.getCurrentEntity());
                 circle.setCenterX(node.getParent().getBoundsInParent().getMinX() + node.getBoundsInParent().getMaxX());
