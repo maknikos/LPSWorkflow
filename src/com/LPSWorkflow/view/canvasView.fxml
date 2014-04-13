@@ -2,8 +2,7 @@
 <?import javafx.scene.layout.*?>
 
 <BorderPane fx:controller="com.LPSWorkflow.controller.CanvasController"
-          xmlns:fx="http://javafx.com/fxml"
-        fx:id="parentPane">
+          xmlns:fx="http://javafx.com/fxml">
     <center>
         <Pane fx:id="contentPane" prefHeight="500"/>
     </center>

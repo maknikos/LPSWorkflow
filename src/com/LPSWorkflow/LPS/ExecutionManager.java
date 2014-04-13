@@ -5,13 +5,12 @@ import com.LPSWorkflow.model.abstractComponent.Concurrent;
 import com.LPSWorkflow.model.abstractComponent.Entity;
 import com.LPSWorkflow.model.database.Database;
 import com.LPSWorkflow.model.execution.ExecAgent;
-import javafx.beans.InvalidationListener;
-import javafx.beans.Observable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Class responsible for executing LPS programs
@@ -25,21 +24,16 @@ public class ExecutionManager {
     public ExecutionManager(Map<String, Entity> entityMap) {
         this.entityMap = entityMap;
         database = Database.getInstance();
-        agents = new ArrayList<ExecAgent>();
+        agents = new ArrayList<>();
         fileManager = LPSFileManager.getInstance();
 
         // reset agent list if file re-opened
-        fileManager.isFileOpenProperty().addListener(new InvalidationListener() {
-            @Override
-            public void invalidated(Observable observable) {
-                agents.clear();
-            }
-        });
+        fileManager.isFileOpenProperty().addListener(observable -> agents.clear());
     }
 
     public List<ExecAgent> getNextStep(){
         List<String> facts = Arrays.asList(database.getFacts().split(" "));
-        List<ExecAgent> toBeRemoved = new ArrayList<ExecAgent>();
+        List<ExecAgent> toBeRemoved = new ArrayList<>();
 
         // for each agent in the list, proceed to the next step
         for(ExecAgent agent : agents){
@@ -80,10 +74,7 @@ public class ExecutionManager {
                 return facts.contains(root.getName());
             case CONCURRENT:
                 List<Entity> entities = ((Concurrent) root).getEntities();
-                List<String> names = new ArrayList<String>();
-                for(Entity e : entities){
-                    names.add(e.getName());
-                }
+                List<String> names = entities.stream().map(Entity::getName).collect(Collectors.toList());
                 return facts.containsAll(names);
         }
 

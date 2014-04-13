@@ -4,13 +4,11 @@ import com.LPSWorkflow.model.message.Message;
 import com.LPSWorkflow.model.message.MessageData;
 import com.LPSWorkflow.model.message.MessageShape;
 import com.LPSWorkflow.model.message.MessageType;
-import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -29,9 +27,7 @@ import java.util.ResourceBundle;
  * Controller for the message view
  */
 public class MessageViewController implements Initializable {
-    @FXML
-    private VBox messageBox;
-
+    @FXML private VBox messageBox;
     private MessageData messageData;
     private Label moreButton;
     private StringProperty msgCountStr = new SimpleStringProperty("More (0 messages)");
@@ -43,19 +39,14 @@ public class MessageViewController implements Initializable {
 
         // if ChangeListener is used, it stops listening when a binding in MessageListViewController
         // is introduced, so using invalidation listener instead.
-        messageData.messageListProperty().addListener(new InvalidationListener() {
-            @Override
-            public void invalidated(Observable observable) {
+        messageData.messageListProperty().addListener((Observable observable) -> {
                 ObservableList<Message> messages = (ObservableList<Message>) observable;
-
                 // sync with messages stored in MessageData instance
                 messageBox.getChildren().clear();
-
                 // only display 2 messages, and group the rest
                 int count = 0;
                 for(Message m : messages){
                     count++;
-
                     if(count > 2){
                         messageBox.getChildren().add(moreButton);
                         msgCountStr.setValue("More (" + (messages).size() + " messages)");
@@ -63,23 +54,15 @@ public class MessageViewController implements Initializable {
                     }
                     messageBox.getChildren().add(createMessage(m));
                 }
-            }
-        });
+            });
     }
 
     private Label createMoreButton() {
         Label moreLabel = new Label();
         moreLabel.textProperty().bind(msgCountStr);
-        moreLabel.setStyle("-fx-border-color:#FF9999BB; -fx-border-radius:5px; " +
-                "-fx-background-color:#FF999999; -fx-background-radius:5px;" +
-                "-fx-text-fill:#771111FF; -fx-font-size:11px;" +
-                "-fx-padding:2 10 2 10;" +
-                "-fx-alignment:center");
+        moreLabel.getStyleClass().add("message-more-label");
         moreLabel.setMaxWidth(Double.MAX_VALUE);
-
-        moreLabel.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent mouseEvent) {
+        moreLabel.setOnMouseClicked((MouseEvent m) -> {
                 try {
                     // launch the message list view in a new window(Stage)
                     Parent root = FXMLLoader.load(getClass().getResource("../view/messageListView.fxml"));
@@ -89,17 +72,13 @@ public class MessageViewController implements Initializable {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-            }
-        });
-
+            });
         return moreLabel;
     }
 
     private MessageShape createMessage(Message message) {
         return new MessageShape(message);
     }
-
-
 
 
 

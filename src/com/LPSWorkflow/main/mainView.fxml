@@ -11,16 +11,12 @@
 
     <center>
         <Pane fx:id="mainPane">
-            <SplitPane fx:id="mainSplitPane" dividerPositions="0.7f" >
-                <items>
-                    <fx:include source="../view/canvasView.fxml"  SplitPane.resizableWithParent="true" />
-                    <SplitPane SplitPane.resizableWithParent="true" orientation="VERTICAL">
-                        <items>
-                            <fx:include source="../view/databaseView.fxml"  SplitPane.resizableWithParent="true" />
-                            <fx:include source="../view/domainTheoryView.fxml"  SplitPane.resizableWithParent="true" />
-                        </items>
-                    </SplitPane>
-                </items>
+            <SplitPane fx:id="mainSplitPane" dividerPositions="0.7f">
+                <fx:include source="../view/canvasView.fxml" SplitPane.resizableWithParent="true"/>
+                <SplitPane SplitPane.resizableWithParent="true" orientation="VERTICAL">
+                    <fx:include source="../view/databaseView.fxml" SplitPane.resizableWithParent="true"/>
+                    <fx:include source="../view/domainTheoryView.fxml" SplitPane.resizableWithParent="true"/>
+                </SplitPane>
             </SplitPane>
             <fx:include source="../view/messageView.fxml" />
         </Pane>

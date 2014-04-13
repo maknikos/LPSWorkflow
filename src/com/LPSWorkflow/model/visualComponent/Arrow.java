@@ -2,10 +2,7 @@ package com.LPSWorkflow.model.visualComponent;
 
 import com.LPSWorkflow.common.Constants;
 import com.LPSWorkflow.common.EntityType;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.css.PseudoClass;
-import javafx.geometry.Bounds;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.shape.Line;
@@ -72,44 +69,38 @@ public class Arrow extends Parent {
             line1.xProperty().bind(startPoint.xProperty());
             line2.xProperty().bind(endPoint.xProperty());
 
-            startNode.boundsInParentProperty().addListener(new ChangeListener<Bounds>() {
-                @Override
-                public void changed(ObservableValue<? extends Bounds> observableValue, Bounds oldBounds, Bounds newBounds) {
-                    double startX = newBounds.getMinX() + (0.5 * newBounds.getWidth()); // centre
-                    double startY = newBounds.getMinY()  + newBounds.getHeight();
-                    startPoint.setX(startX);
-                    startPoint.setY(startY);
-                    // start position can change when the parent node expands/collapses
-                    // always keep the distance (prevents the arrow facing upwards).
-                    // use the minimum height between the arrows pointing to the same endNode;
-                    double maxStartY = 0.0;
-                    for(Arrow a : arrowsToEndNode){
-                        maxStartY = Math.max(a.startPoint.getY(), maxStartY);
-                    }
-                    endNode.setLayoutY(maxStartY + Constants.NODE_VERTICAL_GAP);
+            startNode.boundsInParentProperty().addListener((observableValue, oldBounds, newBounds) -> {
+                double startX = newBounds.getMinX() + (0.5 * newBounds.getWidth()); // centre
+                double startY = newBounds.getMinY()  + newBounds.getHeight();
+                startPoint.setX(startX);
+                startPoint.setY(startY);
+                // start position can change when the parent node expands/collapses
+                // always keep the distance (prevents the arrow facing upwards).
+                // use the minimum height between the arrows pointing to the same endNode;
+                double maxStartY = 0.0;
+                for(Arrow a : arrowsToEndNode){
+                    maxStartY = Math.max(a.startPoint.getY(), maxStartY);
                 }
+                endNode.setLayoutY(maxStartY + Constants.NODE_VERTICAL_GAP);
             });
 
         }
 
-        endNode.boundsInParentProperty().addListener(new ChangeListener<Bounds>() {
-            @Override
-            public void changed(ObservableValue<? extends Bounds> observableValue, Bounds oldBounds, Bounds newBounds) {
-                double endX = newBounds.getMinX() + (0.5 * newBounds.getWidth()); // centre
-                double endY = newBounds.getMinY();
-                endPoint.setX(endX);
-                endPoint.setY(endY);
-                if(startNode == null){
-                    startPoint.setY(endY - Constants.NODE_VERTICAL_GAP);
-                } else {
-                    line2.setY(endY - Constants.NODE_VERTICAL_GAP/2);
-                }
-
-                head1.setEndX(endX-5);
-                head1.setEndY(endY-5);
-                head2.setEndX(endX+5);
-                head2.setEndY(endY-5);
+        endNode.boundsInParentProperty().addListener((observableValue, oldBounds, newBounds) -> {
+            double endX = newBounds.getMinX() + (0.5 * newBounds.getWidth()); // centre
+            double endY = newBounds.getMinY();
+            endPoint.setX(endX);
+            endPoint.setY(endY);
+            if(startNode == null){
+                startPoint.setY(endY - Constants.NODE_VERTICAL_GAP);
+            } else {
+                line2.setY(endY - Constants.NODE_VERTICAL_GAP/2);
             }
+
+            head1.setEndX(endX-5);
+            head1.setEndY(endY-5);
+            head2.setEndX(endX+5);
+            head2.setEndY(endY-5);
         });
     }
 }

@@ -4,14 +4,14 @@
 <BorderPane fx:controller="com.LPSWorkflow.controller.DomainTheoryController"
             xmlns:fx="http://javafx.com/fxml">
     <top>
-        <Label fx:id="title">Domain Theory</Label>
+        <Label styleClass="pane-title">Domain Theory</Label>
     </top>
     <center>
         <VBox>
-            <Label fx:id="precondTitleLabel">Pre-conditions</Label>
-            <Label fx:id="precondLabel" />
-            <Label fx:id="postcondTitleLabel">Post-conditions</Label>
-            <Label fx:id="postcondLabel" />
+            <Label styleClass="domain-theory-label">Pre-conditions</Label>
+            <Label fx:id="precondLabel" styleClass="domain-theory"/>
+            <Label styleClass="domain-theory-label">Post-conditions</Label>
+            <Label fx:id="postcondLabel" styleClass="domain-theory"/>
         </VBox>
     </center>
 </BorderPane>

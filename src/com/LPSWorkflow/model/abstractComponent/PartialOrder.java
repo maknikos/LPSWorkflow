@@ -10,7 +10,7 @@ import java.util.List;
 public class PartialOrder extends MultiChildEntity {
     //TODO currently only supports an Atom on either side of '||'
 
-    public PartialOrder(List entities) {
+    public PartialOrder(List<Entity> entities) {
         super("||", entities);
     }
 

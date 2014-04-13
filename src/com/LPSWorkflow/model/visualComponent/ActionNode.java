@@ -39,7 +39,8 @@ public class ActionNode extends Node {
         vBox.getChildren().add(text);
         getChildren().add(vBox);
 
-        if (goalDefinition != null) {
+        // only add expand button if it has a goalDefinition
+        if (goalDefinition != null && goalDefinition.getChildren().size() > 0) {
             this.goalDefinition = goalDefinition;
             expandButton = new Button("+");
             StackPane.setAlignment(expandButton, Pos.TOP_LEFT);
@@ -52,7 +53,7 @@ public class ActionNode extends Node {
     private void initExpandButton() {
         // When clicked on expand button, it will show goal definitions ("expand")
         expandButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            private Map<javafx.scene.Node, Double> nodesPushed = new HashMap<javafx.scene.Node, Double>();
+            private Map<javafx.scene.Node, Double> nodesPushed = new HashMap<>();
 
             @Override
             public void handle(MouseEvent mouseEvent) {
@@ -67,16 +68,13 @@ public class ActionNode extends Node {
                     final Group goalDefClone = new Group(goalDefinition);
                     Scene scene = new Scene(goalDefClone, 600, 600);
                     // move view point using scroll
-                    scene.setOnScroll(new EventHandler<ScrollEvent>() {
-                        @Override
-                        public void handle(ScrollEvent e) {
-                            double translateX = e.getDeltaX();
-                            double translateY = e.getDeltaY();
-                            goalDefClone.setTranslateX(goalDefClone.getTranslateX() + translateX);
-                            goalDefClone.setTranslateY(goalDefClone.getTranslateY() + translateY);
-                            goalDefClone.setTranslateX(goalDefClone.getTranslateX() + translateX);
-                            goalDefClone.setTranslateY(goalDefClone.getTranslateY() + translateY);
-                        }
+                    scene.setOnScroll((ScrollEvent e) -> {
+                        double translateX = e.getDeltaX();
+                        double translateY = e.getDeltaY();
+                        goalDefClone.setTranslateX(goalDefClone.getTranslateX() + translateX);
+                        goalDefClone.setTranslateY(goalDefClone.getTranslateY() + translateY);
+                        goalDefClone.setTranslateX(goalDefClone.getTranslateX() + translateX);
+                        goalDefClone.setTranslateY(goalDefClone.getTranslateY() + translateY);
                     });
                     stage.setScene(scene);
                     stage.show();
@@ -104,7 +102,7 @@ public class ActionNode extends Node {
 
                 // check if it intersects with any nodes
                 boolean intersects = false;
-                List<Node> relevantChildren = new ArrayList<Node>();
+                List<Node> relevantChildren = new ArrayList<>();
                 for (javafx.scene.Node node : parentGroup.getChildren()) {
                     Bounds nodeBounds = node.getBoundsInParent();
                     // should only include Nodes, excluding itself

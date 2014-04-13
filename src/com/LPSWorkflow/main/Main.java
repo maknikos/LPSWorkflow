@@ -2,8 +2,6 @@ package com.LPSWorkflow.main;
 
 import com.LPSWorkflow.model.FileData;
 import javafx.application.Application;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -23,12 +21,8 @@ public class Main extends Application {
             primaryStage.setTitle("LPS Workflow");
         }
 
-        fileData.filePathProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observableValue, String oldString, String newString) {
-                primaryStage.setTitle("LPS Workflow - [" + newString + "]");
-            }
-        });
+        fileData.filePathProperty().addListener((observableValue, oldString, newString)
+                -> primaryStage.setTitle("LPS Workflow - [" + newString + "]"));
 
         Scene scene = new Scene(root, 1200, 800);
         scene.getStylesheets().add("com/LPSWorkflow/styles/stylesheet.css");

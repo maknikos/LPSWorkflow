@@ -4,9 +4,9 @@
 <BorderPane fx:controller="com.LPSWorkflow.controller.DatabaseController"
             xmlns:fx="http://javafx.com/fxml">
     <top>
-        <Label fx:id="dbTitle">Database</Label>
+        <Label styleClass="pane-title">Database</Label>
     </top>
     <center>
-        <TextArea fx:id="factArea">p</TextArea>
+        <TextArea fx:id="factArea" styleClass="db-area">p</TextArea>
     </center>
 </BorderPane>

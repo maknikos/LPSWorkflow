@@ -3,8 +3,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.geometry.Insets?>
 <BorderPane fx:controller="com.LPSWorkflow.controller.MessageViewController"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:id="messagePane">
+            xmlns:fx="http://javafx.com/fxml">
     <top>
         <VBox fx:id="messageBox">
             <padding>

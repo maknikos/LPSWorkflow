@@ -175,6 +175,7 @@ public class CanvasController implements Initializable {
         entityMap = fileManager.getRootMap();
         execManager = new ExecutionManager(entityMap);
     }
+
     private void drawProgram() {
         initDraw();
 
@@ -187,7 +188,6 @@ public class CanvasController implements Initializable {
             resultGroup = new Group();
             buildWorkflowDiagram(resultGroup, rootEntity, initX, initY, true);
             diagramLayer.getChildren().add(resultGroup);
-            //initX += resultGroup.getLayoutBounds().getWidth() + Constants.NODE_HORIZONTAL_GAP; TODO
         }
 
         diagramDrawn = true;
@@ -219,12 +219,6 @@ public class CanvasController implements Initializable {
             if(!currEntity.hasSingleChild()){
                 // if current node is a multiChildEntity, next should be its 'nextEntities'.
                 List<Entity> nextEntities = ((MultiChildEntity) currEntity).getNextEntities();
-                int n = nextEntities.size();
-                double totalWidth = ((n-1)*Constants.NODE_HORIZONTAL_GAP) + (n* Constants.NODE_WIDTH);
-
-
-                //TODO decide which method to use
-                //nextX -= ((totalWidth/2) - (Constants.NODE_WIDTH/2));
                 nextX -= Constants.NODE_HORIZONTAL_GAP/2;
 
                 // spread them out and draw each path
@@ -309,7 +303,6 @@ public class CanvasController implements Initializable {
                 }
             }
 
-
             // Update currEntity and continue
             currEntity = nextEntity;
         }
@@ -330,11 +323,11 @@ public class CanvasController implements Initializable {
         Set<Arrow> fromSet = arrowsFrom.get(nodeFrom);
         Set<Arrow> toSet = arrowsTo.get(nodeTo);
         if(fromSet == null){
-            fromSet = new HashSet<Arrow>();
+            fromSet = new HashSet<>();
             arrowsFrom.put(nodeFrom, fromSet);
         }
         if(toSet == null){
-            toSet = new HashSet<Arrow>();
+            toSet = new HashSet<>();
             arrowsTo.put(nodeTo, toSet);
         }
         Arrow arrow = new Arrow(nodeFrom, nodeTo, toSet, arrowForTrue);

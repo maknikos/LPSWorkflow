@@ -14,7 +14,7 @@ public class Concurrent extends Entity {
 
     public Concurrent(String first, String second) {
         super(first + ":" + second);
-        entities = new ArrayList<Entity>();
+        entities = new ArrayList<>();
         entities.add(new Action(first));
         entities.add(new Action(second));
     }

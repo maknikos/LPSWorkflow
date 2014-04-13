@@ -15,8 +15,8 @@ public class StructureBuilder {
     private Map<String, Entity> goalsRootMap; //TODO make use of this from visualiser?
 
     public StructureBuilder() {
-        this.reactiveRulesRootMap = new HashMap<String, Entity>();
-        this.goalsRootMap = new HashMap<String, Entity>();
+        this.reactiveRulesRootMap = new HashMap<>();
+        this.goalsRootMap = new HashMap<>();
     }
 
     public void build(Map<Object, Object> reactiveRuleRoots,
@@ -48,9 +48,7 @@ public class StructureBuilder {
     }
 
     private void flipNegatedFluents(Map<String, Entity> rootMap) {
-        for(Entity e : rootMap.values()){
-            flipNegatedFluentsNext(e);
-        }
+        rootMap.values().forEach(this::flipNegatedFluentsNext);
     }
 
     private void flipNegatedFluentsNext(Entity e) {
@@ -68,9 +66,7 @@ public class StructureBuilder {
             // if the current entity is a multiChildEntity, go through its children
             if(!current.hasSingleChild()){
                 List<Entity> nextEntities = ((MultiChildEntity) current).getNextEntities();
-                for(Entity next : nextEntities){
-                    flipNegatedFluentsNext(next);
-                }
+                nextEntities.forEach(this::flipNegatedFluentsNext);
             }
             prev = current;
             current = current.getNext();
@@ -93,9 +89,7 @@ public class StructureBuilder {
     }
 
     private void mergeFluents(Map<String, Entity> rootMap) {
-        for(Entity e : rootMap.values()){
-            mergeFluentsNext(e);
-        }
+        rootMap.values().forEach(this::mergeFluentsNext);
     }
 
     private void mergeFluentsNext(Entity e) {
@@ -119,7 +113,7 @@ public class StructureBuilder {
         List<Entity> nextEntities = ((MultiChildEntity) current).getNextEntities();
 
         // sort the next fluents into groups according to shared entities
-        Map<String, List<Fluent>> commonFluentGroups = new HashMap<String, List<Fluent>>();
+        Map<String, List<Fluent>> commonFluentGroups = new HashMap<>();
         for(Entity next : nextEntities){
             if(next.getType() == EntityType.FLUENT) {
                 Fluent nextFluent = (Fluent) next;
@@ -127,7 +121,7 @@ public class StructureBuilder {
                 if(commonFluentGroups.containsKey(name)){
                     commonFluentGroups.get(name).add(nextFluent);
                 } else {
-                    ArrayList<Fluent> fluents = new ArrayList<Fluent>();
+                    ArrayList<Fluent> fluents = new ArrayList<>();
                     fluents.add(nextFluent);
                     commonFluentGroups.put(name, fluents);
                 }
@@ -161,9 +155,7 @@ public class StructureBuilder {
         if(nextEntities.size() == 1){
             prev.setNext(nextEntities.get(0));
         } else {
-            for(Entity next : nextEntities){
-                mergeFluentsNext(next);
-            }
+            nextEntities.forEach(this::mergeFluentsNext);
         }
 
         // proceed with the trailing path
@@ -171,9 +163,7 @@ public class StructureBuilder {
     }
 
     private void mergeCommonPaths(Map<String, Entity> rootMap) {
-        for(Entity e : rootMap.values()){
-            mergeCommonPathsNext(e);
-        }
+        rootMap.values().forEach(this::mergeCommonPathsNext);
     }
 
     private void mergeCommonPathsNext(Entity e) {
@@ -198,14 +188,14 @@ public class StructureBuilder {
         List<Entity> nextEntities = ((MultiChildEntity) current).getNextEntities();
 
         // sort the next paths into groups according to shared entities
-        Map<String, List<Entity>> commonStartGroups = new HashMap<String, List<Entity>>();
+        Map<String, List<Entity>> commonStartGroups = new HashMap<>();
         for(Entity next : nextEntities){
             String name = next.getName();
 
             if(commonStartGroups.containsKey(name)){
                 commonStartGroups.get(name).add(next);
             } else {
-                ArrayList<Entity> entities = new ArrayList<Entity>();
+                ArrayList<Entity> entities = new ArrayList<>();
                 entities.add(next);
                 commonStartGroups.put(name, entities);
             }
@@ -218,7 +208,7 @@ public class StructureBuilder {
                 Entity mergedEntity = createEntityFor(entity.getType(), entity.getName());
 
                 // create a multiChildNode to group the next entities
-                List<Entity> newNextEntities = new ArrayList<Entity>();
+                List<Entity> newNextEntities = new ArrayList<>();
                 for(Entity member : group){
                     Entity memberNext = member.getNext();
                     nextEntities.remove(member);
@@ -279,7 +269,7 @@ public class StructureBuilder {
     }
 
     private void replaceFluents(Map<String, Entity> rootMap, List<String> fluents) {
-        List<String> affectedKeys = new ArrayList<String>();
+        List<String> affectedKeys = new ArrayList<>();
         for(String s : rootMap.keySet()){
             Entity e = rootMap.get(s);
             if(isFluent(e.getName(), fluents)){
@@ -305,7 +295,7 @@ public class StructureBuilder {
         // in case the current entity has multiple children
         if(!e.hasSingleChild()){
             List<Entity> nextEntities = ((MultiChildEntity) e).getNextEntities();
-            List<Entity> affectedNextEntities = new ArrayList<Entity>();
+            List<Entity> affectedNextEntities = new ArrayList<>();
             for(Entity next : nextEntities){
                 if(isFluent(next.getName(), fluents)){
                     affectedNextEntities.add(next);
@@ -348,9 +338,7 @@ public class StructureBuilder {
 
     private void addGoalDefinitions() {
         // go through each root of reactive rules and add goal definitions
-        for(Entity root : reactiveRulesRootMap.values()){
-            addGoalDefinitions(root);
-        }
+        reactiveRulesRootMap.values().forEach(this::addGoalDefinitions);
     }
 
     private void addGoalDefinitions(Entity e) {
@@ -364,7 +352,7 @@ public class StructureBuilder {
                 if(existingGoalDef.getType() == EntityType.OR){
                     ((Or) existingGoalDef).getNextEntities().add(goalDef);
                 } else {
-                    ArrayList<Entity> entities = new ArrayList<Entity>();
+                    ArrayList<Entity> entities = new ArrayList<>();
                     entities.add(existingGoalDef);
                     entities.add(goalDef);
                     Or or = new Or(entities);
@@ -378,9 +366,7 @@ public class StructureBuilder {
         if(e.hasNext()){
             addGoalDefinitions(e.getNext());
         } else if (!e.hasSingleChild()){
-            for(Entity child : ((MultiChildEntity) e).getNextEntities()){
-                addGoalDefinitions(child);
-            }
+            ((MultiChildEntity) e).getNextEntities().forEach(this::addGoalDefinitions);
         }
     }
 
@@ -413,7 +399,7 @@ public class StructureBuilder {
                     ((MultiChildEntity)existingNext).getNextEntities().add(root.getNext());
                 } else {
                     // if the next is a singleChildEntity, create AND entity and add
-                    ArrayList<Entity> entities = new ArrayList<Entity>();
+                    ArrayList<Entity> entities = new ArrayList<>();
                     entities.add(existingNext);
                     entities.add(root.getNext());
 

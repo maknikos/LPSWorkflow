@@ -62,6 +62,17 @@
     -fx-text-fill: white;
 }
 
+.message-more-label {
+    -fx-border-color: #FF9999BB;
+    -fx-border-radius: 5;
+    -fx-background-color: #FF999999;
+    -fx-background-radius: 5;
+    -fx-text-fill: #771111FF;
+    -fx-font-size: 11;
+    -fx-padding: 2 10 2 10;
+    -fx-alignment: center;
+}
+
 .reactive-arrow {
     -fx-stroke-width: 3;
     -fx-stroke-dash-array: 8 6;
@@ -87,4 +98,25 @@
     -fx-stroke: gold;
     -fx-stroke-width: 2;
     -fx-stroke-type: outside;
+}
+
+.pane-title {
+    -fx-font-size: 20;
+}
+
+.db-area {
+    -fx-font-size: 15;
+}
+
+.domain-theory-label{
+    -fx-border-radius: 3;
+    -fx-border-color: black;
+    -fx-padding: 2;
+}
+
+.domain-theory {
+    -fx-font-size: 15;
+    -fx-alignment: top-left;
+    -fx-text-alignment: left;
+    -fx-padding: 5;
 }

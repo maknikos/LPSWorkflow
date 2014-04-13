@@ -17,7 +17,7 @@ public class Database {
 
     private Database() {
         //TODO this.facts = new ArrayList<String>();
-        this.rules = new ArrayList<Rule>();
+        this.rules = new ArrayList<>();
     }
 
     public final static Database getInstance() {

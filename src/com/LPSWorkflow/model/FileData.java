@@ -9,7 +9,7 @@ import javafx.beans.property.StringProperty;
 public class FileData {
     private static FileData instance = null;
 
-    public final static FileData getInstance() {
+    public static FileData getInstance() {
         if (FileData.instance == null) {
             synchronized (FileData.class) {
                 if (FileData.instance == null) {

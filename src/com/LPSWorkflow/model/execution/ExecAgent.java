@@ -44,6 +44,7 @@ public class ExecAgent {
         this.cycleNum = cycleNum;
     }
 
+    @Override
     public ExecAgent clone(){
         ExecAgent clone = new ExecAgent(currentEntity);
         clone.setReady(isReady);

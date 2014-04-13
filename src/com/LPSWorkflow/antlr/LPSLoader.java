@@ -44,13 +44,13 @@ public class LPSLoader extends LPSBaseListener {
 
 
     public LPSLoader() {
-        this.fluents = new ArrayList<String>();
-        this.preconditions = new ArrayList<List<Entity>>();
-        this.postconditions = new ArrayList<Postcondition>();
-        this.reactiveRuleConnections = new HashMap<Object, Object>();
-        this.goalConnections = new HashMap<Object, Object>();
-        this.reactiveRuleRoots = new HashMap<Object, Object>();
-        this.goalRoots = new HashMap<Object, Object>();
+        this.fluents = new ArrayList<>();
+        this.preconditions = new ArrayList<>();
+        this.postconditions = new ArrayList<>();
+        this.reactiveRuleConnections = new HashMap<>();
+        this.goalConnections = new HashMap<>();
+        this.reactiveRuleRoots = new HashMap<>();
+        this.goalRoots = new HashMap<>();
         this.currentParseTarget = Parse.NONE;
         this.messageData = MessageData.getInstance();
     }
@@ -174,7 +174,7 @@ public class LPSLoader extends LPSBaseListener {
 
         String firstFormula = formulas.get(0).getText();
         String secondFormula = formulas.get(1).getText();
-        List entities = new ArrayList();
+        List<Entity> entities = new ArrayList<>();
         entities.add(new Action(firstFormula));
         entities.add(new Action(secondFormula));
         PartialOrder partialOrder = new PartialOrder(entities);
@@ -290,7 +290,7 @@ public class LPSLoader extends LPSBaseListener {
     }
 
     private List<Entity> makeConjunctionIntoList(LPSParser.ConjunctionContext conjunction) {
-        List<Entity> entities = new ArrayList<Entity>();
+        List<Entity> entities = new ArrayList<>();
         for(LPSParser.AtomContext atom : conjunction.atom()){
             String name = atom.getText();
             Action action = new Action(name);
@@ -302,20 +302,15 @@ public class LPSLoader extends LPSBaseListener {
     private void replaceValues(Object oldValue, Object newValue) {
         Map<Object, Object> connections = getConnections();
         if(connections.containsValue(oldValue)){
-            for(Object key : connections.keySet()){
-                if(connections.get(key).equals(oldValue)){
-                    connections.put(key, newValue); // replace with the new value
-                }
-            }
+            // replace with the new value
+            connections.keySet().stream().filter(key -> connections.get(key).equals(oldValue))
+                    .forEach(key -> connections.put(key, newValue));
         }
 
         Map<Object, Object> roots = getRoots();
         if(roots.containsValue(oldValue)){
-            for(Object key : roots.keySet()){
-                if(roots.get(key).equals(oldValue)){
-                    roots.put(key, newValue);
-                }
-            }
+            roots.keySet().stream().filter(key -> roots.get(key).equals(oldValue))
+                    .forEach(key -> roots.put(key, newValue));
         }
     }
 

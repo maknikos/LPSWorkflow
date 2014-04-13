@@ -1,7 +1,5 @@
 package com.LPSWorkflow.model.message;
 
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -37,12 +35,9 @@ public class MessageShape extends Region {
 
         //TODO when clicked, show details of the particular message
 
-        closeButton.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent actionEvent) {
-                // remove itself from the MessageData when closed
-                messageData.getMessageList().remove(message);
-            }
+        closeButton.setOnAction(actionEvent -> {
+            // remove itself from the MessageData when closed
+            messageData.getMessageList().remove(message);
         });
 
         this.getChildren().add(containerPane);

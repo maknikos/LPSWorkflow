@@ -13,7 +13,7 @@ import java.util.List;
 public class MessageData {
     private static MessageData instance = null;
 
-    public final static MessageData getInstance() {
+    public static MessageData getInstance() {
         if (MessageData.instance == null) {
             synchronized (MessageData.class) {
                 if (MessageData.instance == null) {
@@ -24,7 +24,7 @@ public class MessageData {
         return instance;
     }
 
-    private ListProperty<Message> messageList = new SimpleListProperty<Message>(FXCollections.<Message>observableArrayList());
+    private ListProperty<Message> messageList = new SimpleListProperty<>(FXCollections.<Message>observableArrayList());
     public ListProperty<Message> messageListProperty(){
         return messageList;
     }

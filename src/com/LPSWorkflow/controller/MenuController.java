@@ -12,7 +12,7 @@ import java.util.ResourceBundle;
 /**
  * Controller for the top menu bar
  */
-public class MenuController implements Initializable{
+public class MenuController implements Initializable {
     private final FileChooser fileChooser = new FileChooser();
     private FileData fileData;
 
