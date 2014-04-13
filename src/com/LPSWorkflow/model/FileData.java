@@ -23,6 +23,7 @@ public class FileData {
     private StringProperty filePath = new SimpleStringProperty(this, "str",
             "/Users/elijah6/Documents/Project/MainProject/LPSWorkflow/src/com/LPSWorkflow/antlr/LPSprogram");
     //TODO remove default path (or use xml config for default?)
+    //TODO when doing so, ensure the path is not null (return "" at least)
 
     public StringProperty filePathProperty(){
         return filePath;
