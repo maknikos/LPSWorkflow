@@ -142,6 +142,8 @@ public class CanvasController implements Initializable {
     private void handleDrawAction() {
         fileManager.openFile(fileData.getFilePath());
 
+        //TODO if nothing drawn, display what to do ("no file open... use... to open ...", etc.)
+
         //only draw when the file is open
         if(fileManager.isFileOpen()){
             drawProgram();
