@@ -57,43 +57,40 @@ public class ActionNode extends Node {
 
             @Override
             public void handle(MouseEvent mouseEvent) {
-
-
-
                 if(mouseEvent.isShiftDown()){
-                    //TODO open in a new window/panel
-                    Stage stage = new Stage();
-                    stage.setTitle(getName());
-
-                    final Group goalDefClone = new Group(goalDefinition);
-                    Scene scene = new Scene(goalDefClone, 600, 600);
-                    // move view point using scroll
-                    scene.setOnScroll((ScrollEvent e) -> {
-                        double translateX = e.getDeltaX();
-                        double translateY = e.getDeltaY();
-                        goalDefClone.setTranslateX(goalDefClone.getTranslateX() + translateX);
-                        goalDefClone.setTranslateY(goalDefClone.getTranslateY() + translateY);
-                        goalDefClone.setTranslateX(goalDefClone.getTranslateX() + translateX);
-                        goalDefClone.setTranslateY(goalDefClone.getTranslateY() + translateY);
-                    });
-                    stage.setScene(scene);
-                    stage.show();
-
-
-
-
+                    openInNewWindow();
                 } else {
                     ActionNode source = (ActionNode) ((Button) mouseEvent.getSource()).getParent();
-                    boolean isExpanded = !source.isExpanded();
+                    boolean expand = !source.isExpanded();
 
                     Bounds prevSourceBounds = source.getBoundsInParent();
-                    source.setExpanded(isExpanded);
-                    if (isExpanded) {
+                    source.setExpanded(expand);
+                    if (expand) {
                         pushOutNodes(prevSourceBounds, source);
                     } else {
                         revertNodes();
                     }
                 }
+            }
+
+            private void openInNewWindow() {
+                // TODO open in new window ...
+                Stage stage = new Stage();
+                stage.setTitle(getName());
+
+                final Group goalDefClone = new Group(goalDefinition);
+                Scene scene = new Scene(goalDefClone, 600, 600);
+                // move view point using scroll
+                scene.setOnScroll((ScrollEvent e) -> {
+                    double translateX = e.getDeltaX();
+                    double translateY = e.getDeltaY();
+                    goalDefClone.setTranslateX(goalDefClone.getTranslateX() + translateX);
+                    goalDefClone.setTranslateY(goalDefClone.getTranslateY() + translateY);
+                    goalDefClone.setTranslateX(goalDefClone.getTranslateX() + translateX);
+                    goalDefClone.setTranslateY(goalDefClone.getTranslateY() + translateY);
+                });
+                stage.setScene(scene);
+                stage.show();
             }
 
             private void pushOutNodes(Bounds prevSourceBounds, ActionNode source) {
@@ -115,6 +112,7 @@ public class ActionNode extends Node {
                     }
                 }
 
+                // push out if only something intersects
                 if (intersects) {
                     for (Node node : relevantChildren) {
                         // push sideways
