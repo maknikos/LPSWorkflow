@@ -14,10 +14,10 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Visual component representing an action
@@ -31,7 +31,6 @@ public class ActionNode extends Node {
     public ActionNode(String name, final Group goalDefinition) {
         super(name);
         this.getStyleClass().add("action-node");
-
         vBox = new VBox();
         text.setMaxWidth(Double.MAX_VALUE);
         text.getStyleClass().add("action-node-label");
@@ -41,35 +40,69 @@ public class ActionNode extends Node {
         // only add expand button if it has a goalDefinition
         if (goalDefinition != null && goalDefinition.getChildren().size() > 0) {
             this.goalDefinition = goalDefinition;
-            expandButton = new Button("+");
-            StackPane.setAlignment(expandButton, Pos.TOP_LEFT);
-            initExpandButton();
+            expandButton = createExpandButton();
             getChildren().add(expandButton);
             setExpanded(false);
         }
     }
 
-    private void initExpandButton() {
+    private Button createExpandButton() {
+        Button button = new Button("+");
+        StackPane.setAlignment(button, Pos.TOP_LEFT);
+
         // When clicked on expand button, it will show goal definitions ("expand")
-        expandButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            private Map<javafx.scene.Node, Double> nodesPushed = new HashMap<>();
+        button.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            private Map<Node, Double> nodesPushed = new HashMap<>();
 
             @Override
             public void handle(MouseEvent mouseEvent) {
-                if(mouseEvent.isShiftDown()){
+                if (mouseEvent.isShiftDown()) {
                     openInNewWindow();
                 } else {
                     ActionNode source = (ActionNode) ((Button) mouseEvent.getSource()).getParent();
-                    boolean expand = !source.isExpanded();
-
                     Bounds prevSourceBounds = source.getBoundsInParent();
+                    boolean expand = !source.isExpanded();
                     source.setExpanded(expand);
                     if (expand) {
-                        pushOutNodes(prevSourceBounds, source);
+                        // get all other Nodes in the canvas
+                        Group parentGroup = (Group) getParent();
+                        List<Node> nodes = parentGroup.getChildren().stream()
+                                .filter(c -> c instanceof Node && !c.equals(source))
+                                .map(c -> (Node) c)
+                                .collect(Collectors.toList());
+                        pushOutNodes(nodes, prevSourceBounds, source);
                     } else {
                         revertNodes();
                     }
                 }
+            }
+
+            private void pushOutNodes(List<Node> nodes, Bounds prevSourceBounds, ActionNode source) {
+                Bounds sourceBounds = source.getBoundsInParent();
+
+                // check if it intersects with any nodes
+                List<Node> affectedNodes  = nodes.stream()
+                        .filter(node -> prevSourceBounds.getMaxX() < node.getBoundsInParent().getMinX())
+                        .collect(Collectors.toList());
+                boolean intersects = affectedNodes.stream()
+                        .anyMatch(node -> sourceBounds.intersects(node.getBoundsInParent()));
+
+                // push out only if something intersects
+                if (intersects) {
+                    affectedNodes.forEach(node -> {
+                        // push sideways
+                        double prevX = node.getLayoutX();
+                        double moveX = sourceBounds.getWidth() - prevSourceBounds.getWidth();
+                        nodesPushed.put(node, moveX);
+                        node.setLayoutX(prevX + moveX);
+                    });
+                }
+            }
+
+            private void revertNodes() {
+                // revert to previous positions
+                nodesPushed.forEach((node, value) -> node.setLayoutX(node.getLayoutX() - value));
+                nodesPushed.clear();
             }
 
             private void openInNewWindow() {
@@ -91,46 +124,8 @@ public class ActionNode extends Node {
                 stage.setScene(scene);
                 stage.show();
             }
-
-            private void pushOutNodes(Bounds prevSourceBounds, ActionNode source) {
-                Group parentGroup = (Group) getParent();
-                Bounds sourceBounds = source.getBoundsInParent();
-
-                // check if it intersects with any nodes
-                boolean intersects = false;
-                List<Node> relevantChildren = new ArrayList<>();
-                for (javafx.scene.Node node : parentGroup.getChildren()) {
-                    Bounds nodeBounds = node.getBoundsInParent();
-                    // should only include Nodes, excluding itself
-                    // also, only the ones not below this expanding node, and to the right.
-                    if (node instanceof Node && !source.equals(node)
-                            && prevSourceBounds.getMinX() < nodeBounds.getMinX()
-                            && sourceBounds.getMaxY() > nodeBounds.getMinY()) {
-                        relevantChildren.add((Node) node);
-                        intersects = intersects || sourceBounds.intersects(node.getBoundsInParent());
-                    }
-                }
-
-                // push out if only something intersects
-                if (intersects) {
-                    for (Node node : relevantChildren) {
-                        // push sideways
-                        double prevX = node.getLayoutX();
-                        double moveX = sourceBounds.getWidth() - prevSourceBounds.getWidth();
-                        nodesPushed.put(node, moveX);
-                        node.setLayoutX(prevX + moveX);
-                    }
-                }
-            }
-
-            private void revertNodes() {
-                // revert to previous positions
-                for (javafx.scene.Node node : nodesPushed.keySet()) {
-                    node.setLayoutX(node.getLayoutX() - nodesPushed.get(node));
-                }
-                nodesPushed.clear();
-            }
         });
+        return button;
     }
 
     private void setExpanded(boolean b) {
