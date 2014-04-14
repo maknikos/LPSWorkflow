@@ -46,6 +46,6 @@ public class ReactiveArrow extends Parent {
 
         // bind the startPoint to the startNode
         startPoint.xProperty().bind(startNode.layoutXProperty().add(startNode.widthProperty().divide(2)));
-        startPoint.yProperty().bind(startNode.layoutYProperty().add(startNode.heightProperty())); //TODO
+        startPoint.yProperty().bind(startNode.layoutYProperty().add(startNode.heightProperty()));
     }
 }
