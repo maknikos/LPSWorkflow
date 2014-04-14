@@ -5,8 +5,8 @@ import com.LPSWorkflow.model.message.MessageData;
 import com.LPSWorkflow.model.message.MessageShape;
 import com.LPSWorkflow.model.message.MessageType;
 import javafx.beans.Observable;
+import javafx.beans.binding.StringExpression;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -30,36 +30,36 @@ public class MessageViewController implements Initializable {
     @FXML private VBox messageBox;
     private MessageData messageData;
     private Label moreButton;
-    private StringProperty msgCountStr = new SimpleStringProperty("More (0 messages)");
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        moreButton = createMoreButton();
         messageData = MessageData.getInstance();
+        moreButton = createMoreButton();
 
         // if ChangeListener is used, it stops listening when a binding in MessageListViewController
         // is introduced, so using invalidation listener instead.
         messageData.messageListProperty().addListener((Observable observable) -> {
-                ObservableList<Message> messages = (ObservableList<Message>) observable;
-                // sync with messages stored in MessageData instance
-                messageBox.getChildren().clear();
-                // only display 2 messages, and group the rest
-                int count = 0;
-                for(Message m : messages){
-                    count++;
-                    if(count > 2){
-                        messageBox.getChildren().add(moreButton);
-                        msgCountStr.setValue("More (" + (messages).size() + " messages)");
-                        break;
-                    }
-                    messageBox.getChildren().add(createMessage(m));
-                }
-            });
+            ObservableList<Message> messages = (ObservableList<Message>) observable;
+            // sync with messages stored in MessageData instance
+            messageBox.getChildren().clear();
+            // only display 2 messages, and group the rest
+            int count = messages.size();
+
+            for (int i = 0; i < Math.min(count, 2); i++) {
+                messageBox.getChildren().add(createMessage(messages.get(i)));
+            }
+            if(count > 2){
+                messageBox.getChildren().add(moreButton);
+            }
+        });
     }
 
     private Label createMoreButton() {
         Label moreLabel = new Label();
-        moreLabel.textProperty().bind(msgCountStr);
+        SimpleStringProperty prefix = new SimpleStringProperty("More (");
+        SimpleStringProperty suffix = new SimpleStringProperty(" message)");
+        StringExpression messageCountStr = prefix.concat(messageData.messageListProperty().sizeProperty()).concat(suffix);
+        moreLabel.textProperty().bind(messageCountStr);
         moreLabel.getStyleClass().add("message-more-label");
         moreLabel.setMaxWidth(Double.MAX_VALUE);
         moreLabel.setOnMouseClicked((MouseEvent m) -> {
