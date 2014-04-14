@@ -1,6 +1,5 @@
 package com.LPSWorkflow.model.visualComponent;
 
-import com.LPSWorkflow.common.Constants;
 import javafx.scene.Parent;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.LineTo;
@@ -31,32 +30,22 @@ public class ReactiveArrow extends Parent {
 
         path.getElements().addAll(startPoint, endPoint);
 
-        //TODO use binding as in Arrow class
-        //TODO change arrow shape
-        startNode.boundsInParentProperty().addListener((observableValue, oldBounds, newBounds) -> {
-            double startX = newBounds.getMinX() + (0.5 * newBounds.getWidth()); // centre
-            double startY = newBounds.getMinY()  + newBounds.getHeight();
-            startPoint.setX(startX);
-            startPoint.setY(startY);
-            // start position can change when the parent node expands/collapses
-            // always keep the distance (prevents the arrow facing upwards)
-            endNode.setLayoutY(startPoint.getY() + Constants.NODE_VERTICAL_GAP);
-        });
+        // bind arrow head to the end of the line
+        head1.startXProperty().bind(endPoint.xProperty());
+        head1.startYProperty().bind(endPoint.yProperty());
+        head2.startXProperty().bind(endPoint.xProperty());
+        head2.startYProperty().bind(endPoint.yProperty());
+        head1.endXProperty().bind(endPoint.xProperty().subtract(5));
+        head1.endYProperty().bind(endPoint.yProperty().subtract(5));
+        head2.endXProperty().bind(endPoint.xProperty().add(5));
+        head2.endYProperty().bind(endPoint.yProperty().subtract(5));
 
-        endNode.boundsInParentProperty().addListener((observableValue, oldBounds, newBounds) -> {
-            double endX = newBounds.getMinX() + (0.5 * newBounds.getWidth()); // centre
-            double endY = newBounds.getMinY();
-            endPoint.setX(endX);
-            endPoint.setY(endY);
+        // bind the endPoint to the endNode
+        endPoint.xProperty().bind(endNode.layoutXProperty().add(endNode.widthProperty().divide(2))); //centre
+        endPoint.yProperty().bind(endNode.layoutYProperty());
 
-            head1.setStartX(endX);
-            head1.setStartY(endY);
-            head1.setEndX(endX-5);
-            head1.setEndY(endY-5);
-            head2.setStartX(endX);
-            head2.setStartY(endY);
-            head2.setEndX(endX+5);
-            head2.setEndY(endY-5);
-        });
+        // bind the startPoint to the startNode
+        startPoint.xProperty().bind(startNode.layoutXProperty().add(startNode.widthProperty().divide(2)));
+        startPoint.yProperty().bind(startNode.layoutYProperty().add(startNode.heightProperty())); //TODO
     }
 }
