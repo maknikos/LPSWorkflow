@@ -71,7 +71,7 @@ public class LPSFileManager {
             messageData.sendMessage(e.getMessage(), MessageType.ERROR);
             e.printStackTrace();
         }
-        if(input == null){
+        if(input == null) {
             messageData.sendMessage("Failed to read file '" + fileData + "'.", MessageType.ERROR);
             return;
         }
@@ -81,11 +81,14 @@ public class LPSFileManager {
             CommonTokenStream tokens = new CommonTokenStream(lexer);
             LPSParser parser = new LPSParser(tokens);
             ParseTree tree = parser.program();
-
             ParseTreeWalker walker = new ParseTreeWalker();
             LPSLoader loader = new LPSLoader();
             walker.walk(loader, tree);
 
+            if(parser.getErrorHandler().inErrorRecoveryMode(parser)){
+                messageData.sendMessage("Failed to read file. Syntax error occurred.", MessageType.ERROR);
+                return;
+            }
             StructureBuilder structureBuilder = new StructureBuilder();
             structureBuilder.build(loader.getReactiveRuleRoots(), loader.getReactiveRuleConnections(),
                     loader.getGoalRoots(), loader.getGoalConnections(), loader.getFluents());
