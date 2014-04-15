@@ -59,18 +59,15 @@ public class StructureBuilder {
         }
 
         // jump to Fluent
-        Entity prev = null;
         Entity current = e;
 
         // skip through the path until there is a negated fluent
-        while(current != null
-                && (current.getType() != EntityType.FLUENT || ((Fluent)current).getNameWithoutNeg().equals(current.getName()))){
+        while(current != null && current.getType() != EntityType.FLUENT){
             // if the current entity is a multiChildEntity, go through its children
             if(!current.hasSingleChild()){
                 List<Entity> nextEntities = ((MultiChildEntity) current).getNextEntities();
                 nextEntities.forEach(this::flipNegatedFluentsNext);
             }
-            prev = current;
             current = current.getNext();
         }
 
@@ -79,15 +76,18 @@ public class StructureBuilder {
             return;
         }
 
-        // change the fluent's name and set FalseNext
         Fluent currentFluent = (Fluent) current;
-        Entity next = currentFluent.getNext();
-        current.setName(currentFluent.getNameWithoutNeg());
-        currentFluent.setFalseNext(next);
-        currentFluent.setNext(null);
-
+        Entity trueNext = currentFluent.getNext();
+        Entity falseNext = currentFluent.getFalseNext();
+        if(!currentFluent.getNameWithoutNeg().equals(current.getName())) {
+            // change the fluent's name and set FalseNext
+            current.setName(currentFluent.getNameWithoutNeg());
+            currentFluent.setFalseNext(trueNext);
+            currentFluent.setNext(falseNext);
+        }
         // proceed with the rest of the path
-        flipNegatedFluentsNext(next);
+        flipNegatedFluentsNext(trueNext);
+        flipNegatedFluentsNext(falseNext);
     }
 
     private void mergeFluents(Map<String, Entity> rootMap) {
