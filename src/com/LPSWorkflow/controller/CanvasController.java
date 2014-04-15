@@ -66,27 +66,14 @@ public class CanvasController implements Initializable {
         diagramLayer = new HBox();
         executionLayer = new Group();
         contentPane.getChildren().addAll(diagramLayer, executionLayer);
-
-        // Use the custom LPS parser to get data
         fileManager = LPSFileManager.getInstance();
 
-        // set clip (viewing region)
-        Rectangle clip = new Rectangle(0,0,0,0);
-        clip.widthProperty().bind(contentPane.widthProperty());
-        clip.heightProperty().bind(contentPane.heightProperty());
-        contentPane.setClip(clip);
+        clipViewingRegion();
+        setLayerBindings();
+        setEventHandlers();
+    }
 
-        // bind scaling and translation
-        diagramLayer.translateXProperty().bind(translateXProperty);
-        diagramLayer.translateYProperty().bind(translateYProperty);
-        executionLayer.translateXProperty().bind(translateXProperty);
-        executionLayer.translateYProperty().bind(translateYProperty);
-        diagramLayer.scaleXProperty().bind(scaleProperty);
-        diagramLayer.scaleYProperty().bind(scaleProperty);
-        executionLayer.scaleXProperty().bind(scaleProperty);
-        executionLayer.scaleYProperty().bind(scaleProperty);
-
-
+    private void setEventHandlers() {
         //TODO allow SPACE + mouse-drag as well?
         //TODO smooth scrolling?
         // TODO mini-map
@@ -103,6 +90,7 @@ public class CanvasController implements Initializable {
             double width = diagramLayer.getWidth();
             double height = diagramLayer.getHeight();
 
+            // limit scroll region
             if(translateX + addedValue > maxX){
                 translateX = maxX - addedValue;
             } else if (translateX + width + addedValue < minX) {
@@ -135,7 +123,24 @@ public class CanvasController implements Initializable {
             }
             scaleProperty.set(zoomFactor);
         });
+    }
 
+    private void setLayerBindings() {
+        diagramLayer.translateXProperty().bind(translateXProperty);
+        diagramLayer.translateYProperty().bind(translateYProperty);
+        executionLayer.translateXProperty().bind(translateXProperty);
+        executionLayer.translateYProperty().bind(translateYProperty);
+        diagramLayer.scaleXProperty().bind(scaleProperty);
+        diagramLayer.scaleYProperty().bind(scaleProperty);
+        executionLayer.scaleXProperty().bind(scaleProperty);
+        executionLayer.scaleYProperty().bind(scaleProperty);
+    }
+
+    private void clipViewingRegion() {
+        Rectangle clip = new Rectangle(0,0,0,0);
+        clip.widthProperty().bind(contentPane.widthProperty());
+        clip.heightProperty().bind(contentPane.heightProperty());
+        contentPane.setClip(clip);
     }
 
     @FXML
@@ -153,7 +158,7 @@ public class CanvasController implements Initializable {
     }
 
     @FXML
-    private void handleNextAction(){
+    private void handleNextAction(){ //TODO
         if(diagramDrawn){
             executionLayer.getChildren().clear();
             List<Token> agents = execManager.getNextStep();
