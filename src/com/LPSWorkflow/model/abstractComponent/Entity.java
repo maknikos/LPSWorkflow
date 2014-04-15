@@ -42,6 +42,10 @@ public abstract class Entity {
         return name;
     }
 
+    public void setName(String name){
+        this.name = name;
+    }
+
     public abstract EntityType getType();
 
     public String toString(){

@@ -59,8 +59,8 @@ public class StructureBuilder {
         }
 
         // jump to Fluent
-        Entity prev = e;
-        Entity current = e.getNext();
+        Entity prev = null;
+        Entity current = e;
 
         // skip through the path until there is a negated fluent
         while(current != null
@@ -79,12 +79,12 @@ public class StructureBuilder {
             return;
         }
 
-        // make a new Fluent with FalseNext as the current fluent's Next
-        String name = ((Fluent)current).getNameWithoutNeg();
-        Entity next = current.getNext();
-        Fluent newFluent = new Fluent(name);
-        newFluent.setFalseNext(next);
-        prev.setNext(newFluent);
+        // change the fluent's name and set FalseNext
+        Fluent currentFluent = (Fluent) current;
+        Entity next = currentFluent.getNext();
+        current.setName(currentFluent.getNameWithoutNeg());
+        currentFluent.setFalseNext(next);
+        currentFluent.setNext(null);
 
         // proceed with the rest of the path
         flipNegatedFluentsNext(next);
@@ -190,13 +190,12 @@ public class StructureBuilder {
             Entity mergedEntity = createEntityFor(entity.getType(), entity.getName());
 
             group.forEach(nextEntities::remove);
-            List<Entity> newNextEntities = group.stream().filter(member -> member.getNext() != null)
+            List<Entity> newNextEntities = group.stream().filter(Entity::hasNext)
                     .map(Entity::getNext).collect(Collectors.toList());
             Entity nextMultiChildEntity = createMultiChildEntityFor(currentMultiType, newNextEntities);
-
-            // set the multiChildNode as the mergedEntity's next
-            nextEntities.add(mergedEntity);
             mergedEntity.setNext(nextMultiChildEntity);
+
+            nextEntities.add(mergedEntity);
 
             // repeat until the end reached, or no more common paths.
             mergeCommonPathsNext(mergedEntity);
@@ -302,6 +301,7 @@ public class StructureBuilder {
     private void addGoalDefinitions() {
         // go through each root of reactive rules and add goal definitions
         reactiveRulesRootMap.values().forEach(this::addGoalDefinitions);
+        //goalsRootMap.values().forEach(this::addGoalDefinitions); TODO
     }
 
     private void addGoalDefinitions(Entity e) {
@@ -344,36 +344,32 @@ public class StructureBuilder {
             connectEntities((Entity)next, ruleConnections);
         });
 
+
         // Merge common roots
-        ruleRoots.keySet().stream().map(rootObj -> (Entity)rootObj)
-                .filter(root -> rootMap.containsKey(root.getName()) && root.getNext() != null)
-                .forEach(root -> {
+        Map<String, List<Entity>> commonNameGroups = ruleRoots.keySet().stream()
+                .map(root -> (Entity)root)
+                .collect(Collectors.groupingBy(Entity::getName));
 
-                    // Same root already exists. Merge the roots by AND or OR.
-                    Entity existingRoot = rootMap.get(root.getName()); //TODO may need to group together the antecedents?
-                    Entity existingNext = existingRoot.getNext(); // Either the next entity or an AND
-
-                    if (!existingNext.hasSingleChild()) {
-                        // if the next is already multiChildEntity, add to its children
-                        ((MultiChildEntity) existingNext).getNextEntities().add(root.getNext());
-                    } else {
-                        // if the next is a singleChildEntity, create AND entity and add
-                        ArrayList<Entity> entities = new ArrayList<>();
-                        entities.add(existingNext);
-                        entities.add(root.getNext());
-                        if (groupByAnd) {
-                            And and = new And(entities);
-                            existingRoot.setNext(and);
-                        } else {
-                            Or or = new Or(entities);
-                            existingRoot.setNext(or);
-                        }
-                    }
-                });
-
-        ruleRoots.keySet().stream().map(rootObj -> (Entity)rootObj)
-                .filter(root -> !rootMap.containsKey(root.getName()))
-                .forEach(root -> rootMap.put(root.getName(), root));
+        commonNameGroups.forEach((name, entities) -> {
+            // entities always contain at least one
+            Entity entity = entities.get(0);
+            // for only one child, just add straight to the rootMap
+            if(entities.size() == 1){
+                rootMap.put(name, entity);
+            } else {
+                // for multiple entities, make a multiChildEntity and add to rootMap
+                List<Entity> nextEntities = entities.stream().filter(Entity::hasNext)
+                        .map(Entity::getNext).collect(Collectors.toList());
+                if (groupByAnd) {
+                    And and = new And(nextEntities);
+                    entity.setNext(and);
+                } else {
+                    Or or = new Or(nextEntities);
+                    entity.setNext(or);
+                }
+                rootMap.put(name, entity);
+            }
+        });
     }
 
     public Map<String, Entity> getReactiveRulesRootMap() {
