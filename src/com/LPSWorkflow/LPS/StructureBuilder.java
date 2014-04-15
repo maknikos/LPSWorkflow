@@ -2,10 +2,12 @@ package com.LPSWorkflow.LPS;
 
 import com.LPSWorkflow.common.EntityType;
 import com.LPSWorkflow.model.abstractComponent.*;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Builds structure of connected entities from 'connections' context maps
@@ -113,43 +115,33 @@ public class StructureBuilder {
         List<Entity> nextEntities = ((MultiChildEntity) current).getNextEntities();
 
         // sort the next fluents into groups according to shared entities
-        Map<String, List<Fluent>> commonFluentGroups = new HashMap<>();
-        for(Entity next : nextEntities){
-            if(next.getType() == EntityType.FLUENT) {
-                Fluent nextFluent = (Fluent) next;
-                String name = nextFluent.getNameWithoutNeg();
-                if(commonFluentGroups.containsKey(name)){
-                    commonFluentGroups.get(name).add(nextFluent);
-                } else {
-                    ArrayList<Fluent> fluents = new ArrayList<>();
-                    fluents.add(nextFluent);
-                    commonFluentGroups.put(name, fluents);
-                }
-            }
-        }
+        Map<String, List<Fluent>> commonFluentGroups = nextEntities.stream()
+                .filter(next -> next.getType() == EntityType.FLUENT)
+                .map(fluent -> (Fluent) fluent)
+                .collect(Collectors.groupingBy(Fluent::getNameWithoutNeg));
 
         // if a group has more than one entity, then merge & group their children
-        for(String key : commonFluentGroups.keySet()){
-            List<Fluent> group = commonFluentGroups.get(key);
+        commonFluentGroups.forEach((name, group) -> {
             if (group.size() > 1) {
                 // create a separate fluent
-                Fluent mergedFluent = (Fluent) createEntityFor(EntityType.FLUENT, key);
+                Fluent mergedFluent = (Fluent) createEntityFor(EntityType.FLUENT, name);
 
                 // for a fluent f, assume there are only f and !f (single instances) since common paths merged already
-                for(Fluent member : group){
-                    Entity memberNext = member.getNext();
-                    nextEntities.remove(member);
-                    if(member.getName().equals(member.getNameWithoutNeg())){
+                group.forEach(f -> {
+                    Entity memberNext = f.getNext();
+                    nextEntities.remove(f);
+                    if(f.getName().equals(f.getNameWithoutNeg())){
                         mergedFluent.setNext(memberNext);
                     } else {
                         mergedFluent.setFalseNext(memberNext);
                     }
-                }
+                });
+
                 nextEntities.add(mergedFluent);
                 // repeat until the end reached, or no more common fluents.
                 mergeFluentsNext(mergedFluent);
             }
-        }
+        });
 
         // if current multiChildEntity has only one child, then connect directly to its child
         if(nextEntities.size() == 1){
@@ -188,44 +180,27 @@ public class StructureBuilder {
         List<Entity> nextEntities = ((MultiChildEntity) current).getNextEntities();
 
         // sort the next paths into groups according to shared entities
-        Map<String, List<Entity>> commonStartGroups = new HashMap<>();
-        for(Entity next : nextEntities){
-            String name = next.getName();
+        Map<String, List<Entity>> commonStartGroups = nextEntities.stream()
+                .collect(Collectors.groupingBy(Entity::getName));
 
-            if(commonStartGroups.containsKey(name)){
-                commonStartGroups.get(name).add(next);
-            } else {
-                ArrayList<Entity> entities = new ArrayList<>();
-                entities.add(next);
-                commonStartGroups.put(name, entities);
-            }
-        }
         // if a group has more than one entity, then merge & group their children
-        for(List<Entity> group : commonStartGroups.values()){
-            if(group.size() > 1){
-                // create a separate entity
-                Entity entity = group.get(0);
-                Entity mergedEntity = createEntityFor(entity.getType(), entity.getName());
+        commonStartGroups.values().stream().filter(group -> group.size() > 1).forEach(group -> {
+            // create a separate entity
+            Entity entity = group.get(0);
+            Entity mergedEntity = createEntityFor(entity.getType(), entity.getName());
 
-                // create a multiChildNode to group the next entities
-                List<Entity> newNextEntities = new ArrayList<>();
-                for(Entity member : group){
-                    Entity memberNext = member.getNext();
-                    nextEntities.remove(member);
-                    if(memberNext != null){
-                        newNextEntities.add(memberNext);
-                    }
-                }
-                Entity nextMultiChildEntity = createMultiChildEntityFor(currentMultiType, newNextEntities);
+            group.forEach(nextEntities::remove);
+            List<Entity> newNextEntities = group.stream().filter(member -> member.getNext() != null)
+                    .map(Entity::getNext).collect(Collectors.toList());
+            Entity nextMultiChildEntity = createMultiChildEntityFor(currentMultiType, newNextEntities);
 
-                // set the multiChildNode as the mergedEntity's next
-                nextEntities.add(mergedEntity);
-                mergedEntity.setNext(nextMultiChildEntity);
+            // set the multiChildNode as the mergedEntity's next
+            nextEntities.add(mergedEntity);
+            mergedEntity.setNext(nextMultiChildEntity);
 
-                // repeat until the end reached, or no more common paths.
-                mergeCommonPathsNext(mergedEntity);
-            }
-        }
+            // repeat until the end reached, or no more common paths.
+            mergeCommonPathsNext(mergedEntity);
+        });
 
         // if current multiChildEntity has only one child, then connect directly to its child
         if(nextEntities.size() == 1){
@@ -269,21 +244,14 @@ public class StructureBuilder {
     }
 
     private void replaceFluents(Map<String, Entity> rootMap, List<String> fluents) {
-        List<String> affectedKeys = new ArrayList<>();
-        for(String s : rootMap.keySet()){
-            Entity e = rootMap.get(s);
-            if(isFluent(e.getName(), fluents)){
-                affectedKeys.add(s);
-            }
-            replaceFluentsNext(e, fluents);
-        }
+        List<String> affectedKeys = rootMap.entrySet().stream()
+                .filter(entry -> isFluent(entry.getValue().getName(), fluents))
+                .map(Map.Entry<String, Entity>::getKey).collect(Collectors.toList());
+        rootMap.forEach((s, e) -> replaceFluentsNext(e, fluents));
 
-        for (String key : affectedKeys){
-            Entity oldValue = rootMap.get(key);
-            Fluent newValue = getReplacementFluent(oldValue);
-            rootMap.remove(key);
-            rootMap.put(key, newValue);
-        }
+        affectedKeys.forEach(k -> {
+            rootMap.put(k, getReplacementFluent(rootMap.get(k)));
+        });
     }
 
     private void replaceFluentsNext(Entity e, List<String> fluents) {
@@ -295,26 +263,21 @@ public class StructureBuilder {
         // in case the current entity has multiple children
         if(!e.hasSingleChild()){
             List<Entity> nextEntities = ((MultiChildEntity) e).getNextEntities();
-            List<Entity> affectedNextEntities = new ArrayList<>();
-            for(Entity next : nextEntities){
-                if(isFluent(next.getName(), fluents)){
-                    affectedNextEntities.add(next);
-                }
-                // recursively replace for each path
-                replaceFluentsNext(next, fluents);
-            }
+
+            List<Entity> affectedNextEntities = nextEntities.stream()
+                    .filter(next -> isFluent(next.getName(), fluents)).collect(Collectors.toList());
+            nextEntities.forEach(next -> replaceFluentsNext(next, fluents));
+
             // change the fluent roots of next paths
-            for(Entity affected : affectedNextEntities){
-                Fluent fluent = getReplacementFluent(affected);
+            affectedNextEntities.forEach(affected -> {
                 nextEntities.remove(affected);
-                nextEntities.add(fluent);
-            }
+                nextEntities.add(getReplacementFluent(affected));
+            });
         }
 
         Entity nextEntity = e.getNext();
         // replace next entity if applicable
-        if(nextEntity != null
-                && isFluent(nextEntity.getName(), fluents)){
+        if(nextEntity != null && isFluent(nextEntity.getName(), fluents)){
             Fluent fluent = getReplacementFluent(nextEntity);
             e.setNext(fluent);
             replaceFluentsNext(fluent, fluents);
@@ -374,47 +337,43 @@ public class StructureBuilder {
                              Map<Object, Object> ruleRoots, Map<Object, Object> ruleConnections,
                              boolean groupByAnd) {
         // Build connections of entities
-        for(Object root : ruleRoots.keySet()){
+        ruleRoots.forEach((root, next) -> {
             // connect Antecedent to the beginning of the Consequent
-            Entity next = (Entity) ruleRoots.get(root);
-            ((Entity)root).setNext(next);
+            ((Entity)root).setNext((Entity) next);
             // connect the rest
-            connectEntities(next, ruleConnections);
-        }
+            connectEntities((Entity)next, ruleConnections);
+        });
 
         // Merge common roots
-        for(Object rootObj : ruleRoots.keySet()){
-            Entity root = (Entity) rootObj;
-            String rootName = root.getName();
-            if(rootMap.containsKey(rootName)){
-                // Same root already exists. Merge the roots by AND or OR.
-                Entity existingRoot = rootMap.get(rootName); //TODO may need to group together the antecedents?
-                Entity existingNext = existingRoot.getNext(); // Either the next entity or an AND
+        ruleRoots.keySet().stream().map(rootObj -> (Entity)rootObj)
+                .filter(root -> rootMap.containsKey(root.getName()) && root.getNext() != null)
+                .forEach(root -> {
 
-                if(root.getNext() == null) {
-                    // if it does not have next entity, ignore it
-                    break;
-                } else if(!existingNext.hasSingleChild()) {
-                    // if the next is already multiChildEntity, add to its children
-                    ((MultiChildEntity)existingNext).getNextEntities().add(root.getNext());
-                } else {
-                    // if the next is a singleChildEntity, create AND entity and add
-                    ArrayList<Entity> entities = new ArrayList<>();
-                    entities.add(existingNext);
-                    entities.add(root.getNext());
+                    // Same root already exists. Merge the roots by AND or OR.
+                    Entity existingRoot = rootMap.get(root.getName()); //TODO may need to group together the antecedents?
+                    Entity existingNext = existingRoot.getNext(); // Either the next entity or an AND
 
-                    if(groupByAnd){
-                        And and = new And(entities);
-                        existingRoot.setNext(and);
+                    if (!existingNext.hasSingleChild()) {
+                        // if the next is already multiChildEntity, add to its children
+                        ((MultiChildEntity) existingNext).getNextEntities().add(root.getNext());
                     } else {
-                        Or or = new Or(entities);
-                        existingRoot.setNext(or);
+                        // if the next is a singleChildEntity, create AND entity and add
+                        ArrayList<Entity> entities = new ArrayList<>();
+                        entities.add(existingNext);
+                        entities.add(root.getNext());
+                        if (groupByAnd) {
+                            And and = new And(entities);
+                            existingRoot.setNext(and);
+                        } else {
+                            Or or = new Or(entities);
+                            existingRoot.setNext(or);
+                        }
                     }
-                }
-            } else {
-                rootMap.put(rootName, root);
-            }
-        }
+                });
+
+        ruleRoots.keySet().stream().map(rootObj -> (Entity)rootObj)
+                .filter(root -> !rootMap.containsKey(root.getName()))
+                .forEach(root -> rootMap.put(root.getName(), root));
     }
 
     public Map<String, Entity> getReactiveRulesRootMap() {
