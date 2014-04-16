@@ -29,12 +29,20 @@ public abstract class Node extends StackPane {
     }
 
     private void installTooltip() {
+        //TODO need to improve.. relying on 'OnExit' can sometimes leave a tooltip floating around
+        //TODO Also, for expanded goal Definition, may need to decide which tooltip to show (containing node, or the one inside)
         final Tooltip t = new Tooltip(name);
         this.setOnMouseEntered((MouseEvent e) -> {
-            Bounds bounds = localToScreen(this.getLayoutBounds());
-            t.show(this, bounds.getMaxX(), bounds.getMinY());
+            if(getScene().getWindow().isFocused()){
+                Bounds bounds = localToScreen(this.getLayoutBounds());
+                t.show(this, bounds.getMaxX(), bounds.getMinY());
+            }
         });
-        this.setOnMouseExited(e -> t.hide());
+        this.setOnMouseExited(e -> {
+            if(getScene().getWindow().isFocused()){
+                t.hide();
+            }
+        });
     }
 
 
