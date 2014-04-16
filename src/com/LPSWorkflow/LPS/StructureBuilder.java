@@ -319,14 +319,24 @@ public class StructureBuilder {
     }
 
     private void buildChains(Map<String, Entity> rootMap,
-                             Map<Object, Object> ruleRoots, Map<Object, Object> ruleConnections,
+                             Map<Object, Object> ruleRoots, Map<Object, Object> connections,
                              boolean groupByAnd) {
         // Build connections of entities
         ruleRoots.forEach((root, next) -> {
-            // connect Antecedent to the beginning of the Consequent
-            ((Entity)root).setNext((Entity) next);
-            // connect the rest
-            connectEntities((Entity)next, ruleConnections);
+            Entity currEntity = (Entity) root;
+            Entity nextEntity = (Entity) next;
+
+            (currEntity).setNext(nextEntity);
+
+            currEntity = nextEntity;
+            nextEntity = (Entity) connections.get(currEntity);
+            while(nextEntity != null){
+                currEntity.setNext(nextEntity);
+                currEntity = nextEntity;
+                nextEntity = (Entity) connections.get(currEntity);
+            }
+            // no next entity in the connections
+            currEntity.setNext(new Exit());
         });
 
         // Merge common roots
@@ -360,18 +370,4 @@ public class StructureBuilder {
         return reactiveRulesRootMap;
     }
 
-    private void connectEntities(Entity e, Map<Object, Object> connections) {
-        if(e == null){
-            return;
-        }
-        Entity entity = (Entity) connections.get(e);
-
-        if(entity == null){
-            //there is no next entity for e. Exit.
-            e.setNext(new Exit());
-        } else {
-            e.setNext(entity);
-            connectEntities(entity, connections);
-        }
-    }
 }
