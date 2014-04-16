@@ -47,8 +47,8 @@ public class StructureBuilder {
         mergeFluents(goalsRootMap);
 
         //flip the sign of negated fluents and use FalseNext
-//        flipNegatedFluents(reactiveRulesRootMap);
-//        flipNegatedFluents(goalsRootMap);
+        flipNegatedFluents(reactiveRulesRootMap);
+        flipNegatedFluents(goalsRootMap);
 
         addGoalDefinitions();
     }
@@ -223,7 +223,7 @@ public class StructureBuilder {
                 nextEntities.forEach(this::mergeFluentsNext);
             } else if (current.getType() == EntityType.FLUENT){
                 // for a fluent, visit FalseNext (trueNext is taken care of by the loop)
-                mergeFluentsNext(((Fluent)current).getFalseNext());
+                mergeFluentsNext(((Fluent) current).getFalseNext());
             }
 
             current = current.getNext();
@@ -235,40 +235,30 @@ public class StructureBuilder {
     }
 
     private void flipNegatedFluentsNext(Entity e) {
-        if(e == null){
-            return;
-        }
-
-        // jump to Fluent
         Entity current = e;
-
-        // skip through the path until there is a negated fluent
-        while(current != null && current.getType() != EntityType.FLUENT){
+        while(current != null){
             // if the current entity is a multiChildEntity, go through its children
             if(!current.hasSingleChild()){
                 List<Entity> nextEntities = ((MultiChildEntity) current).getNextEntities();
                 nextEntities.forEach(this::flipNegatedFluentsNext);
+            } else if(current.getType() == EntityType.FLUENT){
+                Fluent currentFluent = (Fluent) current;
+                Entity trueNext = currentFluent.getNext();
+                Entity falseNext = currentFluent.getFalseNext();
+                if(!currentFluent.getNameWithoutNeg().equals(current.getName())) {
+                    // change the fluent's name and set FalseNext
+                    current.setName(currentFluent.getNameWithoutNeg());
+                    currentFluent.setFalseNext(trueNext);
+                    currentFluent.setNext(falseNext);
+                    // proceed with the rest of the path
+                    flipNegatedFluentsNext(trueNext);
+                } else {
+                    // proceed with the rest of the path
+                    flipNegatedFluentsNext(falseNext);
+                }
             }
             current = current.getNext();
         }
-
-        // no fluent in the path.
-        if(current == null){
-            return;
-        }
-
-        Fluent currentFluent = (Fluent) current;
-        Entity trueNext = currentFluent.getNext();
-        Entity falseNext = currentFluent.getFalseNext();
-        if(!currentFluent.getNameWithoutNeg().equals(current.getName())) {
-            // change the fluent's name and set FalseNext
-            current.setName(currentFluent.getNameWithoutNeg());
-            currentFluent.setFalseNext(trueNext);
-            currentFluent.setNext(falseNext);
-        }
-        // proceed with the rest of the path
-        flipNegatedFluentsNext(trueNext);
-        flipNegatedFluentsNext(falseNext);
     }
 
     private void addGoalDefinitions() {
