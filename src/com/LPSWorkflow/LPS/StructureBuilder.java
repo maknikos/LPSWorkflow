@@ -168,19 +168,26 @@ public class StructureBuilder {
                 commonStartGroups.values().stream().filter(group -> group.size() > 1).forEach(group -> {
                     // create a separate entity
                     Entity entity = group.get(0);
-                    Entity mergedEntity = createEntityFor(entity.getType(), entity.getName());
+                    Entity mergedEntity;
+                    if(!entity.hasSingleChild()){
+                        // merge only if the entities' children are identical
 
-                    group.forEach(nextEntities::remove);
-                    List<Entity> newNextEntities = group.stream().filter(Entity::hasNext)
-                            .map(Entity::getNext).collect(Collectors.toList());
-                    Entity nextMultiChildEntity = createMultiChildEntityFor(currentMultiType, newNextEntities);
-                    mergedEntity.setNext(nextMultiChildEntity);
+                        //TODO when common entities are multiChildEntities, do we merge them?
+                        //TODO this may mean comparing members of multiple multiChildEntities.. complicates things.
 
-                    nextEntities.add(mergedEntity);
+                    } else {
+                        mergedEntity = createEntityFor(entity.getType(), entity.getName());
+                        group.forEach(nextEntities::remove);
+                        List<Entity> newNextEntities = group.stream().filter(Entity::hasNext)
+                                .map(Entity::getNext).collect(Collectors.toList());
+                        Entity nextMultiChildEntity = createMultiChildEntityFor(currentMultiType, newNextEntities);
+                        mergedEntity.setNext(nextMultiChildEntity);
+                        nextEntities.add(mergedEntity);
 
-                    // repeat until the end reached, or no more common paths.
-                    // note: we don't have to go through all nextEntities, since we are merging 'common beginnings'
-                    mergeCommonPathsNext(mergedEntity);
+                        // repeat until the end reached, or no more common paths.
+                        // note: we don't have to go through all nextEntities, since we are merging 'common beginnings'
+                        mergeCommonPathsNext(mergedEntity);
+                    }
                 });
             }
 
@@ -236,17 +243,11 @@ public class StructureBuilder {
     }
 
     private void removeRedundantMultiChildEntity(Map<String, Entity> rootMap) {
-        List<String> redundantRootNames = rootMap.entrySet().stream()
-                .filter(entry -> !entry.getValue().hasSingleChild()
-                        && ((MultiChildEntity) entry.getValue()).getNextEntities().size() == 1)
-                .map(Map.Entry<String, Entity>::getKey).collect(Collectors.toList());
-
         rootMap.values().forEach(this::removeRedundantNext);
 
-        redundantRootNames.forEach(name -> {
-            Entity next = ((MultiChildEntity) rootMap.get(name)).getNextEntities().get(0);
-            rootMap.put(name, next);
-        });
+        rootMap.entrySet().stream()
+                .filter(entry -> !entry.getValue().hasSingleChild() && ((MultiChildEntity) entry.getValue()).getNextEntities().size() == 1)
+                .forEach(entry -> rootMap.put(entry.getKey(), ((MultiChildEntity) entry.getValue()).getNextEntities().get(0)));
     }
     private void removeRedundantNext(Entity e) {
         Entity currEntity = e;
@@ -265,6 +266,8 @@ public class StructureBuilder {
                 List<Entity> nextEntities = ((MultiChildEntity) nextEntity).getNextEntities();
                 if(nextEntities.size() == 1){ //TODO PartialOrder entity's getNext may be lost
                     currEntity.setNext(nextEntities.get(0));
+                } else if (nextEntities.size() == 0){
+                    currEntity.setNext(null);
                 }
             }
             currEntity = currEntity.getNext();
