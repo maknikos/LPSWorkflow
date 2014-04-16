@@ -50,7 +50,8 @@ public class StructureBuilder {
         flipNegatedFluents(reactiveRulesRootMap);
         flipNegatedFluents(goalsRootMap);
 
-        addGoalDefinitions();
+        addGoalDefinitions(reactiveRulesRootMap);
+        addGoalDefinitions(goalsRootMap);
     }
 
     private void buildChains(Map<String, Entity> rootMap,
@@ -261,38 +262,43 @@ public class StructureBuilder {
         }
     }
 
-    private void addGoalDefinitions() {
+    private void addGoalDefinitions(Map<String, Entity> rootMap) {
         // go through each root of reactive rules and add goal definitions
-        reactiveRulesRootMap.values().forEach(this::addGoalDefinitions);
-        //goalsRootMap.values().forEach(this::addGoalDefinitions);
+        rootMap.values().forEach(this::addGoalDefinitions);
     }
 
     private void addGoalDefinitions(Entity e) {
-        Entity goalDef = goalsRootMap.get(e.getName());
-        // if definition exists for the entity
-        if(goalDef != null){
-            // if definition already added
-            if(e.hasDefinition()){
-                // if multiple definitions already exist
-                Entity existingGoalDef = e.getDefinition();
-                if(existingGoalDef.getType() == EntityType.OR){
-                    ((Or) existingGoalDef).getNextEntities().add(goalDef);
-                } else {
-                    ArrayList<Entity> entities = new ArrayList<>();
-                    entities.add(existingGoalDef);
-                    entities.add(goalDef);
-                    Or or = new Or(entities);
-                    e.setDefinition(or);
-                }
-            } else {
-                e.setDefinition(goalDef);
+        Entity current = e;
+        while(current != null){
+            // cover all other paths
+            if (!current.hasSingleChild()){
+                ((MultiChildEntity) current).getNextEntities().forEach(this::addGoalDefinitions);
+            } else if(current.getType() == EntityType.FLUENT){
+                addGoalDefinitions(((Fluent)current).getFalseNext());
             }
-        }
 
-        if(e.hasNext()){
-            addGoalDefinitions(e.getNext());
-        } else if (!e.hasSingleChild()){
-            ((MultiChildEntity) e).getNextEntities().forEach(this::addGoalDefinitions);
+            Entity goalDef = goalsRootMap.get(current.getName());
+            // if definition exists for the entity
+            if(goalDef != null){
+                // if definition already added
+                if(current.hasDefinition()){
+                    // if multiple definitions already exist
+                    Entity existingGoalDef = current.getDefinition();
+                    if(existingGoalDef.getType() == EntityType.OR){
+                        ((Or) existingGoalDef).getNextEntities().add(goalDef);
+                    } else {
+                        ArrayList<Entity> entities = new ArrayList<>();
+                        entities.add(existingGoalDef);
+                        entities.add(goalDef);
+                        Or or = new Or(entities);
+                        current.setDefinition(or);
+                    }
+                } else {
+                    current.setDefinition(goalDef);
+                }
+            }
+            // continue along the path
+            current = current.getNext();
         }
     }
 
