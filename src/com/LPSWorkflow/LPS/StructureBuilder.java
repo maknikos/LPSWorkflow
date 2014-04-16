@@ -47,8 +47,8 @@ public class StructureBuilder {
         mergeFluents(goalsRootMap);
 
         //flip the sign of negated fluents and use FalseNext
-        flipNegatedFluents(reactiveRulesRootMap);
-        flipNegatedFluents(goalsRootMap);
+//        flipNegatedFluents(reactiveRulesRootMap);
+//        flipNegatedFluents(goalsRootMap);
 
         addGoalDefinitions();
     }
@@ -189,63 +189,45 @@ public class StructureBuilder {
     }
 
     private void mergeFluentsNext(Entity e) {
-        if(e == null){
-            return;
-        }
+        Entity current = e;
+        while(current != null){
+            if(!current.hasSingleChild()){
+                // current is a multiChildNode.
+                List<Entity> nextEntities = ((MultiChildEntity) current).getNextEntities();
 
-        // jump to multiChildNode
-        Entity prev = e;
-        Entity current = e.getNext();
-        while(current != null && current.hasSingleChild()){
-            prev = current;
-            current = current.getNext();
-        }
+                // sort the next fluents into groups according to shared entities
+                Map<String, List<Fluent>> commonFluentGroups = nextEntities.stream()
+                        .filter(next -> next.getType() == EntityType.FLUENT)
+                        .map(fluent -> (Fluent) fluent)
+                        .collect(Collectors.groupingBy(Fluent::getNameWithoutNeg));
 
-        if(current == null){
-            return;
-        }
+                // if a group has more than one entity, then merge & group their children
+                commonFluentGroups.forEach((name, group) -> {
+                    if (group.size() > 1) {
+                        // create a separate fluent
+                        Fluent mergedFluent = (Fluent) createEntityFor(EntityType.FLUENT, name);
 
-        // current is a multiChildNode.
-        List<Entity> nextEntities = ((MultiChildEntity) current).getNextEntities();
-
-        // sort the next fluents into groups according to shared entities
-        Map<String, List<Fluent>> commonFluentGroups = nextEntities.stream()
-                .filter(next -> next.getType() == EntityType.FLUENT)
-                .map(fluent -> (Fluent) fluent)
-                .collect(Collectors.groupingBy(Fluent::getNameWithoutNeg));
-
-        // if a group has more than one entity, then merge & group their children
-        commonFluentGroups.forEach((name, group) -> {
-            if (group.size() > 1) {
-                // create a separate fluent
-                Fluent mergedFluent = (Fluent) createEntityFor(EntityType.FLUENT, name);
-
-                // for a fluent f, assume there are only f and !f (single instances) since common paths merged already
-                group.forEach(f -> {
-                    Entity memberNext = f.getNext();
-                    nextEntities.remove(f);
-                    if(f.getName().equals(f.getNameWithoutNeg())){
-                        mergedFluent.setNext(memberNext);
-                    } else {
-                        mergedFluent.setFalseNext(memberNext);
+                        // for a fluent f, assume there are only f and !f (single instances) since common paths merged already
+                        group.forEach(f -> {
+                            Entity fluentNext = f.getNext();
+                            nextEntities.remove(f);
+                            if(f.getName().equals(f.getNameWithoutNeg())){
+                                mergedFluent.setNext(fluentNext);
+                            } else {
+                                mergedFluent.setFalseNext(fluentNext);
+                            }
+                        });
+                        nextEntities.add(mergedFluent);
                     }
                 });
-
-                nextEntities.add(mergedFluent);
-                // repeat until the end reached, or no more common fluents.
-                mergeFluentsNext(mergedFluent);
+                nextEntities.forEach(this::mergeFluentsNext);
+            } else if (current.getType() == EntityType.FLUENT){
+                // for a fluent, visit FalseNext (trueNext is taken care of by the loop)
+                mergeFluentsNext(((Fluent)current).getFalseNext());
             }
-        });
 
-        // if current multiChildEntity has only one child, then connect directly to its child
-        if(nextEntities.size() == 1){
-            prev.setNext(nextEntities.get(0));
-        } else {
-            nextEntities.forEach(this::mergeFluentsNext);
+            current = current.getNext();
         }
-
-        // proceed with the trailing path
-        mergeFluentsNext(current.getNext());
     }
 
     private void flipNegatedFluents(Map<String, Entity> rootMap) {
