@@ -231,7 +231,7 @@ public class CanvasController implements Initializable {
                 // spread them out and draw each path
                 for(Entity child : nextEntities){
                     buildWorkflowDiagram(resultGroup, child, nextX, nextY, true);
-                    nextX += Constants.NODE_WIDTH + Constants.NODE_HORIZONTAL_GAP;
+                    nextX = resultGroup.getLayoutBounds().getMaxX() + Constants.NODE_HORIZONTAL_GAP;
                     resultGroup.getChildren().add(createArrow(currNode, displayMap.get(child), true));
                 }
 
@@ -262,9 +262,7 @@ public class CanvasController implements Initializable {
 
                 if(trueNext != null){
                     // need to draw both
-                    double totalWidth = Constants.NODE_HORIZONTAL_GAP + (2 * Constants.NODE_WIDTH);
-                    nextX -= ((totalWidth/2) - (Constants.NODE_WIDTH/2));
-
+                    nextX -= Constants.NODE_HORIZONTAL_GAP/2;
                     // spread them out and draw each path
                     //Draw True branch
                     buildWorkflowDiagram(resultGroup, trueNext, nextX, nextY, true);

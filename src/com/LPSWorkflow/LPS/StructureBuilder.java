@@ -253,12 +253,21 @@ public class StructureBuilder {
         Entity currEntity = e;
         Entity nextEntity;
         while(currEntity != null){
-
             if(!currEntity.hasSingleChild()){
                 List<Entity> nextEntities = ((MultiChildEntity) currEntity).getNextEntities();
                 nextEntities.forEach(this::removeRedundantNext);
             } else if(currEntity.getType() == EntityType.FLUENT){
-                removeRedundantNext(((Fluent)currEntity).getFalseNext());
+                Fluent currFluent = (Fluent) currEntity;
+                Entity falseNext = currFluent.getFalseNext();
+                if(falseNext != null && !falseNext.hasSingleChild()){
+                    List<Entity> nextEntities = ((MultiChildEntity) falseNext).getNextEntities();
+                    if(nextEntities.size() == 1){ //TODO PartialOrder entity's getNext may be lost
+                        currFluent.setFalseNext(nextEntities.get(0));
+                    } else if (nextEntities.size() == 0){
+                        currFluent.setFalseNext(null);
+                    }
+                }
+                removeRedundantNext(falseNext);
             }
             // if the next entity is a multiChildEntity, and is redundant, remove it.
             nextEntity = currEntity.getNext();
@@ -272,6 +281,10 @@ public class StructureBuilder {
             }
             currEntity = currEntity.getNext();
         }
+    }
+
+    private void checkAndRemove(Entity currEntity, Entity nextEntity) {
+
     }
 
     private void flipNegatedFluents(Map<String, Entity> rootMap) {
