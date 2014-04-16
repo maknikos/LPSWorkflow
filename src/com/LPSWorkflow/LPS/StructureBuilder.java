@@ -46,6 +46,10 @@ public class StructureBuilder {
         mergeFluents(reactiveRulesRootMap);
         mergeFluents(goalsRootMap);
 
+        // remove multiChildEntities with only one child (connect directly)
+        removeRedundantMultiChildEntity(reactiveRulesRootMap);
+        removeRedundantMultiChildEntity(goalsRootMap);
+
         //flip the sign of negated fluents and use FalseNext
         flipNegatedFluents(reactiveRulesRootMap);
         flipNegatedFluents(goalsRootMap);
@@ -228,6 +232,42 @@ public class StructureBuilder {
             }
 
             current = current.getNext();
+        }
+    }
+
+    private void removeRedundantMultiChildEntity(Map<String, Entity> rootMap) {
+        List<String> redundantRootNames = rootMap.entrySet().stream()
+                .filter(entry -> !entry.getValue().hasSingleChild()
+                        && ((MultiChildEntity) entry.getValue()).getNextEntities().size() == 1)
+                .map(Map.Entry<String, Entity>::getKey).collect(Collectors.toList());
+
+        rootMap.values().forEach(this::removeRedundantNext);
+
+        redundantRootNames.forEach(name -> {
+            Entity next = ((MultiChildEntity) rootMap.get(name)).getNextEntities().get(0);
+            rootMap.put(name, next);
+        });
+    }
+    private void removeRedundantNext(Entity e) {
+        Entity currEntity = e;
+        Entity nextEntity;
+        while(currEntity != null){
+
+            if(!currEntity.hasSingleChild()){
+                List<Entity> nextEntities = ((MultiChildEntity) currEntity).getNextEntities();
+                nextEntities.forEach(this::removeRedundantNext);
+            } else if(currEntity.getType() == EntityType.FLUENT){
+                removeRedundantNext(((Fluent)currEntity).getFalseNext());
+            }
+            // if the next entity is a multiChildEntity, and is redundant, remove it.
+            nextEntity = currEntity.getNext();
+            if(nextEntity != null && !nextEntity.hasSingleChild()){
+                List<Entity> nextEntities = ((MultiChildEntity) nextEntity).getNextEntities();
+                if(nextEntities.size() == 1){ //TODO PartialOrder entity's getNext may be lost
+                    currEntity.setNext(nextEntities.get(0));
+                }
+            }
+            currEntity = currEntity.getNext();
         }
     }
 
