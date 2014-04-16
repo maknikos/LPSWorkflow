@@ -15,10 +15,12 @@ import java.util.stream.Collectors;
 public class StructureBuilder {
     private Map<String, Entity> reactiveRulesRootMap;
     private Map<String, Entity> goalsRootMap; //TODO make use of this from visualiser?
+    private List<String> fluents;
 
     public StructureBuilder() {
         this.reactiveRulesRootMap = new HashMap<>();
         this.goalsRootMap = new HashMap<>();
+        this.fluents = new ArrayList<>();
     }
 
     public void build(Map<Object, Object> reactiveRuleRoots,
@@ -27,12 +29,14 @@ public class StructureBuilder {
                       Map<Object, Object> goalConnections,
                       List<String> fluents)
     {
+        this.fluents = fluents;
+
         buildChains(reactiveRulesRootMap, reactiveRuleRoots, reactiveRuleConnections, true);
         buildChains(goalsRootMap, goalRoots, goalConnections, false);
 
         // distinguish fluents from actions by replacing corresponding Action with Fluent object
-        replaceFluents(reactiveRulesRootMap, fluents);
-        replaceFluents(goalsRootMap, fluents);
+        replaceFluents(reactiveRulesRootMap);
+        replaceFluents(goalsRootMap);
 
         // merge common starts of multiChildEntities (e.g. OR)
         mergeCommonPaths(reactiveRulesRootMap);
@@ -93,46 +97,48 @@ public class StructureBuilder {
         });
     }
 
-    private void replaceFluents(Map<String, Entity> rootMap, List<String> fluents) {
+    private void replaceFluents(Map<String, Entity> rootMap) {
         List<String> affectedKeys = rootMap.entrySet().stream()
-                .filter(entry -> isFluent(entry.getValue().getName(), fluents))
+                .filter(entry -> isFluent(entry.getValue().getName()))
                 .map(Map.Entry<String, Entity>::getKey).collect(Collectors.toList());
-        rootMap.forEach((s, e) -> replaceFluentsNext(e, fluents));
+        rootMap.forEach((s, e) -> replaceFluentsNext(e));
 
         affectedKeys.forEach(k -> {
             rootMap.put(k, getReplacementFluent(rootMap.get(k)));
         });
     }
 
-    private void replaceFluentsNext(Entity e, List<String> fluents) {
-        // replace the next entity or the "nextEntities"
-        if(e == null){
-            return;
-        }
+    private void replaceFluentsNext(Entity e) {
+        Entity currEntity = e;
+        Entity nextEntity;
+        while(currEntity != null){
+            // in case the current entity has multiple children
+            if(!currEntity.hasSingleChild()){
+                List<Entity> nextEntities = ((MultiChildEntity) currEntity).getNextEntities();
 
-        // in case the current entity has multiple children
-        if(!e.hasSingleChild()){
-            List<Entity> nextEntities = ((MultiChildEntity) e).getNextEntities();
+                List<Entity> nextFluentEntities = nextEntities.stream()
+                        .filter(next -> isFluent(next.getName())).collect(Collectors.toList());
 
-            List<Entity> affectedNextEntities = nextEntities.stream()
-                    .filter(next -> isFluent(next.getName(), fluents)).collect(Collectors.toList());
-            nextEntities.forEach(next -> replaceFluentsNext(next, fluents));
+                // change the fluent roots of next paths
+                nextFluentEntities.forEach(fluent -> {
+                    nextEntities.remove(fluent);
+                    nextEntities.add(getReplacementFluent(fluent));
+                });
+                nextEntities.forEach(this::replaceFluentsNext);
+            }
 
-            // change the fluent roots of next paths
-            affectedNextEntities.forEach(affected -> {
-                nextEntities.remove(affected);
-                nextEntities.add(getReplacementFluent(affected));
-            });
-        }
+            // continue along the path
+            nextEntity = currEntity.getNext();
+            // replace next entity if applicable
+            if(nextEntity != null && isFluent(nextEntity.getName())){
+                Fluent fluent = getReplacementFluent(nextEntity);
+                currEntity.setNext(fluent);
+                replaceFluentsNext(fluent);
 
-        Entity nextEntity = e.getNext();
-        // replace next entity if applicable
-        if(nextEntity != null && isFluent(nextEntity.getName(), fluents)){
-            Fluent fluent = getReplacementFluent(nextEntity);
-            e.setNext(fluent);
-            replaceFluentsNext(fluent, fluents);
-        } else {
-            replaceFluentsNext(nextEntity, fluents);
+                currEntity = fluent;
+            } else {
+                currEntity = nextEntity;
+            }
         }
     }
 
@@ -356,7 +362,7 @@ public class StructureBuilder {
     }
 
     //TODO use more sophisticated logic to cover complex situations
-    private boolean isFluent(String name, List<String> fluents) {
+    private boolean isFluent(String name) {
         return fluents.contains(name)
                 || (name.contains("!") && fluents.contains(name.substring(1))) // negation
                 || (name.contains(":")); // concurrent
