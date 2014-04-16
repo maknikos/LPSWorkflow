@@ -159,57 +159,43 @@ public class StructureBuilder {
     }
 
     private void mergeCommonPathsNext(Entity e) {
-        if(e == null){
-            return;
-        }
-
         // jump to multiChildEntity to perform merge
-        Entity prev = e;
-        Entity current = e.getNext();
-        while(current != null && current.hasSingleChild()){
-            prev = current;
+        Entity current = e;
+        while(current != null){
+            //loop through the path (by getNext) and branch out if there is multiChildEntity
+            if(!current.hasSingleChild()){
+                // merge possible common paths and branch out
+
+                EntityType currentMultiType = current.getType();
+                List<Entity> nextEntities = ((MultiChildEntity) current).getNextEntities();
+
+                // sort the next paths into groups according to shared entities
+                Map<String, List<Entity>> commonStartGroups = nextEntities.stream()
+                        .collect(Collectors.groupingBy(Entity::getName));
+
+                // if a group has more than one entity, then merge & group their children
+                commonStartGroups.values().stream().filter(group -> group.size() > 1).forEach(group -> {
+                    // create a separate entity
+                    Entity entity = group.get(0);
+                    Entity mergedEntity = createEntityFor(entity.getType(), entity.getName());
+
+                    group.forEach(nextEntities::remove);
+                    List<Entity> newNextEntities = group.stream().filter(Entity::hasNext)
+                            .map(Entity::getNext).collect(Collectors.toList());
+                    Entity nextMultiChildEntity = createMultiChildEntityFor(currentMultiType, newNextEntities);
+                    mergedEntity.setNext(nextMultiChildEntity);
+
+                    nextEntities.add(mergedEntity);
+
+                    // repeat until the end reached, or no more common paths.
+                    // note: we don't have to go through all nextEntities, since we are merging 'common beginnings'
+                    mergeCommonPathsNext(mergedEntity);
+                });
+            }
+
+            // continue through the path (there is no FalseNext used for Fluents yet, so just use getNext())
             current = current.getNext();
         }
-        // no multiChildEntity found
-        if(current == null){
-            return;
-        }
-
-        // current is a multiChildNode.
-        EntityType currentMultiType = current.getType();
-        List<Entity> nextEntities = ((MultiChildEntity) current).getNextEntities();
-
-        // sort the next paths into groups according to shared entities
-        Map<String, List<Entity>> commonStartGroups = nextEntities.stream()
-                .collect(Collectors.groupingBy(Entity::getName));
-
-        // if a group has more than one entity, then merge & group their children
-        commonStartGroups.values().stream().filter(group -> group.size() > 1).forEach(group -> {
-            // create a separate entity
-            Entity entity = group.get(0);
-            Entity mergedEntity = createEntityFor(entity.getType(), entity.getName());
-
-            group.forEach(nextEntities::remove);
-            List<Entity> newNextEntities = group.stream().filter(Entity::hasNext)
-                    .map(Entity::getNext).collect(Collectors.toList());
-            Entity nextMultiChildEntity = createMultiChildEntityFor(currentMultiType, newNextEntities);
-            mergedEntity.setNext(nextMultiChildEntity);
-
-            nextEntities.add(mergedEntity);
-
-            // repeat until the end reached, or no more common paths.
-            mergeCommonPathsNext(mergedEntity);
-        });
-
-        // if current multiChildEntity has only one child, then connect directly to its child
-        if(nextEntities.size() == 1){
-            prev.setNext(nextEntities.get(0));
-        } else if(nextEntities.size() == 0){
-            prev.setNext(null);
-        }
-
-        // proceed with the trailing path
-        mergeCommonPathsNext(current.getNext());
     }
 
     private Entity createMultiChildEntityFor(EntityType type, List<Entity> nextEntities) {
@@ -239,7 +225,6 @@ public class StructureBuilder {
             default:
                 return null;
         }
-
     }
 
     private void replaceFluents(Map<String, Entity> rootMap, List<String> fluents) {
@@ -301,7 +286,7 @@ public class StructureBuilder {
     private void addGoalDefinitions() {
         // go through each root of reactive rules and add goal definitions
         reactiveRulesRootMap.values().forEach(this::addGoalDefinitions);
-        //goalsRootMap.values().forEach(this::addGoalDefinitions); TODO
+        //goalsRootMap.values().forEach(this::addGoalDefinitions);
     }
 
     private void addGoalDefinitions(Entity e) {
@@ -343,7 +328,6 @@ public class StructureBuilder {
             // connect the rest
             connectEntities((Entity)next, ruleConnections);
         });
-
 
         // Merge common roots
         Map<String, List<Entity>> commonNameGroups = ruleRoots.keySet().stream()
