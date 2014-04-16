@@ -80,9 +80,9 @@ public class Arrow extends Parent {
             }
 
             line1.xProperty().bind(startPoint.xProperty());
-            line1.yProperty().bind(startPoint.yProperty().add(Constants.NODE_VERTICAL_GAP / 2));
+            line1.yProperty().bind(line2.yProperty());
             line2.xProperty().bind(endPoint.xProperty());
-            line2.yProperty().bind(line1.yProperty());
+            line2.yProperty().bind(endPoint.yProperty().subtract(Constants.NODE_VERTICAL_GAP / 2));
 
             DoubleBinding startXBinding = startNode.layoutXProperty().add(startNode.widthProperty().divide(2)); //centre
             DoubleBinding startYBinding = startNode.layoutYProperty().add(startNode.heightProperty());
@@ -91,15 +91,15 @@ public class Arrow extends Parent {
 
             //TODO test with PartialOrder ... joining children at the common end
 
-            line2.yProperty().addListener(observable -> {
+            startPoint.yProperty().addListener(observable -> {
                 // start position can change when the parent node expands/collapses
                 // always keep the distance (prevents the arrow facing upwards).
                 // use the minimum height between the arrows pointing to the same endNode;
-                double maxStartY = line2.getY(); // start point closest to the bottom
+                double maxStartY = startPoint.getY(); // start point closest to the bottom
                 for (Arrow a : arrowsToEndNode) {
                     maxStartY = Math.max(a.startPoint.getY(), maxStartY);
                 }
-                endNode.setLayoutY(maxStartY + Constants.NODE_VERTICAL_GAP/2);
+                endNode.setLayoutY(maxStartY + Constants.NODE_VERTICAL_GAP);
             });
         }
 
