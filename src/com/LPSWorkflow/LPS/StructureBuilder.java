@@ -325,16 +325,12 @@ public class StructureBuilder {
         ruleRoots.forEach((root, next) -> {
             Entity currEntity = (Entity) root;
             Entity nextEntity = (Entity) next;
-
-            (currEntity).setNext(nextEntity);
-
-            currEntity = nextEntity;
-            nextEntity = (Entity) connections.get(currEntity);
-            while(nextEntity != null){
+            do{
                 currEntity.setNext(nextEntity);
                 currEntity = nextEntity;
                 nextEntity = (Entity) connections.get(currEntity);
-            }
+            } while(nextEntity != null);
+
             // no next entity in the connections
             currEntity.setNext(new Exit());
         });
