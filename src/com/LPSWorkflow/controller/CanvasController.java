@@ -262,11 +262,11 @@ public class CanvasController implements Initializable {
 
                 if(trueNext != null){
                     // need to draw both
-                    nextX -= Constants.NODE_HORIZONTAL_GAP/2;
+                    nextX -= Constants.NODE_HORIZONTAL_GAP;
                     // spread them out and draw each path
                     //Draw True branch
                     buildWorkflowDiagram(resultGroup, trueNext, nextX, nextY, true);
-                    nextX += Constants.NODE_WIDTH + Constants.NODE_HORIZONTAL_GAP;
+                    nextX = resultGroup.getLayoutBounds().getMaxX();
                     resultGroup.getChildren().add(createArrow(currNode, displayMap.get(trueNext), true));
                     //Draw False branch
                     buildWorkflowDiagram(resultGroup, falseNext, nextX, nextY, true);
