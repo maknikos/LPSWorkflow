@@ -133,8 +133,6 @@ public class StructureBuilder {
             if(nextEntity != null && isFluent(nextEntity.getName())){
                 Fluent fluent = getReplacementFluent(nextEntity);
                 currEntity.setNext(fluent);
-                replaceFluentsNext(fluent);
-
                 currEntity = fluent;
             } else {
                 currEntity = nextEntity;
