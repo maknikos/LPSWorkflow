@@ -4,6 +4,7 @@ import com.LPSWorkflow.common.EntityType;
 import javafx.css.PseudoClass;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Scene;
@@ -40,6 +41,7 @@ public class ActionNode extends Node {
         // only add expand button if it has a goalDefinition
         if (goalDefinition != null && goalDefinition.getChildren().size() > 0) {
             this.goalDefinition = goalDefinition;
+            VBox.setMargin(this.goalDefinition, new Insets(0, 10, 10, 10));
             expandButton = createExpandButton();
             getChildren().add(expandButton);
             setExpanded(false);
