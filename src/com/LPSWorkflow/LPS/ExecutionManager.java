@@ -4,6 +4,8 @@ import com.LPSWorkflow.common.EntityType;
 import com.LPSWorkflow.model.abstractComponent.Concurrent;
 import com.LPSWorkflow.model.abstractComponent.Entity;
 import com.LPSWorkflow.model.database.Database;
+import com.LPSWorkflow.model.execution.GreedyStrategy;
+import com.LPSWorkflow.model.execution.Strategy;
 import com.LPSWorkflow.model.execution.Token;
 
 import java.util.ArrayList;
@@ -19,6 +21,7 @@ public class ExecutionManager {
     private final Map<String, Entity> entityMap;
     private Database database;
     private List<Token> agents;
+    private Strategy strategy;
     private int cycle;
 
     public ExecutionManager(Map<String, Entity> entityMap) {
@@ -27,31 +30,27 @@ public class ExecutionManager {
         this.entityMap = entityMap;
         database = Database.getInstance();
         agents = new ArrayList<>();
+        strategy = new GreedyStrategy(); //TODO make it interchangeable
     }
 
     public List<Token> getNextStep(){
         List<String> facts = getFactStrings();
 
-        spawnNewTokens();
-//        List<Token> toBeRemoved = new ArrayList<>();
-//        // for each agent in the list, proceed to the next step
-//        for(Token agent : agents){
-//            Entity curr = agent.getCurrentEntity();
-//            if(holds(curr, facts)){
-//                agent.setCurrentEntity(curr.getNext());
-//                agent.increment();
-//            }
-//
-//            // if next is null, remove from the list
-//            if(agent.getCurrentEntity() == null){
-//                toBeRemoved.add(agent);
-//            }
-//        }
-//
-//        agents.removeAll(toBeRemoved);
-//
+        // for each agent in the list, proceed to the next step
+        for(Token agent : agents){
+            Entity curr = agent.getCurrentEntity();
+            if(holds(curr, facts)){
+                agent.setCurrentEntity(curr.getNext());
+                agent.increment();
+            }
+        }
 
-        return agents;
+        // if next is null, remove from the list
+        agents = agents.stream().filter(a -> a.getCurrentEntity() != null).collect(Collectors.toList());
+
+        spawnNewTokens();
+
+        return this.agents;
     }
 
     private List<String> getFactStrings() {

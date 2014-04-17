@@ -8,16 +8,16 @@ import com.LPSWorkflow.model.abstractComponent.Entity;
 public class Token {
     private Entity currentEntity;
     private boolean isReady;
-    private int cycleNum;
+    private int tick; // token's own cycle number.
 
     public Token(Entity currentEntity) {
         this.currentEntity = currentEntity;
         isReady = false;
-        cycleNum = 0;
+        tick = 0;
     }
 
     public void increment(){
-        cycleNum++;
+        tick++;
     }
 
     public Entity getCurrentEntity() {
@@ -30,25 +30,25 @@ public class Token {
 
     public boolean isReady() {
         return isReady;
-    }
+    } //TODo used?
 
     public void setReady(boolean isReady) {
         this.isReady = isReady;
     }
 
-    public int getCycleNum() {
-        return cycleNum;
+    public int getTick() {
+        return tick;
     }
 
-    public void setCycleNum(int cycleNum) {
-        this.cycleNum = cycleNum;
+    public void setTick(int tick) {
+        this.tick = tick;
     }
 
     @Override
     public Token clone(){
         Token clone = new Token(currentEntity);
         clone.setReady(isReady);
-        clone.setCycleNum(cycleNum);
+        clone.setTick(tick);
         return clone;
     }
 }

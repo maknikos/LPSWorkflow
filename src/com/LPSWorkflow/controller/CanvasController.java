@@ -3,6 +3,7 @@ package com.LPSWorkflow.controller;
 import com.LPSWorkflow.LPS.ExecutionManager;
 import com.LPSWorkflow.LPS.LPSFileManager;
 import com.LPSWorkflow.common.Constants;
+import com.LPSWorkflow.common.DisplayMode;
 import com.LPSWorkflow.common.EntityType;
 import com.LPSWorkflow.model.FileData;
 import com.LPSWorkflow.model.abstractComponent.Entity;
@@ -18,6 +19,7 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Group;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.input.ZoomEvent;
 import javafx.scene.layout.HBox;
@@ -31,6 +33,7 @@ import java.util.*;
  * Controller for the main canvas
  */
 public class CanvasController implements Initializable {
+    @FXML private ToggleButton startToggleButton;
     private FileData fileData;
     private LPSFileManager fileManager;
     private MessageData messageData;
@@ -43,6 +46,7 @@ public class CanvasController implements Initializable {
     private Pane executionLayer;
     private Pane layers;
     private ExecutionManager execManager;
+    private DisplayMode displayMode;
 
     private double currentScale;
     private DoubleProperty scaleProperty; // unified scale factor for all layers
@@ -69,18 +73,52 @@ public class CanvasController implements Initializable {
         layers = new Pane(diagramLayer, executionLayer);
         contentPane.getChildren().addAll(layers);
         fileManager = LPSFileManager.getInstance();
-
-
-        // todo remove: colouring to see each bound
-        executionLayer.setStyle("-fx-background-color: yellow;");
-        diagramLayer.setStyle("-fx-background-color: blue;");
-        contentPane.setStyle("-fx-background-color: green;");
-
-
+        setDisplayMode(DisplayMode.VIEW);
 
         clipViewingRegion();
         setLayerBindings();
         setEventHandlers();
+        initExecutionButton();
+    }
+
+    private void initExecutionButton() {
+        startToggleButton.selectedProperty().addListener((observableValue, oldBool, newBool) -> {
+            if(newBool){
+                // start button pressed
+                if(diagramDrawn){
+                    executionLayer.getChildren().clear();
+                    List<Token> agents = execManager.getNextStep();
+
+                    for(Token agent : agents){
+                        Node node = displayMap.get(agent.getCurrentEntity());
+                        TokenShape circle = new TokenShape(node);
+                        executionLayer.getChildren().add(circle);
+                    }
+                    setDisplayMode(DisplayMode.EXECUTION);
+                } else {
+                    messageData.sendMessage("No LPS program is drawn yet. Nothing to execute.", MessageType.ERROR);
+                    startToggleButton.setSelected(false);
+                }
+            } else {
+                setDisplayMode(DisplayMode.VIEW);
+            }
+        });
+    }
+    private void setDisplayMode(DisplayMode m) {
+        switch(m){
+            case VIEW:
+                displayMode = DisplayMode.VIEW;
+                startToggleButton.setText("Start");
+                executionLayer.setVisible(false);
+                break;
+            case EXECUTION:
+                displayMode = DisplayMode.EXECUTION;
+                startToggleButton.setText("Stop");
+                executionLayer.setVisible(true);
+                break;
+            default:
+                break;
+        }
     }
 
     private void setEventHandlers() {
@@ -153,30 +191,12 @@ public class CanvasController implements Initializable {
     private void handleDrawAction() {
         fileManager.openFile(fileData.getFilePath());
 
-        //TODO if nothing drawn, display what to do ("no file open... use... to open ...", etc.)
-
         //only draw when the file is open
         if(fileManager.isFileOpen()){
             drawProgram();
         } else {
+            //TODO could highlight File menu or focus ... as in twitter bootstrap tutorial
             messageData.sendMessage("No file opened yet. Use File->Open to select a program file.", MessageType.ERROR);
-        }
-    }
-
-    @FXML
-    private void handleNextAction(){
-        if(diagramDrawn){
-            executionLayer.getChildren().clear();
-            List<Token> agents = execManager.getNextStep();
-
-            for(Token agent : agents){
-                Node node = displayMap.get(agent.getCurrentEntity());
-                TokenShape circle = new TokenShape(node);
-
-                executionLayer.getChildren().add(circle);
-            }
-        } else {
-            messageData.sendMessage("No LPS program is drawn yet. Nothing to execute.", MessageType.ERROR);
         }
     }
 

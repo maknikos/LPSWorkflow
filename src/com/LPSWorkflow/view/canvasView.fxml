@@ -9,7 +9,7 @@
     <bottom>
         <HBox>
             <Button text="Draw" onAction="#handleDrawAction"/>
-            <Button text="Next" onAction="#handleNextAction"/>
+            <ToggleButton fx:id="startToggleButton" styleClass="start-button" text="Start"/>
         </HBox>
     </bottom>
 </BorderPane>
