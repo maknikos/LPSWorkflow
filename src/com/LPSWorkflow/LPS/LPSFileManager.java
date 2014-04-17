@@ -115,7 +115,7 @@ public class LPSFileManager {
     private BooleanProperty isFileOpen = new SimpleBooleanProperty();
     public BooleanProperty isFileOpenProperty(){
         return isFileOpen;
-    }
+    } //TODO use simple boolean instead?
     public final void setIsFileOpen(boolean isFileOpen){
         this.isFileOpen.set(isFileOpen);
     }

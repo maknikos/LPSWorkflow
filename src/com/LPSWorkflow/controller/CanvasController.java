@@ -16,6 +16,7 @@ import com.LPSWorkflow.model.visualComponent.*;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.collections.ListChangeListener;
+import javafx.css.PseudoClass;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Group;
@@ -83,8 +84,8 @@ public class CanvasController implements Initializable {
     }
 
     private void initExecutionButton() {
-        startToggleButton.selectedProperty().addListener((observableValue, oldBool, newBool) -> {
-            if(newBool){
+        startToggleButton.selectedProperty().addListener((observableValue, oldBool, buttonPressed) -> {
+            if(buttonPressed){
                 // start button pressed
                 if(diagramDrawn){
                     executionLayer.getChildren().clear();
@@ -96,6 +97,10 @@ public class CanvasController implements Initializable {
                         tokenDisplayMap.put(token, tokenShape);
                         executionLayer.getChildren().add(tokenShape);
                     }
+
+                    // change status of candidateTokens
+                    execManager.getCandidateTokens().forEach(t ->
+                            tokenDisplayMap.get(t).pseudoClassStateChanged(PseudoClass.getPseudoClass("available"), true));
                     setDisplayMode(DisplayMode.EXECUTION);
                 } else {
                     messageData.sendMessage("No LPS program is drawn yet. Nothing to execute.", MessageType.ERROR);
@@ -231,16 +236,18 @@ public class CanvasController implements Initializable {
         entityMap = fileManager.getRootMap();
         if(execManager == null){
             execManager = new ExecutionManager(entityMap);
-            execManager.candidateTokensProperty().addListener((ListChangeListener.Change<? extends Token> change) -> {
-//            if(change.wasAdded()){
-                System.out.println(".....added......" + change.toString());
-//                change.getAddedSubList().forEach(t ->
-//                        tokenDisplayMap.get(t).pseudoClassStateChanged(PseudoClass.getPseudoClass("available"), true));
-//            } else if(change.wasRemoved()) {
-//                System.out.println(".....removed....." + change.toString());
-//                change.getRemoved().forEach(t ->
-//                        tokenDisplayMap.get(t).pseudoClassStateChanged(PseudoClass.getPseudoClass("available"), false));
-//            }
+            execManager.candidateTokensProperty().addListener((ListChangeListener.Change <? extends Token> change) -> {
+                if(displayMode == DisplayMode.EXECUTION){
+                    while(change.next()){
+                        if(change.wasAdded()){
+                            change.getAddedSubList().forEach(t ->
+                                    tokenDisplayMap.get(t).pseudoClassStateChanged(PseudoClass.getPseudoClass("available"), true));
+                        } else if(change.wasRemoved()) {
+                            change.getRemoved().forEach(t ->
+                                    tokenDisplayMap.get(t).pseudoClassStateChanged(PseudoClass.getPseudoClass("available"), false));
+                        }
+                    }
+                }
             });
         } else {
             execManager.reset(entityMap);
