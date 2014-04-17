@@ -4,9 +4,10 @@ import com.LPSWorkflow.common.EntityType;
 import com.LPSWorkflow.model.abstractComponent.Concurrent;
 import com.LPSWorkflow.model.abstractComponent.Entity;
 import com.LPSWorkflow.model.database.Database;
-import com.LPSWorkflow.model.execution.GreedyStrategy;
-import com.LPSWorkflow.model.execution.Strategy;
 import com.LPSWorkflow.model.execution.Token;
+import javafx.beans.property.ListProperty;
+import javafx.beans.property.SimpleListProperty;
+import javafx.collections.FXCollections;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,48 +21,45 @@ import java.util.stream.Collectors;
 public class ExecutionManager {
     private final Map<String, Entity> entityMap;
     private Database database;
-    private List<Token> agents;
-    private Strategy strategy;
     private int cycle;
+    private List<Token> tokens;
+
+    /* Candidate tokens property */
+    private ListProperty<Token> candidateTokens = new SimpleListProperty<>(FXCollections.<Token>observableArrayList());
+    public ListProperty<Token> candidateTokensProperty(){
+        return candidateTokens;
+    }
+
+    public final List<Token> getCandidateTokens(){
+        return candidateTokens.get();
+    }
 
     public ExecutionManager(Map<String, Entity> entityMap) {
         // no need to initialise each time a file is opened, since a new one is created every time.
         cycle = 0;
         this.entityMap = entityMap;
         database = Database.getInstance();
-        agents = new ArrayList<>();
-        strategy = new GreedyStrategy(); //TODO make it interchangeable
-    }
-
-    public List<Token> getNextStep(){
-        List<String> facts = getFactStrings();
-
-        // for each agent in the list, proceed to the next step
-        for(Token agent : agents){
-            Entity curr = agent.getCurrentEntity();
-            if(holds(curr, facts)){
-                agent.setCurrentEntity(curr.getNext());
-                agent.increment();
-            }
-        }
-
-        // if next is null, remove from the list
-        agents = agents.stream().filter(a -> a.getCurrentEntity() != null).collect(Collectors.toList());
+        tokens = new ArrayList<>();
 
         spawnNewTokens();
 
-        return this.agents;
+        database.factsProperty().addListener((observableValue, oldStr, newStr) -> {
+            updateCandidateTokens(Arrays.asList(newStr.split(" ")));
+        });
     }
 
-    private List<String> getFactStrings() {
-        return Arrays.asList(database.getFacts().split(" "));
+    private void updateCandidateTokens(List<String> facts) {
+        getCandidateTokens().clear();
+        getCandidateTokens().addAll(tokens.stream().filter(t -> isCandidate(t, facts)).collect(Collectors.toList()));
+    }
+
+    private boolean isCandidate(Token t, List<String> facts) {
+        return facts.contains(t.getCurrentEntity().getName());
     }
 
     // spawn tokens at the top of each reactive rule
     private void spawnNewTokens() {
-        for(Entity root : entityMap.values()){
-            agents.add(new Token(root));
-        }
+        tokens.addAll(entityMap.values().stream().map(Token::new).collect(Collectors.toList()));
     }
 
     private boolean holds(Entity root, List<String> facts) {
@@ -81,4 +79,15 @@ public class ExecutionManager {
         return false;
     }
 
+    public void proceed(){
+        cycle++;
+    }
+
+    public int getCycle(){
+        return cycle;
+    }
+
+    public List<Token> getTokens() {
+        return tokens;
+    }
 }

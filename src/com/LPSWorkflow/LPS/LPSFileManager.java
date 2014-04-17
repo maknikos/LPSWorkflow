@@ -5,6 +5,7 @@ import com.LPSWorkflow.antlr.LPSLoader;
 import com.LPSWorkflow.antlr.LPSParser;
 import com.LPSWorkflow.model.abstractComponent.Entity;
 import com.LPSWorkflow.model.domainTheory.Postcondition;
+import com.LPSWorkflow.model.domainTheory.Precondition;
 import com.LPSWorkflow.model.message.MessageData;
 import com.LPSWorkflow.model.message.MessageType;
 import javafx.beans.property.BooleanProperty;
@@ -26,7 +27,7 @@ import java.util.Map;
 public class LPSFileManager {
     private Map<String,Entity> rootMap;
     private List<String> fluents;
-    private List<List<Entity>> preconditions;
+    private List<Precondition> preconditions;
     private MessageData messageData;
     private List<Postcondition> postconditions;
     private static LPSFileManager instance = null;
@@ -106,14 +107,6 @@ public class LPSFileManager {
 
     public List<String> getFluents() {
         return fluents;
-    }
-
-    public List<List<Entity>> getPreconditions() {
-        return preconditions;
-    }
-
-    public List<Postcondition> getPostconditions() {
-        return postconditions;
     }
 
     public boolean isFileOpen(){

@@ -6,6 +6,7 @@ import com.LPSWorkflow.model.abstractComponent.Entity;
 import com.LPSWorkflow.model.abstractComponent.PartialOrder;
 import com.LPSWorkflow.model.domainTheory.Initiates;
 import com.LPSWorkflow.model.domainTheory.Postcondition;
+import com.LPSWorkflow.model.domainTheory.Precondition;
 import com.LPSWorkflow.model.domainTheory.Terminates;
 import com.LPSWorkflow.model.message.MessageData;
 import com.LPSWorkflow.model.message.MessageType;
@@ -37,7 +38,7 @@ public class LPSLoader extends LPSBaseListener {
     private Map<Object, Object> reactiveRuleConnections;
     private Map<Object, Object> goalConnections;
     private List<String> fluents;
-    private List<List<Entity>> preconditions;
+    private List<Precondition> preconditions;
     private List<Postcondition> postconditions;
     private Parse currentParseTarget;
     private MessageData messageData;
@@ -286,7 +287,7 @@ public class LPSLoader extends LPSBaseListener {
         }
         LPSParser.ConjunctionContext conjunction = ctx.conjunction();
         List<Entity> entities = makeConjunctionIntoList(conjunction);
-        preconditions.add(entities);
+        preconditions.add(new Precondition(entities));
     }
 
     private List<Entity> makeConjunctionIntoList(LPSParser.ConjunctionContext conjunction) {
@@ -361,7 +362,7 @@ public class LPSLoader extends LPSBaseListener {
         return fluents;
     }
 
-    public List<List<Entity>> getPreconditions(){
+    public List<Precondition> getPreconditions(){
         return preconditions;
     }
 

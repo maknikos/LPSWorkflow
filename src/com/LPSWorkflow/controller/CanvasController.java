@@ -37,7 +37,8 @@ public class CanvasController implements Initializable {
     private FileData fileData;
     private LPSFileManager fileManager;
     private MessageData messageData;
-    private Map<Entity, Node> displayMap; // stores mappings from Entities to corresponding Nodes
+    private Map<Entity, Node> entityDisplayMap; // stores mappings from Entities to corresponding Nodes
+    private Map<Token, TokenShape> tokenDisplayMap; // stores mappings from Tokens to corresponding Shapes
     private Map<String,Entity> entityMap;
     private Map<Node, Set<Arrow>> arrowsFrom; // arrows (value) from the node (key)
     private Map<Node, Set<Arrow>> arrowsTo; // arrows (value) connected to the node (key) (used for merging multiple arrows)
@@ -64,7 +65,8 @@ public class CanvasController implements Initializable {
         translateYProperty = new SimpleDoubleProperty(0.0);
         messageData = MessageData.getInstance();
         fileData = FileData.getInstance();
-        displayMap = new HashMap<>();
+        entityDisplayMap = new HashMap<>();
+        tokenDisplayMap = new HashMap<>();
         arrowsFrom = new HashMap<>();
         arrowsTo = new HashMap<>();
         diagramDrawn = false;
@@ -87,12 +89,13 @@ public class CanvasController implements Initializable {
                 // start button pressed
                 if(diagramDrawn){
                     executionLayer.getChildren().clear();
-                    List<Token> agents = execManager.getNextStep();
+                    List<Token> tokens = execManager.getTokens();
 
-                    for(Token agent : agents){
-                        Node node = displayMap.get(agent.getCurrentEntity());
-                        TokenShape circle = new TokenShape(node);
-                        executionLayer.getChildren().add(circle);
+                    for(Token token : tokens){
+                        Node node = entityDisplayMap.get(token.getCurrentEntity());
+                        TokenShape tokenShape = new TokenShape(node);
+                        tokenDisplayMap.put(token, tokenShape);
+                        executionLayer.getChildren().add(tokenShape);
                     }
                     setDisplayMode(DisplayMode.EXECUTION);
                 } else {
@@ -104,6 +107,7 @@ public class CanvasController implements Initializable {
             }
         });
     }
+
     private void setDisplayMode(DisplayMode m) {
         switch(m){
             case VIEW:
@@ -119,6 +123,15 @@ public class CanvasController implements Initializable {
             default:
                 break;
         }
+    }
+
+    @FXML
+    private void handleNextAction() {
+        // TODO execute and update database
+
+        //TODO
+
+        //TODO
     }
 
     private void setEventHandlers() {
@@ -246,7 +259,7 @@ public class CanvasController implements Initializable {
             nextY += Constants.NODE_HEIGHT + Constants.NODE_VERTICAL_GAP;
             nextEntity = currEntity.getNext();
             // Draw next node
-            currNode = displayMap.get(currEntity);
+            currNode = entityDisplayMap.get(currEntity);
             if(!currEntity.hasSingleChild()){
                 // if current node is a multiChildEntity, next should be its 'nextEntities'.
                 List<Entity> nextEntities = ((MultiChildEntity) currEntity).getNextEntities();
@@ -256,7 +269,7 @@ public class CanvasController implements Initializable {
                 for(Entity child : nextEntities){
                     buildWorkflowDiagram(resultGroup, child, nextX, nextY, true);
                     nextX = resultGroup.getLayoutBounds().getMaxX() + Constants.NODE_HORIZONTAL_GAP;
-                    resultGroup.getChildren().add(createArrow(currNode, displayMap.get(child), true));
+                    resultGroup.getChildren().add(createArrow(currNode, entityDisplayMap.get(child), true));
                 }
 
                 nextX = currNode.getLayoutX();
@@ -273,7 +286,7 @@ public class CanvasController implements Initializable {
                 resultGroup.getChildren().add(nextNode);
                 for(Entity next : nextEntities){
                     Entity last = getLastEntityInThePath(next);
-                    Node lastNode = displayMap.get(last);
+                    Node lastNode = entityDisplayMap.get(last);
                     resultGroup.getChildren().add(createArrow(lastNode, nextNode, true));
                 }
 
@@ -291,10 +304,10 @@ public class CanvasController implements Initializable {
                     //Draw True branch
                     buildWorkflowDiagram(resultGroup, trueNext, nextX, nextY, true);
                     nextX = resultGroup.getLayoutBounds().getMaxX();
-                    resultGroup.getChildren().add(createArrow(currNode, displayMap.get(trueNext), true));
+                    resultGroup.getChildren().add(createArrow(currNode, entityDisplayMap.get(trueNext), true));
                     //Draw False branch
                     buildWorkflowDiagram(resultGroup, falseNext, nextX, nextY, true);
-                    resultGroup.getChildren().add(createArrow(currNode, displayMap.get(falseNext), false));
+                    resultGroup.getChildren().add(createArrow(currNode, entityDisplayMap.get(falseNext), false));
 
                     // nothing to merge, so finish.
                     break;
@@ -365,7 +378,7 @@ public class CanvasController implements Initializable {
         return arrow;
     }
 
-    // Create a Node for given Entity, and store the mapping in displayMap.
+    // Create a Node for given Entity, and store the mapping in entityDisplayMap.
     private Node createNodeFor(Entity entity, double x, double y) {
         if(entity == null){
             return null;
@@ -393,7 +406,7 @@ public class CanvasController implements Initializable {
         }
         node.setLayoutX(x);
         node.setLayoutY(y);
-        displayMap.put(entity, node);
+        entityDisplayMap.put(entity, node);
         return node;
     }
 }

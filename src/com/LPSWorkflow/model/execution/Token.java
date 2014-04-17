@@ -28,9 +28,9 @@ public class Token {
         this.currentEntity = currentEntity;
     }
 
-    public boolean isReady() {
+    public boolean isReady() {//TODo used?
         return isReady;
-    } //TODo used?
+    }
 
     public void setReady(boolean isReady) {
         this.isReady = isReady;

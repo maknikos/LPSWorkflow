@@ -33,7 +33,7 @@
     -fx-font-size: 12;
     -fx-background-color: #33993355;
     -fx-background-radius: 6;
-    -fx-border-color: #339933FF;
+    -fx-border-color: #339933ff;
     -fx-border-radius: 6;
     -fx-border-width: 4;
     -fx-pref-width: 25;
@@ -58,9 +58,9 @@
 }
 
 .message-content-label {
-    -fx-border-color: #FF9999BB;
+    -fx-border-color: #ff9999bb;
     -fx-border-radius: 5;
-    -fx-background-color: #FF999999;
+    -fx-background-color: #ff999999;
     -fx-background-radius: 5px;
     -fx-text-fill: #771111FF;
     -fx-font-size: 12;
@@ -76,11 +76,11 @@
 }
 
 .message-more-label {
-    -fx-border-color: #FF9999BB;
+    -fx-border-color: #ff9999bb;
     -fx-border-radius: 5;
-    -fx-background-color: #FF999999;
+    -fx-background-color: #ff999999;
     -fx-background-radius: 5;
-    -fx-text-fill: #771111FF;
+    -fx-text-fill: #771111ff;
     -fx-font-size: 11;
     -fx-padding: 2 10 2 10;
     -fx-alignment: center;
@@ -107,8 +107,15 @@
 }
 
 .token {
-    -fx-fill: #ffED60CC;
-    -fx-stroke: #ffd700FF;
+    -fx-fill: #ffed60cc;
+    -fx-stroke: #ffd700ff;
+    -fx-stroke-width: 2;
+    -fx-stroke-type: outside;
+}
+
+.token:available {
+    -fx-fill: #ffffffcc;
+    -fx-stroke: #fff0f0ff;
     -fx-stroke-width: 2;
     -fx-stroke-type: outside;
 }

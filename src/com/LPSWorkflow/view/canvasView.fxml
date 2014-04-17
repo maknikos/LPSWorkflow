@@ -10,6 +10,7 @@
         <HBox>
             <Button text="Draw" onAction="#handleDrawAction"/>
             <ToggleButton fx:id="startToggleButton" styleClass="start-button" text="Start"/>
+            <Button text="Next" onAction="#handleNextAction" visible="${startToggleButton.selected}"/>
         </HBox>
     </bottom>
 </BorderPane>
