@@ -25,7 +25,6 @@ public class DomainTheoryController implements Initializable{
     public void initialize(URL url, ResourceBundle resourceBundle) {
         domainTheoryData = DomainTheoryData.getInstance();
         domainTheoryData.preconditionsProperty().addListener((Observable observable) -> {
-
             // add preconditions
             List<Precondition> preconditions = domainTheoryData.getPreconditions();
             String precondContent = "";

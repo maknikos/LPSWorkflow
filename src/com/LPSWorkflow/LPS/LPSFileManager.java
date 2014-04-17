@@ -4,8 +4,7 @@ import com.LPSWorkflow.antlr.LPSLexer;
 import com.LPSWorkflow.antlr.LPSLoader;
 import com.LPSWorkflow.antlr.LPSParser;
 import com.LPSWorkflow.model.abstractComponent.Entity;
-import com.LPSWorkflow.model.domainTheory.Postcondition;
-import com.LPSWorkflow.model.domainTheory.Precondition;
+import com.LPSWorkflow.model.domainTheory.DomainTheoryData;
 import com.LPSWorkflow.model.message.MessageData;
 import com.LPSWorkflow.model.message.MessageType;
 import javafx.beans.property.BooleanProperty;
@@ -27,9 +26,8 @@ import java.util.Map;
 public class LPSFileManager {
     private Map<String,Entity> rootMap;
     private List<String> fluents;
-    private List<Precondition> preconditions;
     private MessageData messageData;
-    private List<Postcondition> postconditions;
+    private DomainTheoryData domainTheoryData;
     private static LPSFileManager instance = null;
 
     public final static LPSFileManager getInstance() {
@@ -46,6 +44,7 @@ public class LPSFileManager {
     private LPSFileManager() {
         setIsFileOpen(false);
         messageData = MessageData.getInstance();
+        domainTheoryData = DomainTheoryData.getInstance();
     }
 
     public Map<String, Entity> getRootMap() {
@@ -95,8 +94,8 @@ public class LPSFileManager {
                     loader.getGoalRoots(), loader.getGoalConnections(), loader.getFluents());
             this.rootMap = structureBuilder.getReactiveRulesRootMap();
             this.fluents = loader.getFluents();
-            this.preconditions = loader.getPreconditions();
-            this.postconditions= loader.getPostconditions();
+            domainTheoryData.getPostconditions().addAll(loader.getPostconditions());
+            domainTheoryData.getPreconditions().addAll(loader.getPreconditions());
             setIsFileOpen(true);
         } catch(Exception e){
             messageData.sendMessage("Failed to read file: " + e.toString(), MessageType.ERROR);
