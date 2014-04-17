@@ -40,7 +40,8 @@ public class CanvasController implements Initializable {
     private Map<Node, Set<Arrow>> arrowsTo; // arrows (value) connected to the node (key) (used for merging multiple arrows)
     private boolean diagramDrawn;
     private HBox diagramLayer;
-    private Group executionLayer;
+    private Pane executionLayer;
+    private Pane layers;
     private ExecutionManager execManager;
 
     private double currentScale;
@@ -64,9 +65,18 @@ public class CanvasController implements Initializable {
         arrowsTo = new HashMap<>();
         diagramDrawn = false;
         diagramLayer = new HBox();
-        executionLayer = new Group();
-        contentPane.getChildren().addAll(diagramLayer, executionLayer);
+        executionLayer = new Pane();
+        layers = new Pane(diagramLayer, executionLayer);
+        contentPane.getChildren().addAll(layers);
         fileManager = LPSFileManager.getInstance();
+
+
+        // todo remove: colouring to see each bound
+        executionLayer.setStyle("-fx-background-color: yellow;");
+        diagramLayer.setStyle("-fx-background-color: blue;");
+        contentPane.setStyle("-fx-background-color: green;");
+
+
 
         clipViewingRegion();
         setLayerBindings();
@@ -87,8 +97,8 @@ public class CanvasController implements Initializable {
             double minX = contentPane.getLayoutBounds().getMinX();
             double maxY = contentPane.getLayoutBounds().getMaxY();
             double minY = contentPane.getLayoutBounds().getMinY();
-            double width = diagramLayer.getWidth();
-            double height = diagramLayer.getHeight();
+            double width = layers.getWidth();
+            double height = layers.getHeight();
 
             // limit scroll region
             if(translateX + addedValue > maxX){
@@ -126,14 +136,10 @@ public class CanvasController implements Initializable {
     }
 
     private void setLayerBindings() {
-        diagramLayer.translateXProperty().bind(translateXProperty);
-        diagramLayer.translateYProperty().bind(translateYProperty);
-        executionLayer.translateXProperty().bind(translateXProperty);
-        executionLayer.translateYProperty().bind(translateYProperty);
-        diagramLayer.scaleXProperty().bind(scaleProperty);
-        diagramLayer.scaleYProperty().bind(scaleProperty);
-        executionLayer.scaleXProperty().bind(scaleProperty);
-        executionLayer.scaleYProperty().bind(scaleProperty);
+        layers.translateXProperty().bind(translateXProperty);
+        layers.translateYProperty().bind(translateYProperty);
+        layers.scaleXProperty().bind(scaleProperty);
+        layers.scaleYProperty().bind(scaleProperty);
     }
 
     private void clipViewingRegion() {
@@ -158,17 +164,15 @@ public class CanvasController implements Initializable {
     }
 
     @FXML
-    private void handleNextAction(){ //TODO
+    private void handleNextAction(){
         if(diagramDrawn){
             executionLayer.getChildren().clear();
             List<Token> agents = execManager.getNextStep();
 
             for(Token agent : agents){
-                TokenShape circle = new TokenShape();
-
                 Node node = displayMap.get(agent.getCurrentEntity());
-                circle.setCenterX(node.getParent().getBoundsInParent().getMinX() + node.getBoundsInParent().getMaxX());
-                circle.setCenterY(node.getBoundsInParent().getMinY());
+                TokenShape circle = new TokenShape(node);
+
                 executionLayer.getChildren().add(circle);
             }
         } else {

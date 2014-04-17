@@ -19,49 +19,50 @@ public class ExecutionManager {
     private final Map<String, Entity> entityMap;
     private Database database;
     private List<Token> agents;
-    private LPSFileManager fileManager;
+    private int cycle;
 
     public ExecutionManager(Map<String, Entity> entityMap) {
+        // no need to initialise each time a file is opened, since a new one is created every time.
+        cycle = 0;
         this.entityMap = entityMap;
         database = Database.getInstance();
         agents = new ArrayList<>();
-        fileManager = LPSFileManager.getInstance();
-
-        // reset agent list if file re-opened
-        fileManager.isFileOpenProperty().addListener(observable -> agents.clear());
     }
 
     public List<Token> getNextStep(){
-        List<String> facts = Arrays.asList(database.getFacts().split(" "));
-        List<Token> toBeRemoved = new ArrayList<>();
+        List<String> facts = getFactStrings();
 
-        // for each agent in the list, proceed to the next step
-        for(Token agent : agents){
-            Entity curr = agent.getCurrentEntity();
-            if(holds(curr, facts)){
-                agent.setCurrentEntity(curr.getNext());
-                agent.increment();
-            }
-
-            // if next is null, remove from the list
-            if(agent.getCurrentEntity() == null){
-                toBeRemoved.add(agent);
-            }
-        }
-
-        agents.removeAll(toBeRemoved);
-
-        if(agents.isEmpty()){
-            for(Entity root : entityMap.values()){
-                if(holds(root, facts)){
-                    agents.add(new Token(entityMap.get(root)));
-                    break;
-                }
-            }
-        }
+        spawnNewTokens();
+//        List<Token> toBeRemoved = new ArrayList<>();
+//        // for each agent in the list, proceed to the next step
+//        for(Token agent : agents){
+//            Entity curr = agent.getCurrentEntity();
+//            if(holds(curr, facts)){
+//                agent.setCurrentEntity(curr.getNext());
+//                agent.increment();
+//            }
+//
+//            // if next is null, remove from the list
+//            if(agent.getCurrentEntity() == null){
+//                toBeRemoved.add(agent);
+//            }
+//        }
+//
+//        agents.removeAll(toBeRemoved);
+//
 
         return agents;
-        //TODO deal with multiChildNodes
+    }
+
+    private List<String> getFactStrings() {
+        return Arrays.asList(database.getFacts().split(" "));
+    }
+
+    // spawn tokens at the top of each reactive rule
+    private void spawnNewTokens() {
+        for(Entity root : entityMap.values()){
+            agents.add(new Token(root));
+        }
     }
 
     private boolean holds(Entity root, List<String> facts) {

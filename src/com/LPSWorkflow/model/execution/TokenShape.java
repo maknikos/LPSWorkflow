@@ -1,13 +1,17 @@
 package com.LPSWorkflow.model.execution;
 
+import com.LPSWorkflow.model.visualComponent.Node;
 import javafx.scene.shape.Circle;
 
 /**
  * Visual component of an execution agent
  */
 public class TokenShape extends Circle {
-    public TokenShape() {
+    public TokenShape(Node node) {
         super(10);
+        double minX = node.getParent().getBoundsInParent().getMinX() - node.getParent().getLayoutBounds().getMinX();
+        this.setCenterX(minX + node.getWidth()/2);
+        this.setCenterY(node.getBoundsInParent().getMinY());
         this.getStyleClass().add("token");
     }
 }
