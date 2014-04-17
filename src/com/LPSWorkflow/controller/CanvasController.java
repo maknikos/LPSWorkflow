@@ -99,8 +99,7 @@ public class CanvasController implements Initializable {
                     }
 
                     // change status of candidateTokens
-                    execManager.getCandidateTokens().forEach(t ->
-                            tokenDisplayMap.get(t).pseudoClassStateChanged(PseudoClass.getPseudoClass("available"), true));
+                    execManager.getCandidateTokens().forEach(t -> highlight(t, true));
                     setDisplayMode(DisplayMode.EXECUTION);
                 } else {
                     messageData.sendMessage("No LPS program is drawn yet. Nothing to execute.", MessageType.ERROR);
@@ -240,17 +239,28 @@ public class CanvasController implements Initializable {
                 if(displayMode == DisplayMode.EXECUTION){
                     while(change.next()){
                         if(change.wasAdded()){
-                            change.getAddedSubList().forEach(t ->
-                                    tokenDisplayMap.get(t).pseudoClassStateChanged(PseudoClass.getPseudoClass("available"), true));
+                            change.getAddedSubList().forEach(t -> highlight(t, true));
                         } else if(change.wasRemoved()) {
-                            change.getRemoved().forEach(t ->
-                                    tokenDisplayMap.get(t).pseudoClassStateChanged(PseudoClass.getPseudoClass("available"), false));
+                            change.getRemoved().forEach(t -> highlight(t, false));
                         }
                     }
                 }
             });
         } else {
             execManager.reset(entityMap);
+        }
+    }
+
+    private void highlight(Token t, boolean b) {
+        if(t == null || t.getCurrentEntity() == null){
+            return;
+        }
+        TokenShape tokenShape = tokenDisplayMap.get(t);
+        Node node = entityDisplayMap.get(t.getCurrentEntity());
+
+        if (tokenShape != null && node != null) {
+            tokenShape.pseudoClassStateChanged(PseudoClass.getPseudoClass("available"), b);
+            node.pseudoClassStateChanged(PseudoClass.getPseudoClass("available"), b);
         }
     }
 
