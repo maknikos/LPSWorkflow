@@ -28,14 +28,6 @@ public class Token {
         this.currentEntity = currentEntity;
     }
 
-    public boolean isReady() {//TODo used?
-        return isReady;
-    }
-
-    public void setReady(boolean isReady) {
-        this.isReady = isReady;
-    }
-
     public int getTick() {
         return tick;
     }
@@ -47,7 +39,6 @@ public class Token {
     @Override
     public Token clone(){
         Token clone = new Token(currentEntity);
-        clone.setReady(isReady);
         clone.setTick(tick);
         return clone;
     }

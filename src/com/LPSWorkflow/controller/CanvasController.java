@@ -5,7 +5,6 @@ import com.LPSWorkflow.LPS.LPSFileManager;
 import com.LPSWorkflow.common.Constants;
 import com.LPSWorkflow.common.DisplayMode;
 import com.LPSWorkflow.common.EntityType;
-import com.LPSWorkflow.model.FileData;
 import com.LPSWorkflow.model.abstractComponent.Entity;
 import com.LPSWorkflow.model.abstractComponent.Fluent;
 import com.LPSWorkflow.model.abstractComponent.MultiChildEntity;
@@ -16,6 +15,7 @@ import com.LPSWorkflow.model.message.MessageType;
 import com.LPSWorkflow.model.visualComponent.*;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Group;
@@ -34,7 +34,6 @@ import java.util.*;
  */
 public class CanvasController implements Initializable {
     @FXML private ToggleButton startToggleButton;
-    private FileData fileData;
     private LPSFileManager fileManager;
     private MessageData messageData;
     private Map<Entity, Node> entityDisplayMap; // stores mappings from Entities to corresponding Nodes
@@ -59,12 +58,13 @@ public class CanvasController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        messageData = MessageData.getInstance();
+        fileManager = LPSFileManager.getInstance();
+
         currentScale = 1.0;
         scaleProperty = new SimpleDoubleProperty(1.0);
         translateXProperty = new SimpleDoubleProperty(0.0);
         translateYProperty = new SimpleDoubleProperty(0.0);
-        messageData = MessageData.getInstance();
-        fileData = FileData.getInstance();
         entityDisplayMap = new HashMap<>();
         tokenDisplayMap = new HashMap<>();
         arrowsFrom = new HashMap<>();
@@ -74,7 +74,6 @@ public class CanvasController implements Initializable {
         executionLayer = new Pane();
         layers = new Pane(diagramLayer, executionLayer);
         contentPane.getChildren().addAll(layers);
-        fileManager = LPSFileManager.getInstance();
         setDisplayMode(DisplayMode.VIEW);
 
         clipViewingRegion();
@@ -113,11 +112,13 @@ public class CanvasController implements Initializable {
             case VIEW:
                 displayMode = DisplayMode.VIEW;
                 startToggleButton.setText("Start");
+                startToggleButton.setSelected(false);
                 executionLayer.setVisible(false);
                 break;
             case EXECUTION:
                 displayMode = DisplayMode.EXECUTION;
                 startToggleButton.setText("Stop");
+                startToggleButton.setSelected(true);
                 executionLayer.setVisible(true);
                 break;
             default:
@@ -202,7 +203,7 @@ public class CanvasController implements Initializable {
 
     @FXML
     private void handleDrawAction() {
-        fileManager.openFile(fileData.getFilePath());
+        fileManager.openFile();
 
         //only draw when the file is open
         if(fileManager.isFileOpen()){
@@ -213,15 +214,41 @@ public class CanvasController implements Initializable {
         }
     }
 
-    private void initDraw(){
+    private void resetFields(){
+        currentScale = 1.0;
+        scaleProperty.set(1.0);
+        translateXProperty.set(0.0);
+        translateYProperty.set(0.0);
+        entityDisplayMap.clear();
+        tokenDisplayMap.clear();
+        arrowsFrom.clear();
+        arrowsTo.clear();
+        diagramDrawn = false;
         diagramLayer.getChildren().clear();
         executionLayer.getChildren().clear();
+        setDisplayMode(DisplayMode.VIEW);
+
         entityMap = fileManager.getRootMap();
-        execManager = new ExecutionManager(entityMap);
+        if(execManager == null){
+            execManager = new ExecutionManager(entityMap);
+            execManager.candidateTokensProperty().addListener((ListChangeListener.Change<? extends Token> change) -> {
+//            if(change.wasAdded()){
+                System.out.println(".....added......" + change.toString());
+//                change.getAddedSubList().forEach(t ->
+//                        tokenDisplayMap.get(t).pseudoClassStateChanged(PseudoClass.getPseudoClass("available"), true));
+//            } else if(change.wasRemoved()) {
+//                System.out.println(".....removed....." + change.toString());
+//                change.getRemoved().forEach(t ->
+//                        tokenDisplayMap.get(t).pseudoClassStateChanged(PseudoClass.getPseudoClass("available"), false));
+//            }
+            });
+        } else {
+            execManager.reset(entityMap);
+        }
     }
 
     private void drawProgram() {
-        initDraw();
+        resetFields();
 
         Group resultGroup;
         double initX = 0;

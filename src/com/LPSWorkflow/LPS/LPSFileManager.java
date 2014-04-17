@@ -3,6 +3,7 @@ package com.LPSWorkflow.LPS;
 import com.LPSWorkflow.antlr.LPSLexer;
 import com.LPSWorkflow.antlr.LPSLoader;
 import com.LPSWorkflow.antlr.LPSParser;
+import com.LPSWorkflow.model.FileData;
 import com.LPSWorkflow.model.abstractComponent.Entity;
 import com.LPSWorkflow.model.domainTheory.DomainTheoryData;
 import com.LPSWorkflow.model.message.MessageData;
@@ -28,6 +29,7 @@ public class LPSFileManager {
     private List<String> fluents;
     private MessageData messageData;
     private DomainTheoryData domainTheoryData;
+    private FileData fileData;
     private static LPSFileManager instance = null;
 
     public final static LPSFileManager getInstance() {
@@ -45,6 +47,7 @@ public class LPSFileManager {
         setIsFileOpen(false);
         messageData = MessageData.getInstance();
         domainTheoryData = DomainTheoryData.getInstance();
+        fileData = FileData.getInstance();
     }
 
     public Map<String, Entity> getRootMap() {
@@ -53,16 +56,17 @@ public class LPSFileManager {
 
     /**
      * Opens and parses the LPS program files.
-     * @param fileData The path of the file.
      */
-    public void openFile(String fileData) {
+    public void openFile() {
+        String filePath = fileData.getFilePath();
+
         setIsFileOpen(false);
         messageData.getMessageList().clear(); // reset the message list
         InputStream is;
         ANTLRInputStream input = null;
         try {
-            if (fileData != null) {
-                is = new FileInputStream(fileData);
+            if (filePath != null) {
+                is = new FileInputStream(filePath);
             } else {
                 return;
             }
@@ -72,7 +76,7 @@ public class LPSFileManager {
             e.printStackTrace();
         }
         if(input == null) {
-            messageData.sendMessage("Failed to read file '" + fileData + "'.", MessageType.ERROR);
+            messageData.sendMessage("Failed to read file '" + filePath + "'.", MessageType.ERROR);
             return;
         }
 
@@ -94,6 +98,7 @@ public class LPSFileManager {
                     loader.getGoalRoots(), loader.getGoalConnections(), loader.getFluents());
             this.rootMap = structureBuilder.getReactiveRulesRootMap();
             this.fluents = loader.getFluents();
+            domainTheoryData.init();
             domainTheoryData.getPostconditions().addAll(loader.getPostconditions());
             domainTheoryData.getPreconditions().addAll(loader.getPreconditions());
             setIsFileOpen(true);
@@ -104,14 +109,9 @@ public class LPSFileManager {
 
     }
 
-    public List<String> getFluents() {
-        return fluents;
-    }
-
     public boolean isFileOpen(){
         return isFileOpen.get();
     }
-
     private BooleanProperty isFileOpen = new SimpleBooleanProperty();
     public BooleanProperty isFileOpenProperty(){
         return isFileOpen;

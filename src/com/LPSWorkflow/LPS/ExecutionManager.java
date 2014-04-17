@@ -1,7 +1,5 @@
 package com.LPSWorkflow.LPS;
 
-import com.LPSWorkflow.common.EntityType;
-import com.LPSWorkflow.model.abstractComponent.Concurrent;
 import com.LPSWorkflow.model.abstractComponent.Entity;
 import com.LPSWorkflow.model.database.Database;
 import com.LPSWorkflow.model.execution.Token;
@@ -19,7 +17,7 @@ import java.util.stream.Collectors;
  * Class responsible for executing LPS programs
  */
 public class ExecutionManager {
-    private final Map<String, Entity> entityMap;
+    private Map<String, Entity> entityMap;
     private Database database;
     private int cycle;
     private List<Token> tokens;
@@ -35,7 +33,6 @@ public class ExecutionManager {
     }
 
     public ExecutionManager(Map<String, Entity> entityMap) {
-        // no need to initialise each time a file is opened, since a new one is created every time.
         cycle = 0;
         this.entityMap = entityMap;
         database = Database.getInstance();
@@ -49,8 +46,9 @@ public class ExecutionManager {
     }
 
     private void updateCandidateTokens(List<String> facts) {
-        getCandidateTokens().clear();
-        getCandidateTokens().addAll(tokens.stream().filter(t -> isCandidate(t, facts)).collect(Collectors.toList()));
+        getCandidateTokens().addAll(tokens.stream().filter(t -> isCandidate(t, facts) && !getCandidateTokens().contains(t))
+                .collect(Collectors.toList()));
+        getCandidateTokens().removeIf(t -> !isCandidate(t, facts));
     }
 
     private boolean isCandidate(Token t, List<String> facts) {
@@ -62,24 +60,8 @@ public class ExecutionManager {
         tokens.addAll(entityMap.values().stream().map(Token::new).collect(Collectors.toList()));
     }
 
-    private boolean holds(Entity root, List<String> facts) {
-        //TODO deal with other types of entities, too
-
-        EntityType type = root.getType();
-        switch (type){
-            case ACTION:
-            case FLUENT:
-                return facts.contains(root.getName());
-            case CONCURRENT:
-                List<Entity> entities = ((Concurrent) root).getEntities();
-                List<String> names = entities.stream().map(Entity::getName).collect(Collectors.toList());
-                return facts.containsAll(names);
-        }
-
-        return false;
-    }
-
     public void proceed(){
+        tokens.forEach(Token::increment);
         cycle++;
     }
 
@@ -89,5 +71,13 @@ public class ExecutionManager {
 
     public List<Token> getTokens() {
         return tokens;
+    }
+
+    public void reset(Map<String, Entity> entityMap){
+        cycle = 0;
+        this.entityMap = entityMap;
+        tokens = new ArrayList<>();
+
+        spawnNewTokens();
     }
 }

@@ -51,4 +51,9 @@ public class DomainTheoryData {
     public void setPostconditions(ObservableList<Postcondition> postconditions) {
         this.postconditions.set(postconditions);
     }
+
+    public void init() {
+        getPreconditions().clear();
+        getPostconditions().clear();
+    }
 }
