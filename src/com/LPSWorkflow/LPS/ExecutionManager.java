@@ -39,7 +39,7 @@ public class ExecutionManager {
         this.entityMap = entityMap;
         database = Database.getInstance();
         tokens = new ArrayList<>();
-
+        facts = Arrays.asList(database.getFacts().split(" "));
         spawnNewTokens();
 
         database.factsProperty().addListener((observableValue, oldStr, newStr) -> {
@@ -49,12 +49,12 @@ public class ExecutionManager {
     }
 
     private void updateCandidateTokens() {
-        getCandidateTokens().addAll(tokens.stream().filter(t -> isCandidate(t, facts) && !getCandidateTokens().contains(t))
+        getCandidateTokens().addAll(tokens.stream().filter(t -> isCandidate(t) && !getCandidateTokens().contains(t))
                 .collect(Collectors.toList()));
-        getCandidateTokens().removeIf(t -> !isCandidate(t, facts));
+        getCandidateTokens().removeIf(t -> !isCandidate(t));
     }
 
-    private boolean isCandidate(Token t, List<String> facts) {
+    private boolean isCandidate(Token t) {
         // all preconditions involving the token's entity must be satisfied. TODO
 
         Entity currentEntity = t.getCurrentEntity();
@@ -110,6 +110,6 @@ public class ExecutionManager {
         tokens.clear();
         getCandidateTokens().clear();
         spawnNewTokens();
-        //updateCandidateTokens();
+        updateCandidateTokens();
     }
 }
