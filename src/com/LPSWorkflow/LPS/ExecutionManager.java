@@ -24,15 +24,26 @@ public class ExecutionManager {
     private List<Token> tokens;
     private List<String> facts;
 
+
     /* Candidate tokens property */
-    private ListProperty<Token> candidateTokens = new SimpleListProperty<>(FXCollections.<Token>observableArrayList());
-    public ListProperty<Token> candidateTokensProperty(){
-        return candidateTokens;
+    private ListProperty<Entity> candidateEntities = new SimpleListProperty<>(FXCollections.<Entity>observableArrayList());
+    public ListProperty<Entity> candidateEntitiesProperty(){
+        return candidateEntities;
+    }
+    public final List<Entity> getCandidateEntities(){
+        return candidateEntities.get();
     }
 
-    public final List<Token> getCandidateTokens(){
-        return candidateTokens.get();
+
+    /* ToBeResolved property : entities that will be resolved in current cycle */
+    private ListProperty<Entity> toBeResolved = new SimpleListProperty<>(FXCollections.<Entity>observableArrayList());
+    public ListProperty<Entity> toBeResolvedProperty(){
+        return toBeResolved;
     }
+    public final List<Entity> getToBeResolved(){
+        return toBeResolved.get();
+    }
+
 
     public ExecutionManager(Map<String, Entity> entityMap) {
         cycle = 0;
@@ -45,30 +56,8 @@ public class ExecutionManager {
         database.factsProperty().addListener((observableValue, oldStr, newStr) -> {
             facts = Arrays.asList(newStr.split(" "));
             updateCandidateTokens();
+            updateToBeResolved();
         });
-    }
-
-    private void updateCandidateTokens() {
-        getCandidateTokens().addAll(tokens.stream().filter(t -> isCandidate(t) && !getCandidateTokens().contains(t))
-                .collect(Collectors.toList()));
-        getCandidateTokens().removeIf(t -> !isCandidate(t));
-    }
-
-    private boolean isCandidate(Token t) {
-        // all preconditions involving the token's entity must be satisfied. TODO
-
-        Entity currentEntity = t.getCurrentEntity();
-        if(currentEntity.getType() == EntityType.ACTION){
-
-        }
-        //TODO only actions are selected
-
-        return holds(t.getCurrentEntity());
-    }
-
-    // spawn tokens at the top of each reactive rule
-    private void spawnNewTokens() {
-        tokens.addAll(entityMap.values().stream().map(Token::new).collect(Collectors.toList()));
     }
 
     public void proceed(){
@@ -76,7 +65,43 @@ public class ExecutionManager {
         tokens.removeIf(t -> t.getCurrentEntity() == null); // get rid of finished tokens
         tokens.forEach(Token::increment);
         updateCandidateTokens();
+        updateToBeResolved();
         cycle++;
+    }
+
+    private void updateCandidateTokens() {
+        getCandidateEntities().addAll(tokens.stream().map(Token::getCurrentEntity)
+                .filter(e -> isCandidate(e) && !getCandidateEntities().contains(e)).collect(Collectors.toList()));
+        getCandidateEntities().removeIf(e -> !isCandidate(e));
+    }
+
+    private void updateToBeResolved() {
+        toBeResolved.clear();
+        // check if current token's entities hold
+        tokens.forEach(t -> {
+            Entity entity = t.getCurrentEntity();
+            if (holds(entity)) {
+                getToBeResolved().add(entity);
+                // if so, check their next entities ... repeat TODo
+            }
+        });
+    }
+
+    private boolean isCandidate(Entity e) {
+        // all preconditions involving the token's entity must be satisfied. TODO
+        // must be associated with a token
+
+        if(e.getType() == EntityType.ACTION){
+
+        }
+        //TODO only actions are selected
+
+        return tokens.stream().anyMatch(t -> t.getCurrentEntity().equals(e)) && holds(e);
+    }
+
+    // spawn tokens at the top of each reactive rule
+    private void spawnNewTokens() {
+        tokens.addAll(entityMap.values().stream().map(Token::new).collect(Collectors.toList()));
     }
 
     private void tryResolve(Token t) {
@@ -95,7 +120,7 @@ public class ExecutionManager {
             case PARTIAL_ORDER:
 
             case EXIT:
-                break;
+                break; //TODO
             default:
                 break;
         }
@@ -119,11 +144,17 @@ public class ExecutionManager {
     }
 
     public void reset(Map<String, Entity> entityMap){
-        cycle = 0;
         this.entityMap = entityMap;
-        tokens.clear();
-        getCandidateTokens().clear();
+        clear();
         spawnNewTokens();
         updateCandidateTokens();
+        updateToBeResolved();
+    }
+
+    public void clear(){
+        cycle = 0;
+        tokens.clear();
+        toBeResolved.clear();
+        candidateEntities.clear();
     }
 }

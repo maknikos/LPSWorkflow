@@ -100,14 +100,13 @@ public class CanvasController implements Initializable {
                     });
 
                     // change status of candidateTokens
-                    execManager.getCandidateTokens().forEach(t -> highlight(t, true));
                     setDisplayMode(DisplayMode.EXECUTION);
                 } else {
                     messageData.sendMessage("No LPS program is drawn yet. Nothing to execute.", MessageType.ERROR);
                     startToggleButton.setSelected(false);
                 }
             } else {
-                entityDisplayMap.values().forEach(node -> highlight(node, false));
+                execManager.clear();
                 setDisplayMode(DisplayMode.VIEW);
             }
         });
@@ -136,9 +135,6 @@ public class CanvasController implements Initializable {
     private void handleNextAction() {
         // TODO execute and update database
 
-        // reset state
-        tokenDisplayMap.keySet().forEach(t -> highlight(t, false));
-
         execManager.proceed();
 
         // update position and state of tokens
@@ -157,7 +153,6 @@ public class CanvasController implements Initializable {
                 tokenShape.setCurrentNode(node);
             }
         });
-        execManager.getCandidateTokens().forEach(t -> highlight(t, true));
     }
 
     private void setEventHandlers() {
@@ -256,14 +251,22 @@ public class CanvasController implements Initializable {
         entityMap = fileManager.getRootMap();
         if(execManager == null){
             execManager = new ExecutionManager(entityMap);
-            execManager.candidateTokensProperty().addListener((ListChangeListener.Change <? extends Token> change) -> {
-                if(displayMode == DisplayMode.EXECUTION){
-                    while(change.next()){
-                        if(change.wasAdded()){
-                            change.getAddedSubList().forEach(t -> highlight(t, true));
-                        } else if(change.wasRemoved()) {
-                            change.getRemoved().forEach(t -> highlight(t, false));
-                        }
+            execManager.candidateEntitiesProperty().addListener((ListChangeListener.Change <? extends Entity> change) -> {
+                while(change.next()){
+                    if(change.wasAdded()){
+                        change.getAddedSubList().forEach(e -> highlight(e, NodeState.AVAILABLE, true));
+                    } else if(change.wasRemoved()) {
+                        change.getRemoved().forEach(e -> highlight(e, NodeState.AVAILABLE, false));
+                    }
+                }
+            });
+
+            execManager.toBeResolvedProperty().addListener((ListChangeListener.Change <? extends Entity> change) -> {
+                while(change.next()){
+                    if(change.wasAdded()){
+                        change.getAddedSubList().forEach(e -> highlight(entityDisplayMap.get(e), NodeState.SELECTED, true));
+                    } else if(change.wasRemoved()) {
+                        change.getRemoved().forEach(e -> highlight(entityDisplayMap.get(e), NodeState.SELECTED, false));
                     }
                 }
             });
@@ -272,21 +275,35 @@ public class CanvasController implements Initializable {
         }
     }
 
-    private void highlight(Token t, boolean b) {
-        if(t == null || t.getCurrentEntity() == null){
+    private void highlight(Entity e, NodeState state, boolean b) {
+        if(e == null){
             return;
         }
-        TokenShape tokenShape = tokenDisplayMap.get(t);
-        Node node = entityDisplayMap.get(t.getCurrentEntity());
+        Node node = entityDisplayMap.get(e);
+        highlight(node, state, b);
+    }
 
-        if (tokenShape != null && node != null) {
-            tokenShape.pseudoClassStateChanged(PseudoClass.getPseudoClass("available"), b);
-            node.pseudoClassStateChanged(PseudoClass.getPseudoClass("available"), b);
+    private void highlight(Node node, NodeState state, boolean b) {
+        PseudoClass pseudoClass = getPseudoClass(state);
+        if (pseudoClass != null && node != null) {
+            node.pseudoClassStateChanged(pseudoClass, b);
         }
     }
 
-    private void highlight(Node node, boolean b) {
-        node.pseudoClassStateChanged(PseudoClass.getPseudoClass("available"), b);
+    private PseudoClass getPseudoClass(NodeState state) {
+        PseudoClass pseudoClass;
+        switch (state){
+            case AVAILABLE:
+                pseudoClass = PseudoClass.getPseudoClass("available");
+                break;
+            case SELECTED:
+                pseudoClass = PseudoClass.getPseudoClass("selected");
+                break;
+            default:
+                pseudoClass = null;
+                break;
+        }
+        return pseudoClass;
     }
 
     private void drawProgram() {

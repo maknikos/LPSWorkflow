@@ -6,6 +6,10 @@
     -fx-background-color: blue;
 }
 
+.lps-node:selected {
+    -fx-background-color: green;
+}
+
 .lps-node-text {
     -fx-font-size: 25;
     -fx-alignment: center;
