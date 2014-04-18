@@ -1,5 +1,6 @@
 package com.LPSWorkflow.LPS;
 
+import com.LPSWorkflow.common.EntityType;
 import com.LPSWorkflow.model.abstractComponent.Entity;
 import com.LPSWorkflow.model.database.Database;
 import com.LPSWorkflow.model.execution.Token;
@@ -52,6 +53,14 @@ public class ExecutionManager {
     }
 
     private boolean isCandidate(Token t, List<String> facts) {
+        // all preconditions involving the token's entity must be satisfied. TODO
+
+        Entity currentEntity = t.getCurrentEntity();
+        if(currentEntity.getType() == EntityType.ACTION){
+
+        }
+        //TODO only actions are selected
+
         return facts.contains(t.getCurrentEntity().getName());
     }
 
@@ -61,6 +70,11 @@ public class ExecutionManager {
     }
 
     public void proceed(){
+        tokens.forEach(t -> {
+            t.setCurrentEntity(t.getCurrentEntity().getNext());
+        });
+
+        tokens.removeIf(t -> t.getCurrentEntity() == null);
         tokens.forEach(Token::increment);
         cycle++;
     }

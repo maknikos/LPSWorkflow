@@ -89,14 +89,15 @@ public class CanvasController implements Initializable {
                 // start button pressed
                 if(diagramDrawn){
                     executionLayer.getChildren().clear();
-                    List<Token> tokens = execManager.getTokens();
+                    tokenDisplayMap.clear();
 
-                    for(Token token : tokens){
+                    execManager.reset(entityMap);
+                    execManager.getTokens().forEach(token -> {
                         Node node = entityDisplayMap.get(token.getCurrentEntity());
                         TokenShape tokenShape = new TokenShape(node);
                         tokenDisplayMap.put(token, tokenShape);
                         executionLayer.getChildren().add(tokenShape);
-                    }
+                    });
 
                     // change status of candidateTokens
                     execManager.getCandidateTokens().forEach(t -> highlight(t, true));
@@ -133,10 +134,22 @@ public class CanvasController implements Initializable {
     @FXML
     private void handleNextAction() {
         // TODO execute and update database
+        execManager.proceed();
+        List<Token> tokens = execManager.getTokens();
+        tokenDisplayMap.keySet().removeIf(t -> !tokens.contains(t));
+        executionLayer.getChildren().removeIf(c -> !tokenDisplayMap.values().contains(c));
 
-        //TODO
-
-        //TODO
+        tokens.forEach(token -> {
+            TokenShape tokenShape = tokenDisplayMap.get(token);
+            Node node = entityDisplayMap.get(token.getCurrentEntity());
+            if(tokenShape == null){
+                tokenShape = new TokenShape(node);
+                tokenDisplayMap.put(token, tokenShape);
+                executionLayer.getChildren().add(tokenShape);
+            } else {
+                tokenShape.setCurrentNode(node);
+            }
+        });
     }
 
     private void setEventHandlers() {
