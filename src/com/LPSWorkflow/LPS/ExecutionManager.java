@@ -63,7 +63,7 @@ public class ExecutionManager {
         }
         //TODO only actions are selected
 
-        return facts.contains(t.getCurrentEntity().getName());
+        return holds(t.getCurrentEntity());
     }
 
     // spawn tokens at the top of each reactive rule
@@ -72,7 +72,7 @@ public class ExecutionManager {
     }
 
     public void proceed(){
-        tokens.forEach(t -> t.setCurrentEntity(t.getCurrentEntity().getNext()));
+        tokens.forEach(this::tryResolve);
         tokens.removeIf(t -> t.getCurrentEntity() == null); // get rid of finished tokens
         tokens.forEach(Token::increment);
         updateCandidateTokens();
@@ -80,20 +80,34 @@ public class ExecutionManager {
     }
 
     private void tryResolve(Token t) {
-        t.setCurrentEntity(t.getCurrentEntity().getNext());
-//        switch(t.getCurrentEntity().getType()){
-//            case FLUENT:
-//                break;
-//            case ACTION:
-//            case AND:
-//            case EXIT:
-//            case PARTIAL_ORDER:
-//            case OR:
-//            case CONCURRENT:
-//                break;
-//            default:
-//                break;
-//        }
+        Entity currentEntity = t.getCurrentEntity();
+        switch(currentEntity.getType()){
+            case FLUENT:
+                if(holds(currentEntity)){
+                    t.setCurrentEntity(currentEntity.getNext());
+                }
+                break;
+            case CONCURRENT:
+            case ACTION:
+
+            case AND:
+            case OR:
+            case PARTIAL_ORDER:
+
+            case EXIT:
+                break;
+            default:
+                break;
+        }
+    }
+
+    private boolean holds(Entity currentEntity) {
+        String name = currentEntity.getName();
+        if(name.contains(":")){
+            return facts.containsAll(Arrays.asList(name.split(":")));
+        } else {
+            return facts.contains(name);
+        }
     }
 
     public int getCycle(){
