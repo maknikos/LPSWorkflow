@@ -22,6 +22,7 @@ public class ExecutionManager {
     private Database database;
     private int cycle;
     private List<Token> tokens;
+    private List<String> facts;
 
     /* Candidate tokens property */
     private ListProperty<Token> candidateTokens = new SimpleListProperty<>(FXCollections.<Token>observableArrayList());
@@ -42,11 +43,12 @@ public class ExecutionManager {
         spawnNewTokens();
 
         database.factsProperty().addListener((observableValue, oldStr, newStr) -> {
-            updateCandidateTokens(Arrays.asList(newStr.split(" ")));
+            facts = Arrays.asList(newStr.split(" "));
+            updateCandidateTokens();
         });
     }
 
-    private void updateCandidateTokens(List<String> facts) {
+    private void updateCandidateTokens() {
         getCandidateTokens().addAll(tokens.stream().filter(t -> isCandidate(t, facts) && !getCandidateTokens().contains(t))
                 .collect(Collectors.toList()));
         getCandidateTokens().removeIf(t -> !isCandidate(t, facts));
@@ -70,13 +72,28 @@ public class ExecutionManager {
     }
 
     public void proceed(){
-        tokens.forEach(t -> {
-            t.setCurrentEntity(t.getCurrentEntity().getNext());
-        });
-
-        tokens.removeIf(t -> t.getCurrentEntity() == null);
+        tokens.forEach(t -> t.setCurrentEntity(t.getCurrentEntity().getNext()));
+        tokens.removeIf(t -> t.getCurrentEntity() == null); // get rid of finished tokens
         tokens.forEach(Token::increment);
+        updateCandidateTokens();
         cycle++;
+    }
+
+    private void tryResolve(Token t) {
+        t.setCurrentEntity(t.getCurrentEntity().getNext());
+//        switch(t.getCurrentEntity().getType()){
+//            case FLUENT:
+//                break;
+//            case ACTION:
+//            case AND:
+//            case EXIT:
+//            case PARTIAL_ORDER:
+//            case OR:
+//            case CONCURRENT:
+//                break;
+//            default:
+//                break;
+//        }
     }
 
     public int getCycle(){
@@ -90,8 +107,9 @@ public class ExecutionManager {
     public void reset(Map<String, Entity> entityMap){
         cycle = 0;
         this.entityMap = entityMap;
-        tokens = new ArrayList<>();
-
+        tokens.clear();
+        getCandidateTokens().clear();
         spawnNewTokens();
+        //updateCandidateTokens();
     }
 }

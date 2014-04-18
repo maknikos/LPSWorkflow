@@ -107,6 +107,7 @@ public class CanvasController implements Initializable {
                     startToggleButton.setSelected(false);
                 }
             } else {
+                entityDisplayMap.values().forEach(node -> highlight(node, false));
                 setDisplayMode(DisplayMode.VIEW);
             }
         });
@@ -134,7 +135,13 @@ public class CanvasController implements Initializable {
     @FXML
     private void handleNextAction() {
         // TODO execute and update database
+
+        // reset state
+        tokenDisplayMap.keySet().forEach(t -> highlight(t, false));
+
         execManager.proceed();
+
+        // update position and state of tokens
         List<Token> tokens = execManager.getTokens();
         tokenDisplayMap.keySet().removeIf(t -> !tokens.contains(t));
         executionLayer.getChildren().removeIf(c -> !tokenDisplayMap.values().contains(c));
@@ -150,6 +157,7 @@ public class CanvasController implements Initializable {
                 tokenShape.setCurrentNode(node);
             }
         });
+        execManager.getCandidateTokens().forEach(t -> highlight(t, true));
     }
 
     private void setEventHandlers() {
@@ -275,6 +283,10 @@ public class CanvasController implements Initializable {
             tokenShape.pseudoClassStateChanged(PseudoClass.getPseudoClass("available"), b);
             node.pseudoClassStateChanged(PseudoClass.getPseudoClass("available"), b);
         }
+    }
+
+    private void highlight(Node node, boolean b) {
+        node.pseudoClassStateChanged(PseudoClass.getPseudoClass("available"), b);
     }
 
     private void drawProgram() {
