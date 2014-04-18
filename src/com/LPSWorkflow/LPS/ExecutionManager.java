@@ -79,12 +79,24 @@ public class ExecutionManager {
         toBeResolved.clear();
         // check if current token's entities hold
         tokens.forEach(t -> {
-            Entity entity = t.getCurrentEntity();
-            if (holds(entity)) {
-                getToBeResolved().add(entity);
-                // if so, check their next entities ... repeat TODo
+            Entity current = t.getCurrentEntity();
+            while (holds(current)) {
+                getToBeResolved().add(current);
+                current = current.getNext();
             }
         });
+    }
+
+    private boolean holds(Entity currentEntity) {
+        if(currentEntity == null){
+            return false;
+        }
+        String name = currentEntity.getName();
+        if(name.contains(":")){
+            return facts.containsAll(Arrays.asList(name.split(":")));
+        } else {
+            return facts.contains(name);
+        }
     }
 
     private boolean isCandidate(Entity e) {
@@ -105,11 +117,13 @@ public class ExecutionManager {
     }
 
     private void tryResolve(Token t) {
-        Entity currentEntity = t.getCurrentEntity();
-        switch(currentEntity.getType()){
+        Entity current = t.getCurrentEntity();
+        switch(current.getType()){
             case FLUENT:
-                if(holds(currentEntity)){
-                    t.setCurrentEntity(currentEntity.getNext());
+                while(holds(current)){
+                    Entity next = current.getNext();
+                    t.setCurrentEntity(next);
+                    current = next;
                 }
                 break;
             case CONCURRENT:
@@ -123,15 +137,6 @@ public class ExecutionManager {
                 break; //TODO
             default:
                 break;
-        }
-    }
-
-    private boolean holds(Entity currentEntity) {
-        String name = currentEntity.getName();
-        if(name.contains(":")){
-            return facts.containsAll(Arrays.asList(name.split(":")));
-        } else {
-            return facts.contains(name);
         }
     }
 
