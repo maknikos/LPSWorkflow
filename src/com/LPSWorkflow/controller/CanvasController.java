@@ -87,6 +87,7 @@ public class CanvasController implements Initializable {
         startToggleButton.selectedProperty().addListener((observableValue, oldBool, buttonPressed) -> {
             if(buttonPressed){
                 // start button pressed
+                setDisplayMode(DisplayMode.EXECUTION);
                 if(diagramDrawn){
                     executionLayer.getChildren().clear();
                     tokenDisplayMap.clear();
@@ -100,7 +101,6 @@ public class CanvasController implements Initializable {
                     });
 
                     // change status of candidateTokens
-                    setDisplayMode(DisplayMode.EXECUTION);
                 } else {
                     messageData.sendMessage("No LPS program is drawn yet. Nothing to execute.", MessageType.ERROR);
                     startToggleButton.setSelected(false);
@@ -253,7 +253,7 @@ public class CanvasController implements Initializable {
             execManager = new ExecutionManager(entityMap);
             execManager.candidateEntitiesProperty().addListener((ListChangeListener.Change <? extends Entity> change) -> {
                 while(change.next()){
-                    if(change.wasAdded()){
+                    if(change.wasAdded() && displayMode == DisplayMode.EXECUTION){
                         change.getAddedSubList().forEach(e -> highlight(e, NodeState.AVAILABLE, true));
                     } else if(change.wasRemoved()) {
                         change.getRemoved().forEach(e -> highlight(e, NodeState.AVAILABLE, false));
@@ -263,7 +263,7 @@ public class CanvasController implements Initializable {
 
             execManager.toBeResolvedProperty().addListener((ListChangeListener.Change <? extends Entity> change) -> {
                 while(change.next()){
-                    if(change.wasAdded()){
+                    if(change.wasAdded() && displayMode == DisplayMode.EXECUTION){
                         change.getAddedSubList().forEach(e -> highlight(entityDisplayMap.get(e), NodeState.SELECTED, true));
                     } else if(change.wasRemoved()) {
                         change.getRemoved().forEach(e -> highlight(entityDisplayMap.get(e), NodeState.SELECTED, false));

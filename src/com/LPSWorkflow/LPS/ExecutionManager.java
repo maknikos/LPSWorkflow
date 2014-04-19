@@ -3,6 +3,7 @@ package com.LPSWorkflow.LPS;
 import com.LPSWorkflow.common.EntityType;
 import com.LPSWorkflow.model.abstractComponent.Entity;
 import com.LPSWorkflow.model.abstractComponent.Fluent;
+import com.LPSWorkflow.model.abstractComponent.PartialOrder;
 import com.LPSWorkflow.model.database.Database;
 import com.LPSWorkflow.model.execution.Token;
 import javafx.beans.property.ListProperty;
@@ -82,10 +83,10 @@ public class ExecutionManager {
 
             Entity current = t.getCurrentEntity();
             while(current != null){
+                resolveMap.put(t, current);
                 switch(current.getType()){
                     case FLUENT:
                         Fluent currentFluent = (Fluent) current;
-                        resolveMap.put(t, current);
                         if(holds(current) && current.getNext() != null){
                             toBeResolved.add(current);
                             current = current.getNext();
@@ -94,23 +95,32 @@ public class ExecutionManager {
                             current = currentFluent.getFalseNext();
                         } else {
                             current = null;
-                            break;
                         }
                         //TODO push while-loop out to loop through switch-case
+                        break;
+                    case CONCURRENT:
+                        //TODO check if all involved fluents hold
+                        if(holds(current)){
+                            toBeResolved.add(current);
+                            current = current.getNext();
+                        } else {
+                            current = null;
+                        }
+                        break;
+                    case PARTIAL_ORDER:
+                        //TODO clone token ... should wait at the end of the path until all paths finish
+                        Token tClone = t.clone();
+                        List<Entity> nextEntities = ((PartialOrder) current).getNextEntities();
+                        toBeResolved.add(current);
+                        current = nextEntities.get(0);
                         break;
                     case OR:
                         //TODO clone token ... if one path finishes, remove the other.
                     case ACTION:
                         //TODO only if selected by user (later by strategy)
-                    case CONCURRENT:
-                        //TODO check if all involved fluents hold
                     case AND:
                         //TODO clone token
-                    case PARTIAL_ORDER:
-
-                        //TODO clone token ... should wait at the end of the path until all paths finish
                     case EXIT:
-                        resolveMap.put(t, current);
                         current = null;
                         break; //TODO change state of the token to indicate finish state?
                     default:

@@ -10,6 +10,7 @@ import java.util.List;
  */
 public class Concurrent extends Entity {
     //TODO currently only supports an Atom on either side of ':'
+    //TODO should this be multiChildEntity? or remove 'entities'?
     private List<Entity> entities;
 
     public Concurrent(String first, String second) {
