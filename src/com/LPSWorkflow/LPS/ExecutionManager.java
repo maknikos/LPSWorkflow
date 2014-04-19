@@ -3,7 +3,7 @@ package com.LPSWorkflow.LPS;
 import com.LPSWorkflow.common.EntityType;
 import com.LPSWorkflow.model.abstractComponent.Entity;
 import com.LPSWorkflow.model.abstractComponent.Fluent;
-import com.LPSWorkflow.model.abstractComponent.PartialOrder;
+import com.LPSWorkflow.model.abstractComponent.MultiChildEntity;
 import com.LPSWorkflow.model.database.Database;
 import com.LPSWorkflow.model.execution.Token;
 import javafx.beans.property.ListProperty;
@@ -24,6 +24,7 @@ public class ExecutionManager {
     private List<String> facts;
     private Map<Token, Entity> resolveMap; // stores the entity the token will point to in next cycle
     private Map<Token, List<Token>> tokenClones; // when branching out, clones are stored for each original token
+    private List<Token> addedTokens;
     private List<Token> finishedTokens;
 
     /* Candidate tokens property */
@@ -53,6 +54,7 @@ public class ExecutionManager {
         tokens = new ArrayList<>();
         resolveMap = new HashMap<>();
         tokenClones = new HashMap<>();
+        addedTokens = new ArrayList<>();
         finishedTokens = new ArrayList<>();
         facts = Arrays.asList(database.getFacts().split(" "));
         spawnNewTokens();
@@ -65,6 +67,7 @@ public class ExecutionManager {
     }
 
     public void proceed(){
+        tokens.addAll(addedTokens);
         tokens.removeAll(finishedTokens);
         tokenClones.values().forEach(tokens::addAll);
         tokens.forEach(this::tryResolve);
@@ -84,6 +87,7 @@ public class ExecutionManager {
     private void updateToBeResolved() {
         toBeResolved.clear();
         resolveMap.clear();
+        addedTokens.clear();
         finishedTokens.clear();
 
         // check if current token's entities hold
@@ -125,7 +129,6 @@ public class ExecutionManager {
                         //resolve clones first
                         clones.stream().filter(c -> !resolveMap.containsKey(c))
                                 .forEach(c -> updatePath(c, c.getCurrentEntity()));
-
                         if(clones.stream().allMatch(c -> resolveMap.get(c).getType() == EntityType.EXIT)){
                             // remove all cloned tokens and proceed
                             finishedTokens.addAll(clones);
@@ -138,7 +141,7 @@ public class ExecutionManager {
                         }
                     } else {
                         List<Token> clones = new ArrayList<>();
-                        List<Entity> nextEntities = ((PartialOrder) current).getNextEntities();
+                        List<Entity> nextEntities = ((MultiChildEntity) current).getNextEntities();
                         nextEntities.forEach(e -> {
                             Token clone = t.clone();
                             clones.add(clone);
@@ -155,7 +158,16 @@ public class ExecutionManager {
                         break;
                     }
                 case AND:
-                    //TODO clone token
+                    // clone token for all paths and proceed through them
+                    List<Entity> nextEntities = ((MultiChildEntity) current).getNextEntities();
+                    nextEntities.forEach(e -> {
+                        Token clone = t.clone();
+                        addedTokens.add(clone);
+                        updatePath(clone, e);
+                    });
+                    finishedTokens.add(t);
+                    current = null;
+                    break;
                 case OR:
                     //TODO clone token ... if one path finishes, remove the other.
                 case ACTION:
@@ -226,5 +238,6 @@ public class ExecutionManager {
         resolveMap.clear();
         tokenClones.clear();
         finishedTokens.clear();
+        addedTokens.clear();
     }
 }
