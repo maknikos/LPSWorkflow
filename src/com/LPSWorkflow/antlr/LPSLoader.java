@@ -1,9 +1,6 @@
 package com.LPSWorkflow.antlr;
 
-import com.LPSWorkflow.model.abstractComponent.Action;
-import com.LPSWorkflow.model.abstractComponent.Concurrent;
-import com.LPSWorkflow.model.abstractComponent.Entity;
-import com.LPSWorkflow.model.abstractComponent.PartialOrder;
+import com.LPSWorkflow.model.abstractComponent.*;
 import com.LPSWorkflow.model.domainTheory.Initiates;
 import com.LPSWorkflow.model.domainTheory.Postcondition;
 import com.LPSWorkflow.model.domainTheory.Precondition;
@@ -176,8 +173,13 @@ public class LPSLoader extends LPSBaseListener {
         String firstFormula = formulas.get(0).getText();
         String secondFormula = formulas.get(1).getText();
         List<Entity> entities = new ArrayList<>();
-        entities.add(new Action(firstFormula));
-        entities.add(new Action(secondFormula));
+
+        Action first = new Action(firstFormula);
+        Action second = new Action(secondFormula);
+        first.setNext(new Exit());
+        second.setNext(new Exit());
+        entities.add(first);
+        entities.add(second);
         PartialOrder partialOrder = new PartialOrder(entities);
 
         // Replace the PartialOrderContext with PartialOrder entity

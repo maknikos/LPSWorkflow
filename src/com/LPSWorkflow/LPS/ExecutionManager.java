@@ -23,7 +23,8 @@ public class ExecutionManager {
     private List<Token> tokens;
     private List<String> facts;
     private Map<Token, Entity> resolveMap; // stores the entity the token will point to in next cycle
-
+    private Map<Token, List<Token>> tokenClones; // when branching out, clones are stored for each original token
+    private List<Token> finishedTokens;
 
     /* Candidate tokens property */
     private ListProperty<Entity> candidateEntities = new SimpleListProperty<>(FXCollections.<Entity>observableArrayList());
@@ -51,6 +52,8 @@ public class ExecutionManager {
         database = Database.getInstance();
         tokens = new ArrayList<>();
         resolveMap = new HashMap<>();
+        tokenClones = new HashMap<>();
+        finishedTokens = new ArrayList<>();
         facts = Arrays.asList(database.getFacts().split(" "));
         spawnNewTokens();
 
@@ -62,6 +65,8 @@ public class ExecutionManager {
     }
 
     public void proceed(){
+        tokens.removeAll(finishedTokens);
+        tokenClones.values().forEach(tokens::addAll);
         tokens.forEach(this::tryResolve);
         tokens.removeIf(t -> t.getCurrentEntity() == null); // get rid of finished tokens
         tokens.forEach(Token::increment);
@@ -78,57 +83,91 @@ public class ExecutionManager {
 
     private void updateToBeResolved() {
         toBeResolved.clear();
+        resolveMap.clear();
+        finishedTokens.clear();
+
         // check if current token's entities hold
         tokens.forEach(t -> {
-
             Entity current = t.getCurrentEntity();
-            while(current != null){
-                resolveMap.put(t, current);
-                switch(current.getType()){
-                    case FLUENT:
-                        Fluent currentFluent = (Fluent) current;
-                        if(holds(current) && current.getNext() != null){
-                            toBeResolved.add(current);
-                            current = current.getNext();
-                        } else if (!holds(current) && currentFluent.getFalseNext() != null) {
-                            toBeResolved.add(current);
-                            current = currentFluent.getFalseNext();
-                        } else {
-                            current = null;
-                        }
-                        //TODO push while-loop out to loop through switch-case
-                        break;
-                    case CONCURRENT:
-                        //TODO check if all involved fluents hold
-                        if(holds(current)){
-                            toBeResolved.add(current);
-                            current = current.getNext();
-                        } else {
-                            current = null;
-                        }
-                        break;
-                    case PARTIAL_ORDER:
-                        //TODO clone token ... should wait at the end of the path until all paths finish
-                        Token tClone = t.clone();
-                        List<Entity> nextEntities = ((PartialOrder) current).getNextEntities();
-                        toBeResolved.add(current);
-                        current = nextEntities.get(0);
-                        break;
-                    case OR:
-                        //TODO clone token ... if one path finishes, remove the other.
-                    case ACTION:
-                        //TODO only if selected by user (later by strategy)
-                    case AND:
-                        //TODO clone token
-                    case EXIT:
-                        current = null;
-                        break; //TODO change state of the token to indicate finish state?
-                    default:
-                        break;
-                }
-
-            }
+            updatePath(t, current);
         });
+    }
+
+    private void updatePath(Token t, Entity current) {
+        while(current != null){
+            resolveMap.put(t, current);
+            switch(current.getType()){
+                case FLUENT:
+                    Fluent currentFluent = (Fluent) current;
+                    if(holds(current) && current.getNext() != null){
+                        toBeResolved.add(current);
+                        current = current.getNext();
+                    } else if (!holds(current) && currentFluent.getFalseNext() != null) {
+                        toBeResolved.add(current);
+                        current = currentFluent.getFalseNext();
+                    } else {
+                        current = null;
+                    }
+                    break;
+                case CONCURRENT:
+                    if(holds(current)){
+                        toBeResolved.add(current);
+                        current = current.getNext();
+                    } else {
+                        current = null;
+                    }
+                    break;
+                case PARTIAL_ORDER:
+                    toBeResolved.add(current);
+                    // if clones are already made and t is waiting for them, check their status
+                    if(tokenClones.containsKey(t)){
+                        List<Token> clones = tokenClones.get(t);
+
+                        //resolve clones first
+                        clones.stream().filter(c -> !resolveMap.containsKey(c))
+                                .forEach(c -> updatePath(c, c.getCurrentEntity()));
+
+                        if(clones.stream().allMatch(c -> resolveMap.get(c).getType() == EntityType.EXIT)){
+                            // remove all cloned tokens and proceed
+                            finishedTokens.addAll(clones);
+                            tokenClones.remove(t);
+                            current = current.getNext();
+                            break;
+                        } else {
+                            current = null;
+                            break;
+                        }
+                    } else {
+                        List<Token> newTokens = new ArrayList<>();
+                        List<Entity> nextEntities = ((PartialOrder) current).getNextEntities();
+                        nextEntities.forEach(e -> {
+                            Token tClone = t.clone();
+                            newTokens.add(tClone);
+                            updatePath(tClone, e);
+                        });
+
+                        // if all path finished, proceed with the PartialOrder entity's Next
+                        if(newTokens.stream().allMatch(nt -> resolveMap.get(nt).getType() == EntityType.EXIT)){
+                            current = current.getNext();
+                        } else {
+                            tokenClones.put(t, newTokens);
+                            current = null;
+                        }
+                        break;
+                    }
+                case AND:
+                    //TODO clone token
+                case OR:
+                    //TODO clone token ... if one path finishes, remove the other.
+                case ACTION:
+                    //TODO only if selected by user (later by strategy)
+                case EXIT:
+                    current = null;
+                    break; //TODO change state of the token to indicate finish state?
+                default:
+                    break;
+            }
+        }
     }
 
     private boolean holds(Entity currentEntity) {
@@ -186,5 +225,7 @@ public class ExecutionManager {
         toBeResolved.clear();
         candidateEntities.clear();
         resolveMap.clear();
+        tokenClones.clear();
+        finishedTokens.clear();
     }
 }
