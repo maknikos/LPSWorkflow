@@ -2,16 +2,14 @@ package com.LPSWorkflow.LPS;
 
 import com.LPSWorkflow.common.EntityType;
 import com.LPSWorkflow.model.abstractComponent.Entity;
+import com.LPSWorkflow.model.abstractComponent.Fluent;
 import com.LPSWorkflow.model.database.Database;
 import com.LPSWorkflow.model.execution.Token;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -23,6 +21,7 @@ public class ExecutionManager {
     private int cycle;
     private List<Token> tokens;
     private List<String> facts;
+    private Map<Token, Entity> resolveMap; // stores the entity the token will point to in next cycle
 
 
     /* Candidate tokens property */
@@ -50,6 +49,7 @@ public class ExecutionManager {
         this.entityMap = entityMap;
         database = Database.getInstance();
         tokens = new ArrayList<>();
+        resolveMap = new HashMap<>();
         facts = Arrays.asList(database.getFacts().split(" "));
         spawnNewTokens();
 
@@ -79,10 +79,44 @@ public class ExecutionManager {
         toBeResolved.clear();
         // check if current token's entities hold
         tokens.forEach(t -> {
+
             Entity current = t.getCurrentEntity();
-            while (holds(current)) {
-                getToBeResolved().add(current);
-                current = current.getNext();
+            while(current != null){
+                switch(current.getType()){
+                    case FLUENT:
+                        Fluent currentFluent = (Fluent) current;
+                        resolveMap.put(t, current);
+                        if(holds(current) && current.getNext() != null){
+                            toBeResolved.add(current);
+                            current = current.getNext();
+                        } else if (!holds(current) && currentFluent.getFalseNext() != null) {
+                            toBeResolved.add(current);
+                            current = currentFluent.getFalseNext();
+                        } else {
+                            current = null;
+                            break;
+                        }
+                        //TODO push while-loop out to loop through switch-case
+                        break;
+                    case OR:
+                        //TODO clone token ... if one path finishes, remove the other.
+                    case ACTION:
+                        //TODO only if selected by user (later by strategy)
+                    case CONCURRENT:
+                        //TODO check if all involved fluents hold
+                    case AND:
+                        //TODO clone token
+                    case PARTIAL_ORDER:
+
+                        //TODO clone token ... should wait at the end of the path until all paths finish
+                    case EXIT:
+                        resolveMap.put(t, current);
+                        current = null;
+                        break; //TODO change state of the token to indicate finish state?
+                    default:
+                        break;
+                }
+
             }
         });
     }
@@ -116,28 +150,8 @@ public class ExecutionManager {
         tokens.addAll(entityMap.values().stream().map(Token::new).collect(Collectors.toList()));
     }
 
-    private void tryResolve(Token t) {
-        Entity current = t.getCurrentEntity();
-        switch(current.getType()){
-            case FLUENT:
-                while(holds(current)){
-                    Entity next = current.getNext();
-                    t.setCurrentEntity(next);
-                    current = next;
-                }
-                break;
-            case CONCURRENT:
-            case ACTION:
-
-            case AND:
-            case OR:
-            case PARTIAL_ORDER:
-
-            case EXIT:
-                break; //TODO
-            default:
-                break;
-        }
+    private void tryResolve(Token token) { //TODO consider goalDef
+        token.setCurrentEntity(resolveMap.get(token));
     }
 
     public int getCycle(){
@@ -161,5 +175,6 @@ public class ExecutionManager {
         tokens.clear();
         toBeResolved.clear();
         candidateEntities.clear();
+        resolveMap.clear();
     }
 }
