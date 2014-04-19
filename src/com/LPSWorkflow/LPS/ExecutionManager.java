@@ -88,18 +88,19 @@ public class ExecutionManager {
 
         // check if current token's entities hold
         tokens.forEach(t -> {
-            Entity current = t.getCurrentEntity();
-            updatePath(t, current);
+            updatePath(t, t.getCurrentEntity());
         });
 
         toBeResolved.addAll(resolveMap.values());
     }
 
+    // pass through all resolvable entities for the token and record the last in the path.
     private void updatePath(Token t, Entity current) {
         while(current != null){
             resolveMap.put(t, current);
             switch(current.getType()){
                 case FLUENT:
+                    // for fluents, we need to take different paths depending on whether it holds or not
                     Fluent currentFluent = (Fluent) current;
                     if(holds(current) && current.getNext() != null){
                         current = current.getNext();
@@ -118,7 +119,7 @@ public class ExecutionManager {
                     break;
                 case PARTIAL_ORDER:
                     // if clones are already made and t is waiting for them, check their status
-                    if(tokenClones.containsKey(t)){
+                    if(tokenClones.containsKey(t) && tokens.containsAll(tokenClones.get(t))){
                         List<Token> clones = tokenClones.get(t);
 
                         //resolve clones first
@@ -136,19 +137,19 @@ public class ExecutionManager {
                             break;
                         }
                     } else {
-                        List<Token> newTokens = new ArrayList<>();
+                        List<Token> clones = new ArrayList<>();
                         List<Entity> nextEntities = ((PartialOrder) current).getNextEntities();
                         nextEntities.forEach(e -> {
-                            Token tClone = t.clone();
-                            newTokens.add(tClone);
-                            updatePath(tClone, e);
+                            Token clone = t.clone();
+                            clones.add(clone);
+                            updatePath(clone, e);
                         });
 
                         // if all path finished, proceed with the PartialOrder entity's Next
-                        if(newTokens.stream().allMatch(nt -> resolveMap.get(nt).getType() == EntityType.EXIT)){
+                        if(clones.stream().allMatch(nt -> resolveMap.get(nt).getType() == EntityType.EXIT)){
                             current = current.getNext();
                         } else {
-                            tokenClones.put(t, newTokens);
+                            tokenClones.put(t, clones);
                             current = null;
                         }
                         break;

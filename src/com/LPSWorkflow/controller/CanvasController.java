@@ -269,7 +269,7 @@ public class CanvasController implements Initializable {
                         change.getRemoved().forEach(e -> highlight(entityDisplayMap.get(e), NodeState.SELECTED, false));
                     }
                 }
-            });
+            }); //TODO only show when mouse-over on a particular token
         } else {
             execManager.reset(entityMap);
         }
