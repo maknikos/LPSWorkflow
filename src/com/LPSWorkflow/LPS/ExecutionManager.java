@@ -91,6 +91,8 @@ public class ExecutionManager {
             Entity current = t.getCurrentEntity();
             updatePath(t, current);
         });
+
+        toBeResolved.addAll(resolveMap.values());
     }
 
     private void updatePath(Token t, Entity current) {
@@ -100,10 +102,8 @@ public class ExecutionManager {
                 case FLUENT:
                     Fluent currentFluent = (Fluent) current;
                     if(holds(current) && current.getNext() != null){
-                        toBeResolved.add(current);
                         current = current.getNext();
                     } else if (!holds(current) && currentFluent.getFalseNext() != null) {
-                        toBeResolved.add(current);
                         current = currentFluent.getFalseNext();
                     } else {
                         current = null;
@@ -111,14 +111,12 @@ public class ExecutionManager {
                     break;
                 case CONCURRENT:
                     if(holds(current)){
-                        toBeResolved.add(current);
                         current = current.getNext();
                     } else {
                         current = null;
                     }
                     break;
                 case PARTIAL_ORDER:
-                    toBeResolved.add(current);
                     // if clones are already made and t is waiting for them, check their status
                     if(tokenClones.containsKey(t)){
                         List<Token> clones = tokenClones.get(t);
