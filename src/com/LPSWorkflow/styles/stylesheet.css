@@ -1,15 +1,17 @@
 .root {
-    node-fill: #333333;
+    node-fill: #303030;
     outline-color: #999999;
+    pane-background-color: #404040;
+    text-color: #d2d2d2;
 }
 
 .canvas {
-    -fx-background-color: #505050;
+    -fx-background-color: pane-background-color;
 }
 
 .lps-node {
     -fx-background-color: transparent;
-    -fx-effect: dropshadow(two-pass-box, #333333, 45, 0.2, 10, 7);
+    -fx-effect: dropshadow(two-pass-box, node-fill, 45, 0.2, 10, 7);
 }
 
 .lps-node:available {
@@ -53,9 +55,10 @@
 
 .exit-node-text {
     -fx-font-size: 12;
-    -fx-background-color: #6fbb6a55;
+    //-fx-background-color: #6fbb6a55;
+    -fx-background-color: #47c2d655;
     -fx-background-radius: 6;
-    -fx-border-color: #6fbb6aff;
+    -fx-border-color: #47c2d6ff;
     -fx-border-radius: 6;
     -fx-border-width: 4;
     -fx-pref-width: 25;
@@ -112,13 +115,13 @@
     -fx-stroke: outline-color;
     -fx-stroke-width: 3;
     -fx-stroke-dash-array: 8 6;
-    -fx-effect: dropshadow(two-pass-box, #333333, 25, 0.5, 10, 7);
+    -fx-effect: dropshadow(two-pass-box, node-fill, 25, 0.5, 10, 7);
 }
 
 .arrow {
     -fx-stroke-width: 3;
     -fx-stroke: outline-color;
-    -fx-effect: dropshadow(two-pass-box, #333333, 25, 0.5, 10, 7);
+    -fx-effect: dropshadow(two-pass-box, node-fill, 25, 0.5, 10, 7);
 }
 
 .arrow:false {
@@ -130,13 +133,15 @@
     -fx-font-size: 15;
     -fx-background-color: transparent;
     -fx-text-fill: #bbbbbb;
-    -fx-effect: dropshadow(two-pass-box, #111111, 4, 1, 0, 0);
+    -fx-effect: dropshadow(two-pass-box, pane-background-color, 4, 1, 0, 0);
     -fx-padding: 2;
 }
 
 .token {
-    -fx-fill: #eed8a4cc;
-    -fx-stroke: #eed8a4ff;
+    //-fx-fill: #efd37399;
+    -fx-fill: #ffb03199;
+    //-fx-stroke: #efd373ff;
+    -fx-stroke: #ffb031ff;
     -fx-stroke-width: 3;
     -fx-stroke-type: outside;
 }
@@ -148,23 +153,61 @@
     -fx-stroke-type: outside;
 }
 
-.pane-title {
-    -fx-font-size: 20;
+.button,
+.toggle-button {
+    -fx-base: #505050;
 }
 
-.db-area {
+.split-pane {
+    -fx-background-color: derive(pane-background-color, 8%);
+}
+
+.split-pane:horizontal .split-pane-divider {
+    -fx-pref-width: 3;
+    -fx-background-color: derive(pane-background-color, -26%);
+    -fx-border-color: derive(pane-background-color, 15%);
+    -fx-border-width: 0 1 0 0;
+}
+.split-pane:vertical .split-pane-divider {
+    -fx-pref-width: 3;
+    -fx-background-color: derive(pane-background-color, -26%);
+    -fx-border-color: derive(pane-background-color, 25%);
+    -fx-border-width: 0 0 1 0;
+}
+
+.pane-title {
+    -fx-text-fill: text-color;
+    -fx-font-size: 20;
+    -fx-padding: 5;
+    -fx-effect: dropshadow(gaussian, node-fill, 5, 0.5, 0, 0);
+}
+
+.text-area {
+    -fx-background-color: pane-background-color;
+    -fx-background-radius: 0;
     -fx-font-size: 15;
+    -fx-text-fill: text-color;
+    -fx-effect: dropshadow(gaussian, node-fill, 5, 0.5, 0, 0);
+}
+
+.text-area .content {
+    -fx-background-radius: 0;
+    -fx-background-color: pane-background-color;
 }
 
 .domain-theory-label{
+    -fx-text-fill: text-color;
     -fx-border-radius: 3;
-    -fx-border-color: black;
-    -fx-padding: 2;
+    -fx-border-color: white;
+    -fx-padding: 5;
+    -fx-margin: 5;
+    -fx-effect: dropshadow(gaussian, node-fill, 5, 0.5, 0, 0);
 }
 
 .domain-theory {
-    -fx-font-size: 15;
-    -fx-alignment: top-left;
+    -fx-text-fill: text-color;
     -fx-text-alignment: left;
+    -fx-alignment: top-left;
+    -fx-font-size: 15;
     -fx-padding: 5;
 }

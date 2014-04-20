@@ -106,7 +106,9 @@ public class CanvasController implements Initializable {
                     startToggleButton.setSelected(false);
                 }
             } else {
-                execManager.clear();
+                if(execManager != null){
+                    execManager.clear();
+                }
                 setDisplayMode(DisplayMode.VIEW);
             }
         });
