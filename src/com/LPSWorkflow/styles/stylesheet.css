@@ -1,16 +1,28 @@
+.root {
+    node-fill: #333333;
+    outline-color: #999999;
+}
+
+.canvas {
+    -fx-background-color: #505050;
+}
+
 .lps-node {
-    -fx-background-color: white;
+    -fx-background-color: transparent;
+    -fx-effect: dropshadow(two-pass-box, #333333, 45, 0.2, 10, 7);
 }
 
 .lps-node:available {
-    -fx-background-color: blue;
+    //-fx-background-color: blue;
 }
 
 .lps-node:selected {
-    -fx-background-color: green;
+    -fx-stroke: white;
+    -fx-effect: dropshadow(two-pass-box, #a4d3ee70, 45, 0.2, 10, 7);
 }
 
 .lps-node-text {
+    -fx-text-fill: white;
     -fx-font-size: 25;
     -fx-alignment: center;
 }
@@ -24,13 +36,15 @@
 }
 
 .multiChildNode-border {
-    -fx-stroke: black;
-    -fx-fill: white;
+    -fx-stroke: outline-color;
+    -fx-stroke-width: 2;
+    -fx-fill: node-fill;
 }
 
 .fluent-diamond {
-    -fx-fill: white;
-    -fx-stroke: black;
+    -fx-fill: node-fill;
+    -fx-stroke: outline-color;
+    -fx-stroke-width: 3;
 }
 
 .exit-node {
@@ -39,9 +53,9 @@
 
 .exit-node-text {
     -fx-font-size: 12;
-    -fx-background-color: #33993355;
+    -fx-background-color: #6fbb6a55;
     -fx-background-radius: 6;
-    -fx-border-color: #339933ff;
+    -fx-border-color: #6fbb6aff;
     -fx-border-radius: 6;
     -fx-border-width: 4;
     -fx-pref-width: 25;
@@ -95,29 +109,35 @@
 }
 
 .reactive-arrow {
+    -fx-stroke: outline-color;
     -fx-stroke-width: 3;
     -fx-stroke-dash-array: 8 6;
+    -fx-effect: dropshadow(two-pass-box, #333333, 25, 0.5, 10, 7);
 }
 
 .arrow {
-    -fx-stroke-width: 2;
-    -fx-stroke: black;
+    -fx-stroke-width: 3;
+    -fx-stroke: outline-color;
+    -fx-effect: dropshadow(two-pass-box, #333333, 25, 0.5, 10, 7);
 }
 
 .arrow:false {
-    -fx-stroke-width: 2;
-    -fx-stroke: red;
+    -fx-stroke-width: 3;
+    -fx-stroke: #dd4444;
 }
 
 .arrow-label {
-    -fx-background-color: white;
+    -fx-font-size: 15;
+    -fx-background-color: transparent;
+    -fx-text-fill: #bbbbbb;
+    -fx-effect: dropshadow(two-pass-box, #111111, 4, 1, 0, 0);
     -fx-padding: 2;
 }
 
 .token {
-    -fx-fill: #ffed60cc;
-    -fx-stroke: #ffd700ff;
-    -fx-stroke-width: 2;
+    -fx-fill: #eed8a4cc;
+    -fx-stroke: #eed8a4ff;
+    -fx-stroke-width: 3;
     -fx-stroke-type: outside;
 }
 

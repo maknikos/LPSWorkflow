@@ -4,7 +4,7 @@
 <BorderPane fx:controller="com.LPSWorkflow.controller.CanvasController"
           xmlns:fx="http://javafx.com/fxml">
     <center>
-        <Pane fx:id="contentPane" prefHeight="500"/>
+        <Pane fx:id="contentPane" prefHeight="500" styleClass="canvas"/>
     </center>
     <bottom>
         <HBox>
