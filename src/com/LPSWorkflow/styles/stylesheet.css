@@ -138,10 +138,8 @@
 }
 
 .token {
-    //-fx-fill: #efd37399;
-    -fx-fill: #ffb03199;
-    //-fx-stroke: #efd373ff;
-    -fx-stroke: #ffb031ff;
+    -fx-fill: #efd37399;
+    -fx-stroke: #efd373ff;
     -fx-stroke-width: 3;
     -fx-stroke-type: outside;
 }
@@ -210,4 +208,8 @@
     -fx-alignment: top-left;
     -fx-font-size: 15;
     -fx-padding: 5;
+}
+
+.custom-title-bar {
+    -fx-background-color: black;
 }

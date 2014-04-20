@@ -1,11 +1,7 @@
-<?import javafx.scene.control.Menu?>
-<?import javafx.scene.control.MenuBar?>
-<?import javafx.scene.control.MenuItem?>
-
-<MenuBar fx:controller="com.LPSWorkflow.controller.MenuController"
-         xmlns:fx="http://javafx.com/fxml">
-    <Menu text="File">
-        <MenuItem text="Open" onAction="#handleOpen"/>
-        <MenuItem text="Quit" onAction="#handleQuit"/>
-    </Menu>
-</MenuBar>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.HBox?>
+<HBox fx:controller="com.LPSWorkflow.controller.MenuController"
+      xmlns:fx="http://javafx.com/fxml" styleClass="custom-title-bar"
+        fx:id="titleBar">
+    <Button text="Open" onAction="#handleOpen"/>
+</HBox>

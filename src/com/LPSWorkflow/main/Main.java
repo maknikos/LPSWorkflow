@@ -6,7 +6,9 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 public class Main extends Application {
 
@@ -18,6 +20,8 @@ public class Main extends Application {
         SimpleStringProperty prefix = new SimpleStringProperty("LPS Workflow - [");
         SimpleStringProperty suffix = new SimpleStringProperty("]");
         primaryStage.titleProperty().bind(prefix.concat(fileData.filePathProperty()).concat(suffix));
+        primaryStage.getIcons().add(new Image("com/LPSWorkflow/styles/logo.png"));
+        primaryStage.initStyle(StageStyle.UNDECORATED);
 
         Scene scene = new Scene(root, 1200, 800);
         scene.getStylesheets().add("com/LPSWorkflow/styles/stylesheet.css");

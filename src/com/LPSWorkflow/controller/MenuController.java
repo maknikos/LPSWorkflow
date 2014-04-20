@@ -1,8 +1,11 @@
 package com.LPSWorkflow.controller;
 
 import com.LPSWorkflow.model.FileData;
-import javafx.application.Platform;
+import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
 import javafx.stage.FileChooser;
 
 import java.io.File;
@@ -14,11 +17,30 @@ import java.util.ResourceBundle;
  */
 public class MenuController implements Initializable {
     private final FileChooser fileChooser = new FileChooser();
+    @FXML
+    private HBox titleBar;
     private FileData fileData;
+    private double initialX;
+    private double initialY;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         fileData = FileData.getInstance();
+
+        // add handlers so that the window can be moved
+        titleBar.setOnMousePressed((MouseEvent me) -> {
+            if (me.getButton() != MouseButton.MIDDLE) {
+                initialX = me.getSceneX();
+                initialY = me.getSceneY();
+            }
+        });
+
+        titleBar.setOnMouseDragged((MouseEvent me) -> {
+            if (me.getButton() != MouseButton.MIDDLE) {
+                titleBar.getScene().getWindow().setX(me.getScreenX() - initialX);
+                titleBar.getScene().getWindow().setY(me.getScreenY() - initialY);
+            }
+        });
     }
 
     /**
@@ -29,12 +51,5 @@ public class MenuController implements Initializable {
         if(file != null){
             fileData.setFilePath(file.getAbsolutePath());
         }
-    }
-
-    /**
-     * Quits the application
-     */
-    public void handleQuit() {
-        Platform.exit();
     }
 }
