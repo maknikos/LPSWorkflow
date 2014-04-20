@@ -10,5 +10,5 @@ public class Constants {
     public static final double NODE_HORIZONTAL_GAP = 50;
 
     public static final double SCALE_UPPER_LIMIT = 3;
-    public static final double SCALE_LOWER_LIMIT = 0.1;
+    public static final double SCALE_LOWER_LIMIT = 0.2;
 }

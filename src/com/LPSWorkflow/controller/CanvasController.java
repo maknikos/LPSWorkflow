@@ -171,18 +171,33 @@ public class CanvasController implements Initializable {
             double minY = contentPane.getLayoutBounds().getMinY();
             double width = layers.getWidth();
             double height = layers.getHeight();
+            double layersMinX = layers.getBoundsInParent().getMinX();
+            double layersMinY = layers.getBoundsInParent().getMinY();
+            double layersMaxX = layers.getBoundsInParent().getMaxX();
+            double layersMaxY = layers.getBoundsInParent().getMaxY();
 
             // limit scroll region
-            if(translateX + addedValue > maxX){
-                translateX = maxX - addedValue;
-            } else if (translateX + width + addedValue < minX) {
-                translateX = minX - width - addedValue;
-            }
-            if(translateY + addedValue > maxY){
-                translateY = maxY - addedValue;
-            } else if (translateY + height + addedValue < minY) {
-                translateY = minY - height - addedValue;
-            }
+//            if(translateX + layersMinX > maxX){
+//                translateX = maxX - layersMinX;
+//            } else if(translateX + layersMaxX < minX){
+//                translateX = minX - layersMaxX;
+//            }
+//            if(translateY + layersMinY > maxY){
+//                translateY = maxY - layersMinY;
+//            } else if(translateY + layersMaxY < minY){
+//                translateY = minY - layersMaxY;
+//            }
+
+//            if(translateX + addedValue > maxX){
+//                translateX = maxX - addedValue;
+//            } else if (translateX + width + addedValue < minX) {
+//                translateX = minX - width - addedValue;
+//            }
+//            if(translateY + addedValue > maxY){
+//                translateY = maxY - addedValue;
+//            } else if (translateY + height + addedValue < minY) {
+//                translateY = minY - height - addedValue;
+//            }
 
             translateXProperty.set(translateX);
             translateYProperty.set(translateY);
