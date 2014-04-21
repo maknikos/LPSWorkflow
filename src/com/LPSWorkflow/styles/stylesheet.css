@@ -213,3 +213,7 @@
 .custom-title-bar {
     -fx-background-color: black;
 }
+
+.scroll-bar {
+    -fx-base: derive(pane-background-color, 10%);
+}

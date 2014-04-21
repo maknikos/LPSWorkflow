@@ -21,7 +21,10 @@ public class Main extends Application {
         SimpleStringProperty suffix = new SimpleStringProperty("]");
         primaryStage.titleProperty().bind(prefix.concat(fileData.filePathProperty()).concat(suffix));
         primaryStage.getIcons().add(new Image("com/LPSWorkflow/styles/logo.png"));
-        primaryStage.initStyle(StageStyle.UNDECORATED);
+        primaryStage.initStyle(StageStyle.DECORATED);
+
+        primaryStage.setMinHeight(500);
+        primaryStage.setMinWidth(700);
 
         Scene scene = new Scene(root, 1200, 800);
         scene.getStylesheets().add("com/LPSWorkflow/styles/stylesheet.css");

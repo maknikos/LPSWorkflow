@@ -3,5 +3,8 @@
 <HBox fx:controller="com.LPSWorkflow.controller.MenuController"
       xmlns:fx="http://javafx.com/fxml" styleClass="custom-title-bar"
         fx:id="titleBar">
+    <Button text="x" onAction="#handleClose"/>
+    <Button text="-" onAction="#handleMinimise"/>
+    <Button text="+" onAction="#handleMaximise"/>
     <Button text="Open" onAction="#handleOpen"/>
 </HBox>
