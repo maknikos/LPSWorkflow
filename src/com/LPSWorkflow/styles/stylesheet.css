@@ -22,7 +22,7 @@
     -fx-effect: dropshadow(two-pass-box, #a4d3ee65, 45, 0.2, 10, 7);
 }
 
-.lps-node-text {
+.lps-node-label {
     -fx-text-fill: white;
     -fx-font-size: 25;
     -fx-alignment: center;
@@ -82,6 +82,15 @@
     -fx-border-color: black;
     -fx-border-width: 0 0 1 0;
     -fx-pref-height: 22;
+}
+
+.action-node:available > .action-node-check-box {
+    visibility: visible;
+}
+
+.action-node-check-box {
+    -fx-base: derive(pane-background-color, 30%);
+    visibility: hidden;
 }
 
 .message-content-label {

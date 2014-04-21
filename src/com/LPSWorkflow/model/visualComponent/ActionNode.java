@@ -9,6 +9,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.StackPane;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
 public class ActionNode extends Node {
     private VBox vBox;
     private Button expandButton;
+    private CheckBox checkBox;
     private Group goalDefinition;
     private boolean isExpanded;
 
@@ -36,7 +38,14 @@ public class ActionNode extends Node {
         text.setMaxWidth(Double.MAX_VALUE);
         text.getStyleClass().add("action-node-label");
         vBox.getChildren().add(text);
-        getChildren().add(vBox);
+        checkBox = new CheckBox();
+        checkBox.getStyleClass().add("action-node-check-box");
+        StackPane.setAlignment(checkBox, Pos.TOP_RIGHT);
+        getChildren().addAll(vBox, checkBox);
+
+        checkBox.selectedProperty().addListener(observable -> {
+            text.setText("SELECTED");
+        });
 
         // only add expand button if it has a goalDefinition
         if (goalDefinition != null && goalDefinition.getChildren().size() > 0) {

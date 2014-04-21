@@ -281,9 +281,9 @@ public class CanvasController implements Initializable {
             execManager.toBeResolvedProperty().addListener((ListChangeListener.Change <? extends Entity> change) -> {
                 while(change.next()){
                     if(change.wasAdded() && displayMode == DisplayMode.EXECUTION){
-                        change.getAddedSubList().forEach(e -> highlight(entityDisplayMap.get(e), NodeState.SELECTED, true));
+                        change.getAddedSubList().forEach(e -> highlight(entityDisplayMap.get(e), NodeState.RESOLVED, true));
                     } else if(change.wasRemoved()) {
-                        change.getRemoved().forEach(e -> highlight(entityDisplayMap.get(e), NodeState.SELECTED, false));
+                        change.getRemoved().forEach(e -> highlight(entityDisplayMap.get(e), NodeState.RESOLVED, false));
                     }
                 }
             }); //TODO only show when mouse-over on a particular token
@@ -313,8 +313,8 @@ public class CanvasController implements Initializable {
             case AVAILABLE:
                 pseudoClass = PseudoClass.getPseudoClass("available");
                 break;
-            case SELECTED:
-                pseudoClass = PseudoClass.getPseudoClass("selected");
+            case RESOLVED:
+                pseudoClass = PseudoClass.getPseudoClass("resolved");
                 break;
             default:
                 pseudoClass = null;

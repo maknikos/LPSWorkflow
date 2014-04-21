@@ -23,7 +23,7 @@ public abstract class Node extends StackPane {
         text = new Label(name);
         text.setPrefSize(width, height);
         this.getStyleClass().add("lps-node");
-        text.getStyleClass().add("lps-node-text");
+        text.getStyleClass().add("lps-node-label");
 
         installTooltip();
     }
