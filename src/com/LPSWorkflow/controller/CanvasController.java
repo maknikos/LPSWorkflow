@@ -178,7 +178,7 @@ public class CanvasController implements Initializable {
             double layersMaxX = layers.getBoundsInParent().getMaxX();
             double layersMaxY = layers.getBoundsInParent().getMaxY();
 
-            // limit scroll region
+            // limit scroll region TODO
 //            if(translateX + layersMinX > maxX){
 //                translateX = maxX - layersMinX;
 //            } else if(translateX + layersMaxX < minX){
@@ -428,9 +428,6 @@ public class CanvasController implements Initializable {
                         resultGroup.getChildren().add(createArrow(currNode, nextNode, false));
                     }
                 }
-
-                // select the next entity TODO
-
             } else if(nextEntity == null){
                 // there is no next entity, so stop.
                 break;

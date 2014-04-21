@@ -19,7 +19,7 @@
 }
 
 .lps-node:selected {
-    -fx-effect: dropshadow(two-pass-box, #a4d3ee70, 45, 0.2, 10, 7);
+    -fx-effect: dropshadow(two-pass-box, #a4d3ee65, 45, 0.2, 10, 7);
 }
 
 .lps-node-text {
@@ -144,6 +144,7 @@
     -fx-stroke: #efd373ff;
     -fx-stroke-width: 3;
     -fx-stroke-type: outside;
+    -fx-effect: dropshadow(two-pass-box, node-fill, 15, 0.2, 0, 0);
 }
 
 .token:available {

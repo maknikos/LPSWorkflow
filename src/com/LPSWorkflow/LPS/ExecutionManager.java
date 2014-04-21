@@ -27,7 +27,7 @@ public class ExecutionManager {
     private List<String> facts;
     private Map<Token, Entity> resolveMap; // stores the entity the token will point to in next cycle
     private Map<Token, List<Token>> tokenClones; // when branching out, clones are stored for each original token
-    private List<Token> addedTokens;
+    private List<Token> addedTokens; // used by AND, where token clones do not need the record of their original
     private List<Token> finishedTokens;
 
     /* Candidate tokens property */
@@ -89,10 +89,7 @@ public class ExecutionManager {
         finishedTokens.clear();
 
         // check if current token's entities hold
-        tokens.forEach(t -> {
-            updatePath(t, t.getCurrentEntity());
-        });
-
+        tokens.forEach(t -> updatePath(t, t.getCurrentEntity()));
         toBeResolved.addAll(resolveMap.values());
     }
 
@@ -180,7 +177,13 @@ public class ExecutionManager {
     }
 
     private void updateCandidateTokens() {
-        getCandidateEntities().addAll(tokens.stream().map(Token::getCurrentEntity)
+        List<Token> consideredTokens = new ArrayList<>();
+        consideredTokens.addAll(tokens);
+        consideredTokens.addAll(addedTokens);
+        tokenClones.values().forEach(consideredTokens::addAll);
+        consideredTokens.removeAll(finishedTokens);
+
+        getCandidateEntities().addAll(consideredTokens.stream().map(resolveMap::get)
                 .filter(e -> isCandidate(e) && !getCandidateEntities().contains(e)).collect(Collectors.toList()));
         getCandidateEntities().removeIf(e -> !isCandidate(e));
     }
