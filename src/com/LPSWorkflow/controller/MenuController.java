@@ -67,12 +67,11 @@ public class MenuController implements Initializable {
         if(stage == null){
             stage = (Stage) titleBar.getScene().getWindow();
         }
-//        if(stage.isMaximized()){
-//            stage.setMaximized(false);
-//        } else {
-//            stage.setMaximized(true);
-//        }
-        stage.setFullScreen(true);
+        if(stage.isFullScreen()){
+            stage.setFullScreen(false);
+        } else {
+            stage.setFullScreen(true);
+        }
     }
 
     @FXML
