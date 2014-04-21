@@ -8,7 +8,6 @@
     <top>
         <fx:include source="../view/menuBarView.fxml" />
     </top>
-
     <center>
         <Pane fx:id="mainPane">
             <SplitPane fx:id="mainSplitPane" dividerPositions="0.7f">

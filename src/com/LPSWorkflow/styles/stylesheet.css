@@ -19,7 +19,6 @@
 }
 
 .lps-node:selected {
-    -fx-stroke: white;
     -fx-effect: dropshadow(two-pass-box, #a4d3ee70, 45, 0.2, 10, 7);
 }
 
@@ -44,7 +43,7 @@
 }
 
 .fluent-diamond {
-    -fx-fill: node-fill;
+    -fx-fill: pane-background-color;
     -fx-stroke: outline-color;
     -fx-stroke-width: 3;
 }
@@ -66,8 +65,11 @@
 }
 
 .action-node {
-    -fx-border-color: black;
+    -fx-border-width: 3;
+    -fx-border-color: outline-color;
     -fx-border-radius: 5;
+    -fx-background-color: pane-background-color;
+    -fx-background-radius: 5;
 }
 
 .action-node-label {
