@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Loads the parsed LPS program information into a structured data. The data includes
@@ -256,12 +257,11 @@ public class LPSLoader extends LPSBaseListener {
             sendErrorMessage("Parsing 'initiates' element failed. Invalid format.");
             return;
         }
-        LPSParser.AtomContext atom = ctx.atom();
-        Action head = new Action(atom.getText());
+        String head = ctx.atom().getText();
         LPSParser.ConjunctionContext conjunction = ctx.conjunction();
-        List<Entity> entities = makeConjunctionIntoList(conjunction);
+        List<String> names = makeConjunctionIntoList(conjunction);
 
-        Initiates initiates = new Initiates(head, entities);
+        Initiates initiates = new Initiates(head, names);
         postconditions.add(initiates);
     }
 
@@ -272,12 +272,11 @@ public class LPSLoader extends LPSBaseListener {
             return;
         }
 
-        LPSParser.AtomContext atom = ctx.atom();
-        Action head = new Action(atom.getText());
+        String head = ctx.atom().getText();
         LPSParser.ConjunctionContext conjunction = ctx.conjunction();
-        List<Entity> entities = makeConjunctionIntoList(conjunction);
+        List<String> names = makeConjunctionIntoList(conjunction);
 
-        Terminates terminates = new Terminates(head, entities);
+        Terminates terminates = new Terminates(head, names);
         postconditions.add(terminates);
     }
 
@@ -288,18 +287,12 @@ public class LPSLoader extends LPSBaseListener {
             return;
         }
         LPSParser.ConjunctionContext conjunction = ctx.conjunction();
-        List<Entity> entities = makeConjunctionIntoList(conjunction);
-        preconditions.add(new Precondition(entities));
+        List<String> names = makeConjunctionIntoList(conjunction);
+        preconditions.add(new Precondition(names));
     }
 
-    private List<Entity> makeConjunctionIntoList(LPSParser.ConjunctionContext conjunction) {
-        List<Entity> entities = new ArrayList<>();
-        for(LPSParser.AtomContext atom : conjunction.atom()){
-            String name = atom.getText();
-            Action action = new Action(name);
-            entities.add(action);
-        }
-        return entities;
+    private List<String> makeConjunctionIntoList(LPSParser.ConjunctionContext conjunction) {
+        return conjunction.atom().stream().map(LPSParser.AtomContext::getText).collect(Collectors.toList());
     }
 
     private void replaceValues(Object oldValue, Object newValue) {

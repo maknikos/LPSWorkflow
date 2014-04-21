@@ -1,27 +1,26 @@
 package com.LPSWorkflow.model.domainTheory;
 
-import com.LPSWorkflow.model.abstractComponent.Entity;
-
 import java.util.List;
 
 /**
  * Post-condition (terminates)
  */
 public class Terminates implements Postcondition{
-    private Entity head;
-    private List<Entity> body;
+    private String head;
+    private List<String> body;
 
-    public Terminates(Entity head, List<Entity> body) {
+    public Terminates(String head, List<String> body) {
         this.head = head;
         this.body = body;
     }
 
-    public Entity getHead() {
+    @Override
+    public String getHead() {
         return head;
     }
 
     @Override
-    public List<Entity> getBody() {
+    public List<String> getBody() {
         return body;
     }
 
@@ -32,14 +31,13 @@ public class Terminates implements Postcondition{
 
     @Override
     public String toString() {
-        String headStr = head.getName();
         String bodyStr = "";
-        for(Entity e : body){
-            bodyStr = bodyStr.concat(e.getName() + " & ");
+        for(String n : body){
+            bodyStr = bodyStr.concat(n + " & ");
         }
         if(body.size() > 0) {
             bodyStr = bodyStr.substring(0, bodyStr.length() - 2); // remove trailing &
         }
-        return String.format("terminates(%s) <- %s", headStr, bodyStr);
+        return String.format("terminates(%s) <- %s", head, bodyStr);
     }
 }

@@ -5,6 +5,8 @@ import com.LPSWorkflow.model.abstractComponent.Entity;
 import com.LPSWorkflow.model.abstractComponent.Fluent;
 import com.LPSWorkflow.model.abstractComponent.MultiChildEntity;
 import com.LPSWorkflow.model.database.Database;
+import com.LPSWorkflow.model.domainTheory.DomainTheoryData;
+import com.LPSWorkflow.model.domainTheory.Precondition;
 import com.LPSWorkflow.model.execution.Token;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
@@ -19,6 +21,7 @@ import java.util.stream.Collectors;
 public class ExecutionManager {
     private Map<String, Entity> entityMap;
     private Database database;
+    private DomainTheoryData domainTheory;
     private int cycle;
     private List<Token> tokens;
     private List<String> facts;
@@ -51,6 +54,7 @@ public class ExecutionManager {
         cycle = 0;
         this.entityMap = entityMap;
         database = Database.getInstance();
+        domainTheory = DomainTheoryData.getInstance();
         tokens = new ArrayList<>();
         resolveMap = new HashMap<>();
         tokenClones = new HashMap<>();
@@ -61,8 +65,8 @@ public class ExecutionManager {
 
         database.factsProperty().addListener((observableValue, oldStr, newStr) -> {
             facts = Arrays.asList(newStr.split(" "));
-            updateCandidateTokens();
             updateToBeResolved();
+            updateCandidateTokens();
         });
     }
 
@@ -73,15 +77,9 @@ public class ExecutionManager {
         tokens.forEach(this::tryResolve);
         tokens.removeIf(t -> t.getCurrentEntity() == null); // get rid of finished tokens
         tokens.forEach(Token::increment);
-        updateCandidateTokens();
         updateToBeResolved();
+        updateCandidateTokens();
         cycle++;
-    }
-
-    private void updateCandidateTokens() {
-        getCandidateEntities().addAll(tokens.stream().map(Token::getCurrentEntity)
-                .filter(e -> isCandidate(e) && !getCandidateEntities().contains(e)).collect(Collectors.toList()));
-        getCandidateEntities().removeIf(e -> !isCandidate(e));
     }
 
     private void updateToBeResolved() {
@@ -181,6 +179,12 @@ public class ExecutionManager {
         }
     }
 
+    private void updateCandidateTokens() {
+        getCandidateEntities().addAll(tokens.stream().map(Token::getCurrentEntity)
+                .filter(e -> isCandidate(e) && !getCandidateEntities().contains(e)).collect(Collectors.toList()));
+        getCandidateEntities().removeIf(e -> !isCandidate(e));
+    }
+
     private boolean holds(Entity currentEntity) {
         if(currentEntity == null){
             return false;
@@ -194,15 +198,37 @@ public class ExecutionManager {
     }
 
     private boolean isCandidate(Entity e) {
-        // all preconditions involving the token's entity must be satisfied. TODO
-        // must be associated with a token
+        if(e == null){
+            return false;
+        }
+
+        // all preconditions involving the token's entity must be satisfied,
+        // and must be associated with a token
 
         if(e.getType() == EntityType.ACTION){
+            List<Precondition> preconditions = domainTheory.getPreconditions().stream()
+                    .filter(p -> p.getConflictingNames().stream().anyMatch(name -> name.equals(e.getName())))
+                    .collect(Collectors.toList());
+            for(Precondition precondition : preconditions){
+//                List<String> conflictingNames = precondition.getConflictingNames().stream()
+//                        .map(Entity::getName).collect(Collectors.toList());
 
+
+            }
+
+
+//            boolean conflicts = preconditions.stream()
+//                    .anyMatch(p ->
+//                        facts.stream().anyMatch(f
+//                                -> p.getConflictingNames().stream().map(Entity::getName).collect(Collectors.toList()).contains(f)
+//                        )
+//                    );
+            return false;
+
+        } else {
+            return false;
         }
-        //TODO only actions are selected
 
-        return tokens.stream().anyMatch(t -> t.getCurrentEntity().equals(e)) && holds(e);
     }
 
     // spawn tokens at the top of each reactive rule
@@ -226,8 +252,8 @@ public class ExecutionManager {
         this.entityMap = entityMap;
         clear();
         spawnNewTokens();
-        updateCandidateTokens();
         updateToBeResolved();
+        updateCandidateTokens();
     }
 
     public void clear(){

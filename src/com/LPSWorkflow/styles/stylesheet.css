@@ -15,7 +15,7 @@
 }
 
 .lps-node:available {
-    //-fx-background-color: blue;
+    -fx-background-color: blue;
 }
 
 .lps-node:selected {
