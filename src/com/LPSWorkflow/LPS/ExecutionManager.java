@@ -204,27 +204,16 @@ public class ExecutionManager {
 
         // all preconditions involving the token's entity must be satisfied,
         // and must be associated with a token
-
         if(e.getType() == EntityType.ACTION){
+            // find preconditions relevant to current entity
             List<Precondition> preconditions = domainTheory.getPreconditions().stream()
                     .filter(p -> p.getConflictingNames().stream().anyMatch(name -> name.equals(e.getName())))
                     .collect(Collectors.toList());
-            for(Precondition precondition : preconditions){
-//                List<String> conflictingNames = precondition.getConflictingNames().stream()
-//                        .map(Entity::getName).collect(Collectors.toList());
 
-
-            }
-
-
-//            boolean conflicts = preconditions.stream()
-//                    .anyMatch(p ->
-//                        facts.stream().anyMatch(f
-//                                -> p.getConflictingNames().stream().map(Entity::getName).collect(Collectors.toList()).contains(f)
-//                        )
-//                    );
-            return false;
-
+            // e is a candidate if none of the preconditions contain any of the current facts
+            return !preconditions.stream().anyMatch(precondition -> (
+                        facts.stream().anyMatch((t) -> precondition.getConflictingNames().contains(t))
+                    ));
         } else {
             return false;
         }
