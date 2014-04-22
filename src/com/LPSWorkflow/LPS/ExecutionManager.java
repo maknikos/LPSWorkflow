@@ -8,6 +8,7 @@ import com.LPSWorkflow.model.database.Database;
 import com.LPSWorkflow.model.domainTheory.DomainTheoryData;
 import com.LPSWorkflow.model.domainTheory.Precondition;
 import com.LPSWorkflow.model.execution.Token;
+import javafx.beans.Observable;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
@@ -50,6 +51,17 @@ public class ExecutionManager {
     }
 
 
+    /* SelectedActions property : actions that will be executed in current cycle */
+    private ListProperty<Entity> selectedActions = new SimpleListProperty<>(FXCollections.<Entity>observableArrayList());
+    public ListProperty<Entity> selectedActionsProperty(){
+        return selectedActions;
+    }
+    public final List<Entity> getSelectedActions(){
+        return selectedActions.get();
+    }
+
+
+
     public ExecutionManager(Map<String, Entity> entityMap) {
         cycle = 0;
         this.entityMap = entityMap;
@@ -65,6 +77,11 @@ public class ExecutionManager {
 
         database.factsProperty().addListener((observableValue, oldStr, newStr) -> {
             facts = Arrays.asList(newStr.split(" "));
+            updateToBeResolved();
+            updateCandidateTokens();
+        });
+
+        selectedActions.addListener((Observable observable) -> {
             updateToBeResolved();
             updateCandidateTokens();
         });
@@ -163,10 +180,16 @@ public class ExecutionManager {
                     finishedTokens.add(t);
                     current = null;
                     break;
-                case OR:
-                    //TODO clone token ... if one path finishes, remove the other.
                 case ACTION:
                     //TODO only if selected by user (later by strategy)
+                    if(selectedActions.contains(current)){
+                        current = current.getNext();
+                    } else {
+                        current = null;
+                    }
+                    break;
+                case OR:
+                    //TODO clone token ... if one path finishes, remove the other.
                 case EXIT:
                     current = null;
                     break; //TODO change state of the token to indicate finish state?
@@ -213,9 +236,13 @@ public class ExecutionManager {
                     .filter(p -> p.getConflictingNames().stream().anyMatch(name -> name.equals(e.getName())))
                     .collect(Collectors.toList());
 
-            // e is a candidate if none of the preconditions contain any of the current facts
+            // e is a candidate if none of the conflicting conditions are met:
             return !preconditions.stream().anyMatch(precondition -> (
-                        facts.stream().anyMatch((t) -> precondition.getConflictingNames().contains(t))
+                    // either the facts contain any of the conflicting entity names,
+                    // or it conflicts with a selected action,
+                    // or a selected action prevents the current entity from being available
+                        facts.stream().anyMatch(f -> precondition.getConflictingNames().contains(f))
+                        || selectedActions.stream().map(Entity::getName).anyMatch(se -> precondition.getConflictingNames().contains(se))
                     ));
         } else {
             return false;
@@ -253,6 +280,7 @@ public class ExecutionManager {
         tokens.clear();
         toBeResolved.clear();
         candidateEntities.clear();
+        selectedActions.clear();
         resolveMap.clear();
         tokenClones.clear();
         finishedTokens.clear();

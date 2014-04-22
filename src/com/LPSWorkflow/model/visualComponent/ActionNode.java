@@ -1,6 +1,8 @@
 package com.LPSWorkflow.model.visualComponent;
 
 import com.LPSWorkflow.common.EntityType;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.css.PseudoClass;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
@@ -31,6 +33,19 @@ public class ActionNode extends Node {
     private Group goalDefinition;
     private boolean isExpanded;
 
+    /* isAvailable property */
+    private BooleanProperty isSelected = new SimpleBooleanProperty(false);
+    public boolean getIsSelected() {
+        return isSelected.get();
+    }
+    public BooleanProperty isSelectedProperty() {
+        return isSelected;
+    }
+    public void setIsSelected(boolean isSelected) {
+        this.isSelected.set(isSelected);
+    }
+
+
     public ActionNode(String name, final Group goalDefinition) {
         super(name);
         this.getStyleClass().add("action-node");
@@ -43,9 +58,7 @@ public class ActionNode extends Node {
         StackPane.setAlignment(checkBox, Pos.TOP_RIGHT);
         getChildren().addAll(vBox, checkBox);
 
-        checkBox.selectedProperty().addListener(observable -> {
-            text.setText("SELECTED");
-        });
+        checkBox.selectedProperty().addListener(observable -> isSelected.set(((BooleanProperty) observable).get()));
 
         // only add expand button if it has a goalDefinition
         if (goalDefinition != null && goalDefinition.getChildren().size() > 0) {

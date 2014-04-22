@@ -13,6 +13,7 @@ import com.LPSWorkflow.model.execution.TokenShape;
 import com.LPSWorkflow.model.message.MessageData;
 import com.LPSWorkflow.model.message.MessageType;
 import com.LPSWorkflow.model.visualComponent.*;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.collections.ListChangeListener;
@@ -503,6 +504,13 @@ public class CanvasController implements Initializable {
             Group goalDef = new Group();
             buildWorkflowDiagram(goalDef, entity.getDefinition(), 0, 0, false);
             node = new ActionNode(name, goalDef);
+            ((ActionNode)node).isSelectedProperty().addListener(observable -> {
+                if(((BooleanProperty)observable).get()){
+                    execManager.selectedActionsProperty().add(entity);
+                } else {
+                    execManager.selectedActionsProperty().remove(entity);
+                }
+            });
         }
         node.setLayoutX(x);
         node.setLayoutY(y);
