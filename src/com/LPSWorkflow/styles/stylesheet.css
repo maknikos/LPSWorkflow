@@ -76,14 +76,8 @@
     -fx-pref-height: 22;
 }
 
-
-.action-node:available > .action-node-check-box {
-    visibility: visible;
-}
-
 .action-node-check-box {
     -fx-base: derive(pane-background-color, 30%);
-    //visibility: hidden;
 }
 
 .exit-node {

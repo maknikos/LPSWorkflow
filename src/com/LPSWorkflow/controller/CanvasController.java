@@ -134,30 +134,6 @@ public class CanvasController implements Initializable {
         }
     }
 
-    @FXML
-    private void handleNextAction() {
-        // TODO execute and update database
-
-        execManager.proceed();
-
-        // update position and state of tokens
-        List<Token> tokens = execManager.getTokens();
-        tokenDisplayMap.keySet().removeIf(t -> !tokens.contains(t));
-        executionLayer.getChildren().removeIf(c -> !tokenDisplayMap.values().contains(c));
-
-        tokens.forEach(token -> {
-            TokenShape tokenShape = tokenDisplayMap.get(token);
-            Node node = entityDisplayMap.get(token.getCurrentEntity());
-            if(tokenShape == null){
-                tokenShape = new TokenShape(node);
-                tokenDisplayMap.put(token, tokenShape);
-                executionLayer.getChildren().add(tokenShape);
-            } else {
-                tokenShape.setCurrentNode(node);
-            }
-        });
-    }
-
     private void setEventHandlers() {
         //TODO allow SPACE + mouse-drag as well?
         //TODO smooth scrolling?
@@ -216,12 +192,35 @@ public class CanvasController implements Initializable {
             double zoomFactor = currentScale * zoomEvent.getTotalZoomFactor();
 
             // limit the scale
-            if(zoomFactor > Constants.SCALE_UPPER_LIMIT){
-                zoomFactor = Constants.SCALE_UPPER_LIMIT ;
-            } else if (zoomFactor < Constants.SCALE_LOWER_LIMIT ){
-                zoomFactor = Constants.SCALE_LOWER_LIMIT ;
+            if (zoomFactor > Constants.SCALE_UPPER_LIMIT) {
+                zoomFactor = Constants.SCALE_UPPER_LIMIT;
+            } else if (zoomFactor < Constants.SCALE_LOWER_LIMIT) {
+                zoomFactor = Constants.SCALE_LOWER_LIMIT;
             }
             scaleProperty.set(zoomFactor);
+        });
+    }
+
+    @FXML
+    private void handleNextAction() {
+        // TODO execute and update database
+        execManager.proceed();
+
+        // update position and state of tokens
+        List<Token> tokens = execManager.getTokens();
+        tokenDisplayMap.keySet().removeIf(t -> !tokens.contains(t));
+        executionLayer.getChildren().removeIf(c -> !tokenDisplayMap.values().contains(c));
+
+        tokens.forEach(token -> {
+            TokenShape tokenShape = tokenDisplayMap.get(token);
+            Node node = entityDisplayMap.get(token.getCurrentEntity());
+            if (tokenShape == null) {
+                tokenShape = new TokenShape(node);
+                tokenDisplayMap.put(token, tokenShape);
+                executionLayer.getChildren().add(tokenShape);
+            } else {
+                tokenShape.setCurrentNode(node);
+            }
         });
     }
 
@@ -269,12 +268,12 @@ public class CanvasController implements Initializable {
         entityMap = fileManager.getRootMap();
         if(execManager == null){
             execManager = new ExecutionManager(entityMap);
-            execManager.candidateEntitiesProperty().addListener((ListChangeListener.Change <? extends Entity> change) -> {
+            execManager.candidateActionsProperty().addListener((ListChangeListener.Change <? extends Entity> change) -> {
                 while(change.next()){
                     if(change.wasAdded() && displayMode == DisplayMode.EXECUTION){
-                        change.getAddedSubList().forEach(e -> highlight(e, NodeState.AVAILABLE, true));
+                        change.getAddedSubList().forEach(e -> ((ActionNode)entityDisplayMap.get(e)).setAvailable(true));
                     } else if(change.wasRemoved()) {
-                        change.getRemoved().forEach(e -> highlight(e, NodeState.AVAILABLE, false));
+                        change.getRemoved().forEach(e -> ((ActionNode)entityDisplayMap.get(e)).setAvailable(false));
                     }
                 }
             });
@@ -291,14 +290,15 @@ public class CanvasController implements Initializable {
         } else {
             execManager.reset(entityMap);
         }
-    }
 
-    private void highlight(Entity e, NodeState state, boolean b) {
-        if(e == null){
-            return;
-        }
-        Node node = entityDisplayMap.get(e);
-        highlight(node, state, b);
+        // sync with selectedActionsProperty, so that when it is cleared, selected actions will be deselected
+        execManager.selectedActionsProperty().addListener((ListChangeListener<Entity>) change -> {
+            while(change.next()){
+                if(change.wasRemoved()) {
+                    change.getRemoved().forEach(e -> ((ActionNode)entityDisplayMap.get(e)).setSelected(false));
+                }
+            }
+        });
     }
 
     private void highlight(Node node, NodeState state, boolean b) {
@@ -311,13 +311,10 @@ public class CanvasController implements Initializable {
     private PseudoClass getPseudoClass(NodeState state) {
         PseudoClass pseudoClass;
         switch (state){
-            case AVAILABLE:
-                pseudoClass = PseudoClass.getPseudoClass("available");
-                break;
             case RESOLVED:
                 pseudoClass = PseudoClass.getPseudoClass("resolved");
                 break;
-            default:
+            default: //TODO remove cases
                 pseudoClass = null;
                 break;
         }
@@ -504,7 +501,7 @@ public class CanvasController implements Initializable {
             Group goalDef = new Group();
             buildWorkflowDiagram(goalDef, entity.getDefinition(), 0, 0, false);
             node = new ActionNode(name, goalDef);
-            ((ActionNode)node).isSelectedProperty().addListener(observable -> {
+            ((ActionNode)node).selectedProperty().addListener(observable -> {
                 if(((BooleanProperty)observable).get()){
                     execManager.selectedActionsProperty().add(entity);
                 } else {

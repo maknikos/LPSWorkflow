@@ -32,12 +32,12 @@ public class ExecutionManager {
     private List<Token> finishedTokens;
 
     /* Candidate tokens property */
-    private ListProperty<Entity> candidateEntities = new SimpleListProperty<>(FXCollections.<Entity>observableArrayList());
-    public ListProperty<Entity> candidateEntitiesProperty(){
-        return candidateEntities;
+    private ListProperty<Entity> candidateActions = new SimpleListProperty<>(FXCollections.<Entity>observableArrayList());
+    public ListProperty<Entity> candidateActionsProperty(){
+        return candidateActions;
     }
-    public final List<Entity> getCandidateEntities(){
-        return candidateEntities.get();
+    public final List<Entity> getCandidateActions(){
+        return candidateActions.get();
     }
 
 
@@ -93,10 +93,20 @@ public class ExecutionManager {
         tokenClones.values().forEach(tokens::addAll);
         tokens.forEach(this::tryResolve);
         tokens.removeIf(t -> t.getCurrentEntity() == null); // get rid of finished tokens
-        tokens.forEach(Token::increment);
+        executeActions();
+        selectedActions.clear();
+        tokens.forEach(Token::increment); // TODO keep the correct count (e.g. when cloned..)
         updateToBeResolved();
         updateCandidateTokens();
         cycle++;
+    }
+
+    private void executeActions(){
+        //update the database by using the action's post-conditions
+
+
+        //List<Postcondition> postconditions = domainTheory.getPostconditions().stream().filter(p -> p.getHead());
+
     }
 
     private void updateToBeResolved() {
@@ -206,9 +216,9 @@ public class ExecutionManager {
         tokenClones.values().forEach(consideredTokens::addAll);
         consideredTokens.removeAll(finishedTokens);
 
-        getCandidateEntities().addAll(consideredTokens.stream().map(resolveMap::get)
-                .filter(e -> isCandidate(e) && !getCandidateEntities().contains(e)).collect(Collectors.toList()));
-        getCandidateEntities().removeIf(e -> !isCandidate(e));
+        getCandidateActions().addAll(consideredTokens.stream().map(resolveMap::get)
+                .filter(e -> isCandidate(e) && !getCandidateActions().contains(e)).collect(Collectors.toList()));
+        getCandidateActions().removeIf(e -> !isCandidate(e));
     }
 
     private boolean holds(Entity currentEntity) {
@@ -240,7 +250,7 @@ public class ExecutionManager {
             return !preconditions.stream().anyMatch(precondition -> (
                     // either the facts contain any of the conflicting entity names,
                     // or it conflicts with a selected action,
-                    // or a selected action prevents the current entity from being available
+                    // or a selected action prevents the current entity from being available TODO
                         facts.stream().anyMatch(f -> precondition.getConflictingNames().contains(f))
                         || selectedActions.stream().map(Entity::getName).anyMatch(se -> precondition.getConflictingNames().contains(se))
                     ));
@@ -256,6 +266,7 @@ public class ExecutionManager {
     }
 
     private void tryResolve(Token token) { //TODO consider goalDef
+        // proceed to next step
         token.setCurrentEntity(resolveMap.get(token));
     }
 
@@ -279,8 +290,8 @@ public class ExecutionManager {
         cycle = 0;
         tokens.clear();
         toBeResolved.clear();
-        candidateEntities.clear();
-        selectedActions.clear();
+        candidateActions.clear();
+        selectedActions.get().clear();
         resolveMap.clear();
         tokenClones.clear();
         finishedTokens.clear();

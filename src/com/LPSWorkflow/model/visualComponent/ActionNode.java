@@ -33,18 +33,30 @@ public class ActionNode extends Node {
     private Group goalDefinition;
     private boolean isExpanded;
 
-    /* isAvailable property */
-    private BooleanProperty isSelected = new SimpleBooleanProperty(false);
-    public boolean getIsSelected() {
-        return isSelected.get();
+    /* selected property */
+    private BooleanProperty selected = new SimpleBooleanProperty(false);
+    public boolean getSelected() {
+        return selected.get();
     }
-    public BooleanProperty isSelectedProperty() {
-        return isSelected;
+    public BooleanProperty selectedProperty() {
+        return selected;
     }
-    public void setIsSelected(boolean isSelected) {
-        this.isSelected.set(isSelected);
+    public void setSelected(boolean selected) {
+        this.selected.set(selected);
     }
 
+
+    /* available property */
+    private BooleanProperty available = new SimpleBooleanProperty(false);
+    public boolean getAvailable() {
+        return available.get();
+    }
+    public BooleanProperty availableProperty() {
+        return available;
+    }
+    public void setAvailable(boolean available) {
+        this.available.set(available);
+    }
 
     public ActionNode(String name, final Group goalDefinition) {
         super(name);
@@ -58,7 +70,8 @@ public class ActionNode extends Node {
         StackPane.setAlignment(checkBox, Pos.TOP_RIGHT);
         getChildren().addAll(vBox, checkBox);
 
-        checkBox.selectedProperty().addListener(observable -> isSelected.set(((BooleanProperty) observable).get()));
+        selected.bindBidirectional(checkBox.selectedProperty());
+        checkBox.visibleProperty().bind(selected.or(available));
 
         // only add expand button if it has a goalDefinition
         if (goalDefinition != null && goalDefinition.getChildren().size() > 0) {
