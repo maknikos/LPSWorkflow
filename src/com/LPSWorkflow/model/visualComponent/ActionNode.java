@@ -45,7 +45,6 @@ public class ActionNode extends Node {
         this.selected.set(selected);
     }
 
-
     /* available property */
     private BooleanProperty available = new SimpleBooleanProperty(false);
     public boolean getAvailable() {
@@ -58,6 +57,7 @@ public class ActionNode extends Node {
         this.available.set(available);
     }
 
+
     public ActionNode(String name, final Group goalDefinition) {
         super(name);
         this.getStyleClass().add("action-node");
@@ -67,7 +67,7 @@ public class ActionNode extends Node {
         vBox.getChildren().add(text);
         checkBox = new CheckBox();
         checkBox.getStyleClass().add("action-node-check-box");
-        StackPane.setAlignment(checkBox, Pos.TOP_RIGHT);
+        StackPane.setAlignment(checkBox, Pos.BOTTOM_RIGHT);
         getChildren().addAll(vBox, checkBox);
 
         selected.bindBidirectional(checkBox.selectedProperty());

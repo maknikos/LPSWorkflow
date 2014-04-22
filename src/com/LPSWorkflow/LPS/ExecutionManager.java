@@ -1,6 +1,7 @@
 package com.LPSWorkflow.LPS;
 
 import com.LPSWorkflow.common.EntityType;
+import com.LPSWorkflow.model.abstractComponent.Action;
 import com.LPSWorkflow.model.abstractComponent.Entity;
 import com.LPSWorkflow.model.abstractComponent.Fluent;
 import com.LPSWorkflow.model.abstractComponent.MultiChildEntity;
@@ -12,6 +13,7 @@ import javafx.beans.Observable;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -36,6 +38,9 @@ public class ExecutionManager {
     public ListProperty<Entity> candidateActionsProperty(){
         return candidateActions;
     }
+    public void setCandidateActions(ObservableList<Entity> candidateActions) {
+        this.candidateActions.set(candidateActions);
+    }
     public final List<Entity> getCandidateActions(){
         return candidateActions.get();
     }
@@ -49,6 +54,9 @@ public class ExecutionManager {
     public final List<Entity> getToBeResolved(){
         return toBeResolved.get();
     }
+    public void setToBeResolved(ObservableList<Entity> toBeResolved) {
+        this.toBeResolved.set(toBeResolved);
+    }
 
 
     /* SelectedActions property : actions that will be executed in current cycle */
@@ -59,7 +67,9 @@ public class ExecutionManager {
     public final List<Entity> getSelectedActions(){
         return selectedActions.get();
     }
-
+    public void setSelectedActions(ObservableList<Entity> selectedActions) {
+        this.selectedActions.set(selectedActions);
+    }
 
 
     public ExecutionManager(Map<String, Entity> entityMap) {
@@ -94,7 +104,15 @@ public class ExecutionManager {
         tokens.forEach(this::tryResolve);
         tokens.removeIf(t -> t.getCurrentEntity() == null); // get rid of finished tokens
         executeActions();
-        selectedActions.clear();
+
+
+        Action dddd = new Action("dddd");
+        getSelectedActions().add(dddd);
+        getSelectedActions().remove(dddd);
+        getSelectedActions().clear();
+
+
+
         tokens.forEach(Token::increment); // TODO keep the correct count (e.g. when cloned..)
         updateToBeResolved();
         updateCandidateTokens();
@@ -219,6 +237,9 @@ public class ExecutionManager {
         getCandidateActions().addAll(consideredTokens.stream().map(resolveMap::get)
                 .filter(e -> isCandidate(e) && !getCandidateActions().contains(e)).collect(Collectors.toList()));
         getCandidateActions().removeIf(e -> !isCandidate(e));
+
+        // remove actions that became unavailable TODO
+        //selectedActions.removeIf(sa -> !candidateActions.contains(sa)); TODO
     }
 
     private boolean holds(Entity currentEntity) {
@@ -291,7 +312,7 @@ public class ExecutionManager {
         tokens.clear();
         toBeResolved.clear();
         candidateActions.clear();
-        selectedActions.get().clear();
+        selectedActions.clear();
         resolveMap.clear();
         tokenClones.clear();
         finishedTokens.clear();

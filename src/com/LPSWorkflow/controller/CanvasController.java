@@ -271,9 +271,9 @@ public class CanvasController implements Initializable {
             execManager.candidateActionsProperty().addListener((ListChangeListener.Change <? extends Entity> change) -> {
                 while(change.next()){
                     if(change.wasAdded() && displayMode == DisplayMode.EXECUTION){
-                        change.getAddedSubList().forEach(e -> ((ActionNode)entityDisplayMap.get(e)).setAvailable(true));
+                        change.getAddedSubList().forEach(e -> setAvailable(e, true));
                     } else if(change.wasRemoved()) {
-                        change.getRemoved().forEach(e -> ((ActionNode)entityDisplayMap.get(e)).setAvailable(false));
+                        change.getRemoved().forEach(e -> setAvailable(e, false));
                     }
                 }
             });
@@ -287,18 +287,32 @@ public class CanvasController implements Initializable {
                     }
                 }
             }); //TODO only show when mouse-over on a particular token
+
+            // sync with selectedActionsProperty, so that when it is cleared, selected actions will be deselected
+            execManager.selectedActionsProperty().addListener((ListChangeListener.Change<? extends Entity> change) -> {
+                while(change.next()){
+                    if(change.wasRemoved()) {
+                        change.getRemoved().forEach(e -> setSelected(e, false));
+                    }
+                }
+            });
         } else {
             execManager.reset(entityMap);
         }
+    }
 
-        // sync with selectedActionsProperty, so that when it is cleared, selected actions will be deselected
-        execManager.selectedActionsProperty().addListener((ListChangeListener<Entity>) change -> {
-            while(change.next()){
-                if(change.wasRemoved()) {
-                    change.getRemoved().forEach(e -> ((ActionNode)entityDisplayMap.get(e)).setSelected(false));
-                }
-            }
-        });
+    private void setSelected(Entity e, boolean b) {
+        ActionNode actionNode = (ActionNode) entityDisplayMap.get(e);
+        if(actionNode != null){
+            actionNode.setSelected(b);
+        }
+    }
+
+    private void setAvailable(Entity e, boolean b) {
+        ActionNode actionNode = (ActionNode) entityDisplayMap.get(e);
+        if(actionNode != null){
+            actionNode.setAvailable(b);
+        }
     }
 
     private void highlight(Node node, NodeState state, boolean b) {
@@ -503,9 +517,9 @@ public class CanvasController implements Initializable {
             node = new ActionNode(name, goalDef);
             ((ActionNode)node).selectedProperty().addListener(observable -> {
                 if(((BooleanProperty)observable).get()){
-                    execManager.selectedActionsProperty().add(entity);
+                    execManager.getSelectedActions().add(entity);
                 } else {
-                    execManager.selectedActionsProperty().remove(entity);
+                    execManager.getSelectedActions().remove(entity);
                 }
             });
         }

@@ -1,10 +1,10 @@
 .root {
-    shadow-dark: #303030;
+    shadow-dark: #252525;
     shadow-highlight: #a4d3ee65;
     node-fill: #b0b0b0;
     node-text-color: #232323;
     outline-color: node-fill;
-    pane-background-color: #404040;
+    pane-background-color: #454545;
     text-color: #d2d2d2;
     token-fill: #efd37399;
     token-stroke: #efd373ff;
@@ -19,7 +19,7 @@
 
 .lps-node {
     -fx-background-color: transparent;
-    -fx-effect: dropshadow(two-pass-box, shadow-dark, 45, 0.2, 10, 7);
+    -fx-effect: dropshadow(gaussian, shadow-dark, 30, 0.3, 0, 0);
 }
 
 .lps-node:available {
@@ -27,7 +27,7 @@
 }
 
 .lps-node:resolved {
-    -fx-effect: dropshadow(two-pass-box, shadow-highlight, 45, 0.2, 10, 7);
+    -fx-effect: dropshadow(gaussian, shadow-highlight, 30, 0.3, 0, 0);
 }
 
 .lps-node-label {
@@ -99,13 +99,13 @@
     -fx-stroke: outline-color;
     -fx-stroke-width: 3;
     -fx-stroke-dash-array: 8 6;
-    -fx-effect: dropshadow(two-pass-box, shadow-dark, 25, 0.5, 10, 7);
+    -fx-effect: dropshadow(gaussian, shadow-dark, 15, 0.3, 0, 0);
 }
 
 .arrow {
     -fx-stroke-width: 3;
     -fx-stroke: outline-color;
-    -fx-effect: dropshadow(two-pass-box, shadow-dark, 25, 0.5, 10, 7);
+    -fx-effect: dropshadow(gaussian, shadow-dark, 15, 0.3, 0, 0);
 }
 
 .arrow:false {
@@ -117,7 +117,7 @@
     -fx-font-size: 15;
     -fx-background-color: transparent;
     -fx-text-fill: arrow-text-fill;
-    -fx-effect: dropshadow(two-pass-box, pane-background-color, 4, 1, 0, 0);
+    -fx-effect: dropshadow(gaussian, pane-background-color, 4, 1, 0, 0);
     -fx-padding: 2;
 }
 
@@ -126,7 +126,7 @@
     -fx-stroke: token-stroke;
     -fx-stroke-width: 3;
     -fx-stroke-type: outside;
-    -fx-effect: dropshadow(two-pass-box, shadow-dark, 15, 0.2, 0, 0);
+    -fx-effect: dropshadow(gaussian, shadow-dark, 8, 0.3, 0, 0);
 }
 
 .token:available {
