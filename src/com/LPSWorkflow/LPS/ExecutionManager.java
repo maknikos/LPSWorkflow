@@ -1,7 +1,6 @@
 package com.LPSWorkflow.LPS;
 
 import com.LPSWorkflow.common.EntityType;
-import com.LPSWorkflow.model.abstractComponent.Action;
 import com.LPSWorkflow.model.abstractComponent.Entity;
 import com.LPSWorkflow.model.abstractComponent.Fluent;
 import com.LPSWorkflow.model.abstractComponent.MultiChildEntity;
@@ -104,15 +103,7 @@ public class ExecutionManager {
         tokens.forEach(this::tryResolve);
         tokens.removeIf(t -> t.getCurrentEntity() == null); // get rid of finished tokens
         executeActions();
-
-
-        Action dddd = new Action("dddd");
-        getSelectedActions().add(dddd);
-        getSelectedActions().remove(dddd);
-        getSelectedActions().clear();
-
-
-
+        selectedActions.clear();
         tokens.forEach(Token::increment); // TODO keep the correct count (e.g. when cloned..)
         updateToBeResolved();
         updateCandidateTokens();
@@ -237,9 +228,6 @@ public class ExecutionManager {
         getCandidateActions().addAll(consideredTokens.stream().map(resolveMap::get)
                 .filter(e -> isCandidate(e) && !getCandidateActions().contains(e)).collect(Collectors.toList()));
         getCandidateActions().removeIf(e -> !isCandidate(e));
-
-        // remove actions that became unavailable TODO
-        //selectedActions.removeIf(sa -> !candidateActions.contains(sa)); TODO
     }
 
     private boolean holds(Entity currentEntity) {

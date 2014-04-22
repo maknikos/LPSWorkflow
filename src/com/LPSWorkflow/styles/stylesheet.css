@@ -1,7 +1,7 @@
 .root {
     shadow-dark: #252525;
     shadow-highlight: #a4d3ee65;
-    node-fill: #b0b0b0;
+    node-fill: #c3c3c3;
     node-text-color: #232323;
     outline-color: node-fill;
     pane-background-color: #454545;
@@ -19,7 +19,7 @@
 
 .lps-node {
     -fx-background-color: transparent;
-    -fx-effect: dropshadow(gaussian, shadow-dark, 30, 0.3, 0, 0);
+    -fx-effect: dropshadow(gaussian, shadow-dark, 30, 0.3, 8, 5);
 }
 
 .lps-node:available {
@@ -27,7 +27,7 @@
 }
 
 .lps-node:resolved {
-    -fx-effect: dropshadow(gaussian, shadow-highlight, 30, 0.3, 0, 0);
+    -fx-effect: dropshadow(gaussian, shadow-highlight, 30, 0.3, 8, 5);
 }
 
 .lps-node-label {
@@ -99,13 +99,13 @@
     -fx-stroke: outline-color;
     -fx-stroke-width: 3;
     -fx-stroke-dash-array: 8 6;
-    -fx-effect: dropshadow(gaussian, shadow-dark, 15, 0.3, 0, 0);
+    -fx-effect: dropshadow(gaussian, shadow-dark, 15, 0.3, 8, 5);
 }
 
 .arrow {
     -fx-stroke-width: 3;
     -fx-stroke: outline-color;
-    -fx-effect: dropshadow(gaussian, shadow-dark, 15, 0.3, 0, 0);
+    -fx-effect: dropshadow(gaussian, shadow-dark, 15, 0.3, 8, 5);
 }
 
 .arrow:false {
