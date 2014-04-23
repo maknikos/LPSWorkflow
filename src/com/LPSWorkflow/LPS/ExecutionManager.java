@@ -9,7 +9,6 @@ import com.LPSWorkflow.model.domainTheory.DomainTheoryData;
 import com.LPSWorkflow.model.domainTheory.Postcondition;
 import com.LPSWorkflow.model.domainTheory.Precondition;
 import com.LPSWorkflow.model.execution.Token;
-import javafx.beans.Observable;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
@@ -76,6 +75,7 @@ public class ExecutionManager {
 
 
     public ExecutionManager(Map<String, Entity> entityMap) {
+        // initialise fields
         cycle = 0;
         this.entityMap = entityMap;
         database = Database.getInstance();
@@ -89,21 +89,34 @@ public class ExecutionManager {
         initiatedNames = new ArrayList<>();
         terminatedNames = new ArrayList<>();
         facts = Arrays.asList(database.getFacts().split(" "));
+
         spawnNewTokens();
 
         database.factsProperty().addListener((observableValue, oldStr, newStr) -> {
             facts = Arrays.asList(newStr.split(" "));
-            updateToBeResolved();
-            updatePostConditions();
-            updateCandidateTokens();
-            updateSelectedActions();
+            updateAll();
         });
+    }
 
-        selectedActions.addListener((Observable observable) -> {
-            updateToBeResolved();
-            updatePostConditions();
-            updateCandidateTokens();
-        });
+    private void updateAll() {
+        updateToBeResolved();
+        updatePostConditions();
+        updateCandidateTokens();
+        updateSelectedActions();
+    }
+
+    /**
+     * select/deselect an action (add it to selectedActions)
+     * @param e action to be added
+     * @param select True if selecting, false if deselecting
+     */
+    public void selectAction(Entity e, boolean select){
+        if(select){
+            selectedActions.add(e);
+        } else {
+            selectedActions.remove(e);
+        }
+        updateAll();
     }
 
     public void proceed(){
@@ -114,10 +127,9 @@ public class ExecutionManager {
         tokens.removeIf(t -> t.getCurrentEntity() == null); // get rid of finished tokens
         executeActions();
         selectedActions.clear();
+        updateAll();
+
         tokens.forEach(Token::increment); // TODO keep the correct count (e.g. when cloned..)
-        updateToBeResolved();
-        updatePostConditions();
-        updateCandidateTokens();
         cycle++;
     }
 
@@ -348,9 +360,7 @@ public class ExecutionManager {
         this.entityMap = entityMap;
         clear();
         spawnNewTokens();
-        updateToBeResolved();
-        updatePostConditions();
-        updateCandidateTokens();
+        updateAll();
     }
 
     public void clear(){

@@ -527,9 +527,9 @@ public class CanvasController implements Initializable {
             node = new ActionNode(name, goalDef);
             ((ActionNode)node).selectedProperty().addListener(observable -> {
                 if(((BooleanProperty)observable).get()){
-                    execManager.getSelectedActions().add(entity);
+                    execManager.selectAction(entity, true);
                 } else {
-                    execManager.getSelectedActions().remove(entity);
+                    execManager.selectAction(entity, false);
                 }
             });
         }
