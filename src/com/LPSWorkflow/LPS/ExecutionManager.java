@@ -90,12 +90,12 @@ public class ExecutionManager {
         initiatedNames = new ArrayList<>();
         terminatedNames = new ArrayList<>();
 
-        facts = Arrays.asList(database.getFacts().split(factSplitRegex));
+        facts = new ArrayList<>(Arrays.asList(database.getFacts().split(factSplitRegex)));
 
         spawnNewTokens();
 
-        database.factsProperty().addListener((observableValue, oldStr, newStr) -> {
-            facts = Arrays.asList(newStr.split(factSplitRegex));
+        database.factsProperty().addListener((v, s, factStr) -> {
+            facts = new ArrayList<>(Arrays.asList(factStr.split(factSplitRegex)));
             updateAll();
         });
     }
@@ -129,11 +129,14 @@ public class ExecutionManager {
     }
 
     private void executeActions(){
-        //update the database by using the action's post-conditions TODO
+        // update the database;
+        // 'initiates': added to the database, 'terminates': deleted from the database
+        List<String> toAdd = initiatedNames.stream().filter(n -> !facts.contains(n)).collect(Collectors.toList());
+        facts.addAll(toAdd);
+        facts.removeAll(terminatedNames);
+        String result = facts.stream().reduce((s1, s2) -> s1 + " " + s2).get();
 
-
-        //List<Postcondition> postconditions = domainTheory.getPostconditions().stream().filter(p -> p.getHead());
-
+        database.setFacts(result);
     }
 
     private void updateAll() {

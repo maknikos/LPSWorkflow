@@ -20,6 +20,6 @@ public class DatabaseController implements Initializable{
     public void initialize(URL url, ResourceBundle resourceBundle) {
         // For each fluent in the program, add a checkbox (ticked box will mean it holds)
         database = Database.getInstance();
-        database.factsProperty().bind(factArea.textProperty());
+        database.factsProperty().bindBidirectional(factArea.textProperty());
     }
 }
