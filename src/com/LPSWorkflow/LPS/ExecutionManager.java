@@ -6,6 +6,7 @@ import com.LPSWorkflow.model.abstractComponent.Fluent;
 import com.LPSWorkflow.model.abstractComponent.MultiChildEntity;
 import com.LPSWorkflow.model.database.Database;
 import com.LPSWorkflow.model.domainTheory.DomainTheoryData;
+import com.LPSWorkflow.model.domainTheory.Postcondition;
 import com.LPSWorkflow.model.domainTheory.Precondition;
 import com.LPSWorkflow.model.execution.Token;
 import javafx.beans.Observable;
@@ -32,6 +33,8 @@ public class ExecutionManager {
     private List<Token> addedTokens; // used by AND, where token clones do not need the record of their original
     private List<Token> finishedTokens;
     private List<Entity> entitiesInPath; // entities included in the paths of tokens in current cycle TODO should it be specific for each token?
+    private List<String> initiatedNames;
+    private List<String> terminatedNames;
 
     /* Candidate tokens property */
     private ListProperty<Entity> candidateActions = new SimpleListProperty<>(FXCollections.<Entity>observableArrayList());
@@ -83,18 +86,22 @@ public class ExecutionManager {
         addedTokens = new ArrayList<>();
         finishedTokens = new ArrayList<>();
         entitiesInPath = new ArrayList<>();
+        initiatedNames = new ArrayList<>();
+        terminatedNames = new ArrayList<>();
         facts = Arrays.asList(database.getFacts().split(" "));
         spawnNewTokens();
 
         database.factsProperty().addListener((observableValue, oldStr, newStr) -> {
             facts = Arrays.asList(newStr.split(" "));
             updateToBeResolved();
+            updatePostConditions();
             updateCandidateTokens();
             updateSelectedActions();
         });
 
         selectedActions.addListener((Observable observable) -> {
             updateToBeResolved();
+            updatePostConditions();
             updateCandidateTokens();
         });
     }
@@ -109,6 +116,7 @@ public class ExecutionManager {
         selectedActions.clear();
         tokens.forEach(Token::increment); // TODO keep the correct count (e.g. when cloned..)
         updateToBeResolved();
+        updatePostConditions();
         updateCandidateTokens();
         cycle++;
     }
@@ -119,6 +127,28 @@ public class ExecutionManager {
 
         //List<Postcondition> postconditions = domainTheory.getPostconditions().stream().filter(p -> p.getHead());
 
+    }
+
+    private void updatePostConditions() {
+        // keep a list of conditions that will be 'initiated' and 'terminated' by the currently selected actions
+        List<Postcondition> postconditions = domainTheory.getPostconditions();
+        for(Postcondition postcondition : postconditions){
+            // satisfied if all contents of the body are either in the database (facts) or is a selected action
+            boolean satisfied = postcondition.getBody().stream().allMatch(b ->
+                    facts.contains(b) || selectedActions.stream().anyMatch(sa -> sa.getName().equals(b)));
+            if(satisfied){
+                switch(postcondition.getType()){
+                    case INITIATES:
+                        initiatedNames.add(postcondition.getHead());
+                        break;
+                    case TERMINATES:
+                        terminatedNames.add(postcondition.getHead());
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
     }
 
     private void updateSelectedActions() {
@@ -132,6 +162,8 @@ public class ExecutionManager {
         addedTokens.clear();
         finishedTokens.clear();
         entitiesInPath.clear();
+        initiatedNames.clear();
+        terminatedNames.clear();
 
         // check if current token's entities hold
         tokens.forEach(t -> updatePath(t, t.getCurrentEntity()));
@@ -267,9 +299,8 @@ public class ExecutionManager {
                 .collect(Collectors.toList());
 
         // e is a candidate if none of the conflicting conditions are met:
-        return !preconditions.stream().anyMatch(precondition -> (
-                    conflictsWithFacts(e, precondition) || conflictsWithSelectedActions(e, precondition)
-        ));
+        return !preconditions.stream().anyMatch(precondition ->
+                (conflictsWithFacts(e, precondition) || conflictsWithSelectedActions(e, precondition)));
     }
 
     private boolean conflictsWithFacts(Entity e, Precondition precondition) {
@@ -278,23 +309,21 @@ public class ExecutionManager {
         List<String> conflictingNames = names.stream().filter(n -> !n.startsWith("!")).collect(Collectors.toList());
         List<String> requiredNames = names.stream().filter(n -> n.startsWith("!")).map(n -> n.substring(1)).collect(Collectors.toList());
 
-        boolean meetsRequirement = facts.containsAll(requiredNames);
-        boolean conflicts = facts.stream().anyMatch(conflictingNames::contains);
+        List<String> tempFacts = new ArrayList<>();
+        tempFacts.addAll(facts);
+        tempFacts.addAll(initiatedNames);
+        tempFacts.removeAll(terminatedNames);
+
+        boolean meetsRequirement = tempFacts.containsAll(requiredNames);
+        boolean conflicts = tempFacts.stream().anyMatch(conflictingNames::contains);
 
         return conflicts || !meetsRequirement;
     }
 
     private boolean conflictsWithSelectedActions(Entity e, Precondition precondition) {
         // precondition conflicts with currently selected actions (e.g. false <- e & sa)
-        boolean precondConflict = selectedActions.stream().map(Entity::getName)
+        return selectedActions.stream().map(Entity::getName)
                 .anyMatch(sa -> precondition.getConflictingNamesExcept(e.getName()).contains(sa));
-
-
-        // or a selected action prevents the current entity from being available via postcondition TODO
-        boolean postcondConflict = false; //TODO must be independent from this method
-
-
-        return precondConflict || postcondConflict;
     }
 
     // spawn tokens at the top of each reactive rule
@@ -320,6 +349,7 @@ public class ExecutionManager {
         clear();
         spawnNewTokens();
         updateToBeResolved();
+        updatePostConditions();
         updateCandidateTokens();
     }
 
@@ -334,5 +364,7 @@ public class ExecutionManager {
         finishedTokens.clear();
         entitiesInPath.clear();
         addedTokens.clear();
+        initiatedNames.clear();
+        terminatedNames.clear();
     }
 }
