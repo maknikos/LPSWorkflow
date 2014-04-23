@@ -301,31 +301,39 @@ public class ExecutionManager {
             return false;
         }
 
-        // find preconditions relevant to current entity
-        List<Precondition> preconditions = domainTheory.getPreconditions().stream()
-                .filter(p -> p.getConflictingNames().stream().anyMatch(name -> name.equals(e.getName())))
-                .collect(Collectors.toList());
-
+        List<Precondition> preconditions = getRelevantPreconditions(e);
         // e is a candidate if none of the conflicting conditions are met:
         return !preconditions.stream().anyMatch(precondition ->
-                (conflictsWithFacts(e, precondition) || conflictsWithSelectedActions(e, precondition)));
+                (conflictsWithSelectedActions(e, precondition)
+                        || conflictsWithFacts(e, precondition, facts) // must be consistent with current facts to be a candidate
+                        || conflictsWithFacts(e, precondition, getFactsNextCycle())) // must be able to execute actions next cycle without conflicts
+        );
     }
 
-    private boolean conflictsWithFacts(Entity e, Precondition precondition) {
+    private List<Precondition> getRelevantPreconditions(Entity e) {
+        return domainTheory.getPreconditions().stream()
+                    .filter(p -> p.getConflictingNames().stream().anyMatch(name -> name.equals(e.getName())))
+                    .collect(Collectors.toList());
+    }
+
+    private boolean conflictsWithFacts(Entity e, Precondition precondition, List<String> facts) {
         // precondition conflicts with current facts (e.g. false <- e & f)
         List<String> names = precondition.getConflictingNamesExcept(e.getName());
         List<String> conflictingNames = names.stream().filter(n -> !n.startsWith("!")).collect(Collectors.toList());
         List<String> requiredNames = names.stream().filter(n -> n.startsWith("!")).map(n -> n.substring(1)).collect(Collectors.toList());
 
+        boolean meetsRequirement = facts.containsAll(requiredNames);
+        boolean conflicts = facts.stream().anyMatch(conflictingNames::contains);
+        return conflicts || !meetsRequirement;
+    }
+
+    // returns the facts for the next cycle (according to postconditions of selected actions)
+    private List<String> getFactsNextCycle() {
         List<String> tempFacts = new ArrayList<>();
         tempFacts.addAll(facts);
         tempFacts.addAll(initiatedNames);
         tempFacts.removeAll(terminatedNames);
-
-        boolean meetsRequirement = tempFacts.containsAll(requiredNames);
-        boolean conflicts = tempFacts.stream().anyMatch(conflictingNames::contains);
-
-        return conflicts || !meetsRequirement;
+        return tempFacts;
     }
 
     private boolean conflictsWithSelectedActions(Entity e, Precondition precondition) {
