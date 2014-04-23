@@ -281,9 +281,9 @@ public class CanvasController implements Initializable {
             execManager.candidateActionsProperty().addListener((ListChangeListener.Change <? extends Entity> change) -> {
                 while(change.next()){
                     if(change.wasAdded() && displayMode == DisplayMode.EXECUTION){
-                        change.getAddedSubList().forEach(e -> setAvailable(e, true));
+                        change.getAddedSubList().forEach(e -> setCandidate(e, true));
                     } else if(change.wasRemoved()) {
-                        change.getRemoved().forEach(e -> setAvailable(e, false));
+                        change.getRemoved().forEach(e -> setCandidate(e, false));
                     }
                 }
             });
@@ -318,10 +318,10 @@ public class CanvasController implements Initializable {
         }
     }
 
-    private void setAvailable(Entity e, boolean b) {
+    private void setCandidate(Entity e, boolean b) {
         ActionNode actionNode = (ActionNode) entityDisplayMap.get(e);
         if(actionNode != null){
-            actionNode.setAvailable(b);
+            actionNode.setCandidate(b);
         }
     }
 

@@ -45,16 +45,16 @@ public class ActionNode extends Node {
         this.selected.set(selected);
     }
 
-    /* available property */
-    private BooleanProperty available = new SimpleBooleanProperty(false);
-    public boolean getAvailable() {
-        return available.get();
+    /* candidate property */
+    private BooleanProperty candidate = new SimpleBooleanProperty(false);
+    public boolean getCandidate() {
+        return candidate.get();
     }
-    public BooleanProperty availableProperty() {
-        return available;
+    public BooleanProperty candidateProperty() {
+        return candidate;
     }
-    public void setAvailable(boolean available) {
-        this.available.set(available);
+    public void setCandidate(boolean candidate) {
+        this.candidate.set(candidate);
     }
 
 
@@ -71,7 +71,7 @@ public class ActionNode extends Node {
         getChildren().addAll(vBox, checkBox);
 
         selected.bindBidirectional(checkBox.selectedProperty());
-        checkBox.visibleProperty().bind(selected.or(available));
+        checkBox.visibleProperty().bind(selected.or(candidate));
 
         // only add expand button if it has a goalDefinition
         if (goalDefinition != null && goalDefinition.getChildren().size() > 0) {
