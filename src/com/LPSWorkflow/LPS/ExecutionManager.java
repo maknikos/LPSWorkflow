@@ -31,6 +31,7 @@ public class ExecutionManager {
     private Map<Token, List<Token>> tokenClones; // when branching out, clones are stored for each original token
     private List<Token> addedTokens; // used by AND, where token clones do not need the record of their original
     private List<Token> finishedTokens;
+    private List<Entity> entitiesInPath; // entities included in the paths of tokens in current cycle TODO should it be specific for each token?
 
     /* Candidate tokens property */
     private ListProperty<Entity> candidateActions = new SimpleListProperty<>(FXCollections.<Entity>observableArrayList());
@@ -81,6 +82,7 @@ public class ExecutionManager {
         tokenClones = new HashMap<>();
         addedTokens = new ArrayList<>();
         finishedTokens = new ArrayList<>();
+        entitiesInPath = new ArrayList<>();
         facts = Arrays.asList(database.getFacts().split(" "));
         spawnNewTokens();
 
@@ -88,6 +90,7 @@ public class ExecutionManager {
             facts = Arrays.asList(newStr.split(" "));
             updateToBeResolved();
             updateCandidateTokens();
+            updateSelectedActions();
         });
 
         selectedActions.addListener((Observable observable) -> {
@@ -111,11 +114,16 @@ public class ExecutionManager {
     }
 
     private void executeActions(){
-        //update the database by using the action's post-conditions
+        //update the database by using the action's post-conditions TODO
 
 
         //List<Postcondition> postconditions = domainTheory.getPostconditions().stream().filter(p -> p.getHead());
 
+    }
+
+    private void updateSelectedActions() {
+        // if database changes so that some of the selected actions are no longer available, remove them.
+        selectedActions.removeIf(sa -> !isCandidate(sa) || !entitiesInPath.contains(sa));
     }
 
     private void updateToBeResolved() {
@@ -123,6 +131,7 @@ public class ExecutionManager {
         resolveMap.clear();
         addedTokens.clear();
         finishedTokens.clear();
+        entitiesInPath.clear();
 
         // check if current token's entities hold
         tokens.forEach(t -> updatePath(t, t.getCurrentEntity()));
@@ -133,6 +142,7 @@ public class ExecutionManager {
     private void updatePath(Token t, Entity current) {
         while(current != null){
             resolveMap.put(t, current);
+            entitiesInPath.add(current);
             switch(current.getType()){
                 case FLUENT:
                     // for fluents, we need to take different paths depending on whether it holds or not
@@ -218,18 +228,6 @@ public class ExecutionManager {
         }
     }
 
-    private void updateCandidateTokens() {
-        List<Token> consideredTokens = new ArrayList<>();
-        consideredTokens.addAll(tokens);
-        consideredTokens.addAll(addedTokens);
-        tokenClones.values().forEach(consideredTokens::addAll);
-        consideredTokens.removeAll(finishedTokens);
-
-        getCandidateActions().addAll(consideredTokens.stream().map(resolveMap::get)
-                .filter(e -> isCandidate(e) && !getCandidateActions().contains(e)).collect(Collectors.toList()));
-        getCandidateActions().removeIf(e -> !isCandidate(e));
-    }
-
     private boolean holds(Entity currentEntity) {
         if(currentEntity == null){
             return false;
@@ -242,31 +240,48 @@ public class ExecutionManager {
         }
     }
 
-    private boolean isCandidate(Entity e) {
-        if(e == null){
-            return false;
-        }
+    private void updateCandidateTokens() {
+        List<Token> consideredTokens = new ArrayList<>();
+        consideredTokens.addAll(tokens);
+        consideredTokens.addAll(addedTokens);
+        tokenClones.values().forEach(consideredTokens::addAll);
+        consideredTokens.removeAll(finishedTokens);
 
+        // add all relevant candidate actions
+        getCandidateActions().addAll(consideredTokens.stream().map(resolveMap::get)
+                .filter(e -> isCandidate(e) && !getCandidateActions().contains(e)).collect(Collectors.toList()));
+        // remove anything that is not a candidate and is attached to a considered token
+        getCandidateActions().removeIf(e -> !isCandidate(e) || !entitiesInPath.contains(e));
+    }
+
+    private boolean isCandidate(Entity e) {
         // all preconditions involving the token's entity must be satisfied,
         // and must be associated with a token
-        if(e.getType() == EntityType.ACTION){
-            // find preconditions relevant to current entity
-            List<Precondition> preconditions = domainTheory.getPreconditions().stream()
-                    .filter(p -> p.getConflictingNames().stream().anyMatch(name -> name.equals(e.getName())))
-                    .collect(Collectors.toList());
-
-            // e is a candidate if none of the conflicting conditions are met:
-            return !preconditions.stream().anyMatch(precondition -> (
-                    // either the facts contain any of the conflicting entity names,
-                    // or it conflicts with a selected action,
-                    // or a selected action prevents the current entity from being available TODO
-                        facts.stream().anyMatch(f -> precondition.getConflictingNames().contains(f))
-                        || selectedActions.stream().map(Entity::getName).anyMatch(se -> precondition.getConflictingNames().contains(se))
-                    ));
-        } else {
+        if(e == null || e.getType() != EntityType.ACTION){
             return false;
         }
 
+        // find preconditions relevant to current entity
+        List<Precondition> preconditions = domainTheory.getPreconditions().stream()
+                .filter(p -> p.getConflictingNames().stream().anyMatch(name -> name.equals(e.getName())))
+                .collect(Collectors.toList());
+
+        // e is a candidate if none of the conflicting conditions are met:
+        return !preconditions.stream().anyMatch(precondition -> (
+                    conflictsWithFacts(e, precondition) || conflictsWithSelectedActions(e, precondition)
+        ));
+    }
+
+    private boolean conflictsWithFacts(Entity e, Precondition precondition) {
+        // precondition conflicts with current facts (e.g. false <- e & f)
+        return facts.stream().anyMatch(f -> precondition.getConflictingNamesExcept(e.getName()).contains(f));
+    }
+
+    private boolean conflictsWithSelectedActions(Entity e, Precondition precondition) {
+        // precondition conflicts with currently selected actions (e.g. false <- e & sa)
+        return selectedActions.stream().map(Entity::getName).anyMatch(sa -> precondition.getConflictingNamesExcept(e.getName()).contains(sa));
+
+        // or a selected action prevents the current entity from being available via postcondition TODO
     }
 
     // spawn tokens at the top of each reactive rule
@@ -304,6 +319,7 @@ public class ExecutionManager {
         resolveMap.clear();
         tokenClones.clear();
         finishedTokens.clear();
+        entitiesInPath.clear();
         addedTokens.clear();
     }
 }

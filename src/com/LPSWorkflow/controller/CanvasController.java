@@ -78,6 +78,16 @@ public class CanvasController implements Initializable {
         contentPane.getChildren().addAll(layers);
         setDisplayMode(DisplayMode.VIEW);
 
+
+
+        //TODO cleanup
+//        executionLayer.setStyle("-fx-background-color: blue;");
+//        diagramLayer.setStyle("-fx-background-color: yellow;");
+
+
+
+
+
         clipViewingRegion();
         setLayerBindings();
         setEventHandlers();

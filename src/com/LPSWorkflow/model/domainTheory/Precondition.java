@@ -1,5 +1,6 @@
 package com.LPSWorkflow.model.domainTheory;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -14,6 +15,14 @@ public class Precondition {
 
     public List<String> getConflictingNames() {
         return conflictingNames;
+    }
+
+    public List<String> getConflictingNamesExcept(String... names){
+        List<String> result = new ArrayList<>(conflictingNames);
+        for(String name : names){
+            result.remove(name);
+        }
+        return result;
     }
 
     @Override
