@@ -102,7 +102,6 @@ public class ExecutionManager {
         updateToBeResolved();
         updatePostConditions();
         updateCandidateTokens();
-        updateSelectedActions();
     }
 
     /**
@@ -161,11 +160,6 @@ public class ExecutionManager {
                 }
             }
         }
-    }
-
-    private void updateSelectedActions() {
-        // if database changes so that some of the selected actions are no longer available, remove them.
-        selectedActions.removeIf(sa -> !isCandidate(sa) || !entitiesInPath.contains(sa));
     }
 
     private void updateToBeResolved() {

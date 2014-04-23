@@ -72,6 +72,11 @@ public class ActionNode extends Node {
 
         selected.bindBidirectional(checkBox.selectedProperty());
         checkBox.visibleProperty().bind(selected.or(candidate));
+        candidate.addListener((v, b, isCandidate) -> {
+            if(!isCandidate){ // if it is no longer a candidate, should not be selected
+                selected.set(false);
+            }
+        });
 
         // only add expand button if it has a goalDefinition
         if (goalDefinition != null && goalDefinition.getChildren().size() > 0) {
