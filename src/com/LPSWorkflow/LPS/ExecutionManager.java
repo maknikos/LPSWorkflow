@@ -274,14 +274,27 @@ public class ExecutionManager {
 
     private boolean conflictsWithFacts(Entity e, Precondition precondition) {
         // precondition conflicts with current facts (e.g. false <- e & f)
-        return facts.stream().anyMatch(f -> precondition.getConflictingNamesExcept(e.getName()).contains(f));
+        List<String> names = precondition.getConflictingNamesExcept(e.getName());
+        List<String> conflictingNames = names.stream().filter(n -> !n.startsWith("!")).collect(Collectors.toList());
+        List<String> requiredNames = names.stream().filter(n -> n.startsWith("!")).map(n -> n.substring(1)).collect(Collectors.toList());
+
+        boolean meetsRequirement = facts.containsAll(requiredNames);
+        boolean conflicts = facts.stream().anyMatch(conflictingNames::contains);
+
+        return conflicts || !meetsRequirement;
     }
 
     private boolean conflictsWithSelectedActions(Entity e, Precondition precondition) {
         // precondition conflicts with currently selected actions (e.g. false <- e & sa)
-        return selectedActions.stream().map(Entity::getName).anyMatch(sa -> precondition.getConflictingNamesExcept(e.getName()).contains(sa));
+        boolean precondConflict = selectedActions.stream().map(Entity::getName)
+                .anyMatch(sa -> precondition.getConflictingNamesExcept(e.getName()).contains(sa));
+
 
         // or a selected action prevents the current entity from being available via postcondition TODO
+        boolean postcondConflict = false; //TODO must be independent from this method
+
+
+        return precondConflict || postcondConflict;
     }
 
     // spawn tokens at the top of each reactive rule
