@@ -351,8 +351,14 @@ public class ExecutionManager {
     }
 
     private void tryResolve(Token token) { //TODO consider goalDef
-        // proceed to next step
-        token.setCurrentEntity(resolveMap.get(token));
+        // if already on an EXIT, remove it
+        if(token.getCurrentEntity() != null
+                && token.getCurrentEntity().getType() == EntityType.EXIT){
+            token.setCurrentEntity(null);
+        } else {
+            // proceed to next step
+            token.setCurrentEntity(resolveMap.get(token));
+        }
     }
 
     public int getCycle(){
