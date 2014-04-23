@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
  * Class responsible for executing LPS programs
  */
 public class ExecutionManager {
+    private static final String factSplitRegex = " |\n";
     private Map<String, Entity> entityMap;
     private Database database;
     private DomainTheoryData domainTheory;
@@ -88,20 +89,15 @@ public class ExecutionManager {
         entitiesInPath = new ArrayList<>();
         initiatedNames = new ArrayList<>();
         terminatedNames = new ArrayList<>();
-        facts = Arrays.asList(database.getFacts().split(" "));
+
+        facts = Arrays.asList(database.getFacts().split(factSplitRegex));
 
         spawnNewTokens();
 
         database.factsProperty().addListener((observableValue, oldStr, newStr) -> {
-            facts = Arrays.asList(newStr.split(" "));
+            facts = Arrays.asList(newStr.split(factSplitRegex));
             updateAll();
         });
-    }
-
-    private void updateAll() {
-        updateToBeResolved();
-        updatePostConditions();
-        updateCandidateTokens();
     }
 
     /**
@@ -138,6 +134,12 @@ public class ExecutionManager {
 
         //List<Postcondition> postconditions = domainTheory.getPostconditions().stream().filter(p -> p.getHead());
 
+    }
+
+    private void updateAll() {
+        updateToBeResolved();
+        updatePostConditions();
+        updateCandidateTokens();
     }
 
     private void updatePostConditions() {
