@@ -20,13 +20,15 @@ import javafx.collections.ListChangeListener;
 import javafx.css.PseudoClass;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Bounds;
+import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.input.ScrollEvent;
-import javafx.scene.input.ZoomEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.transform.Scale;
 
 import java.net.URL;
 import java.util.*;
@@ -36,6 +38,7 @@ import java.util.*;
  */
 public class CanvasController implements Initializable {
     @FXML private ToggleButton startToggleButton;
+    @FXML private Pane contentPane;
     private LPSFileManager fileManager;
     private MessageData messageData;
     private Map<Entity, Node> entityDisplayMap; // stores mappings from Entities to corresponding Nodes
@@ -48,23 +51,17 @@ public class CanvasController implements Initializable {
     private Pane executionLayer;
     private Pane layers;
     private ExecutionManager execManager;
-    private DisplayMode displayMode;
 
-    private double currentScale;
-    private DoubleProperty scaleProperty; // unified scale factor for all layers
+    private DisplayMode displayMode;
+    private Scale zoomScale; // unified scale factor for all layers TODO
     private DoubleProperty translateXProperty; // unified translate value in X axis
     private DoubleProperty translateYProperty; // unified translate value in Y axis
-
-    @FXML
-    private Pane contentPane;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         messageData = MessageData.getInstance();
         fileManager = LPSFileManager.getInstance();
-
-        currentScale = 1.0;
-        scaleProperty = new SimpleDoubleProperty(1.0);
+        zoomScale = new Scale(1,1);
         translateXProperty = new SimpleDoubleProperty(0.0);
         translateYProperty = new SimpleDoubleProperty(0.0);
         entityDisplayMap = new HashMap<>();
@@ -83,7 +80,8 @@ public class CanvasController implements Initializable {
         //TODO cleanup
 //        executionLayer.setStyle("-fx-background-color: blue;");
 //        diagramLayer.setStyle("-fx-background-color: yellow;");
-
+        layers.setStyle("-fx-background-color: yellow;");
+        contentPane.setStyle("-fx-background-color: green;");
 
 
 
@@ -152,64 +150,76 @@ public class CanvasController implements Initializable {
         contentPane.setOnScroll((ScrollEvent e) -> {
             double translateX = translateXProperty.get() + e.getDeltaX();
             double translateY = translateYProperty.get() + e.getDeltaY();
-            double addedValue = 100;
-
-            double maxX = contentPane.getLayoutBounds().getMaxX();
-            double minX = contentPane.getLayoutBounds().getMinX();
-            double maxY = contentPane.getLayoutBounds().getMaxY();
-            double minY = contentPane.getLayoutBounds().getMinY();
-            double width = layers.getWidth();
-            double height = layers.getHeight();
-            double layersMinX = layers.getBoundsInParent().getMinX();
-            double layersMinY = layers.getBoundsInParent().getMinY();
-            double layersMaxX = layers.getBoundsInParent().getMaxX();
-            double layersMaxY = layers.getBoundsInParent().getMaxY();
-
-            // limit scroll region TODO
-//            if(translateX + layersMinX > maxX){
-//                translateX = maxX - layersMinX;
-//            } else if(translateX + layersMaxX < minX){
-//                translateX = minX - layersMaxX;
-//            }
-//            if(translateY + layersMinY > maxY){
-//                translateY = maxY - layersMinY;
-//            } else if(translateY + layersMaxY < minY){
-//                translateY = minY - layersMaxY;
-//            }
-
-//            if(translateX + addedValue > maxX){
-//                translateX = maxX - addedValue;
-//            } else if (translateX + width + addedValue < minX) {
-//                translateX = minX - width - addedValue;
-//            }
-//            if(translateY + addedValue > maxY){
-//                translateY = maxY - addedValue;
-//            } else if (translateY + height + addedValue < minY) {
-//                translateY = minY - height - addedValue;
-//            }
-
-            translateXProperty.set(translateX);
-            translateYProperty.set(translateY);
+            setTranslate(translateX, translateY);
         });
 
         // TODO allow ctrl+scroll (or something similar) to zoom... for systems without Pinch-zoom capability
         // TODO or introduce a slider/combobox (**% zoom)
-        contentPane.setOnZoomFinished(zoomEvent -> {
-            currentScale = scaleProperty.get();
-        });
+        contentPane.setOnZoom(zoomEvent -> {
+            // scale about (0,0), then translate it by the increased amount in -x direction
+            // ( newTx = previous_translation + increased_amount )
 
-        contentPane.setOnZoom((ZoomEvent zoomEvent) -> {
-            double zoomFactor = currentScale * zoomEvent.getTotalZoomFactor();
+            Point2D mousePoint = layers.parentToLocal(zoomEvent.getX(), zoomEvent.getY());
+            double s1 = zoomScale.getX();
+            double s2 = zoomEvent.getZoomFactor();
+            double tx1 = translateXProperty.get();
+            double ty1 = translateYProperty.get();
+            double tx2 = mousePoint.getX();
+            double ty2 = mousePoint.getY();
 
+            double newS = s1 * s2;
+            double newTx = tx1 + (tx2 * (s1 - newS));
+            double newTy = ty1 + (ty2 * (s1 - newS));
+
+            boolean limitReached = false;
             // limit the scale
-            if (zoomFactor > Constants.SCALE_UPPER_LIMIT) {
-                zoomFactor = Constants.SCALE_UPPER_LIMIT;
-            } else if (zoomFactor < Constants.SCALE_LOWER_LIMIT) {
-                zoomFactor = Constants.SCALE_LOWER_LIMIT;
+            if (newS > Constants.SCALE_UPPER_LIMIT) {
+                newS = Constants.SCALE_UPPER_LIMIT;
+                limitReached = true;
+            } else if (newS < Constants.SCALE_LOWER_LIMIT) {
+                newS = Constants.SCALE_LOWER_LIMIT;
+                limitReached = true;
             }
-            scaleProperty.set(zoomFactor);
+
+            zoomScale.setX(newS);
+            zoomScale.setY(newS);
+            if(!limitReached){
+                setTranslate(newTx, newTy);
+            }
         });
     }
+
+    private void setTranslate(double translateX, double translateY){
+        Bounds contentPaneBounds = contentPane.getLayoutBounds();
+        double maxX = contentPaneBounds.getMaxX();
+        double minX = contentPaneBounds.getMinX();
+        double maxY = contentPaneBounds.getMaxY();
+        double minY = contentPaneBounds.getMinY();
+        Bounds layersBounds = layers.getBoundsInParent();
+        double layersWidth = layersBounds.getWidth();
+        double layersHeight = layersBounds.getHeight();
+        double layersMinX = layersBounds.getMinX();
+        double layersMinY = layersBounds.getMinY();
+        double layersMaxX = layersBounds.getMaxX();
+        double layersMaxY = layersBounds.getMaxY();
+
+        // limit scroll region (about the centre of layers)     TODO
+//            if(translateX + layersMinX > maxX){ // right
+//                translateX = maxX - layersMinX;
+//            } else if(translateX - layersMinX < minX){ // left
+//                translateX = minX;
+//            }
+//            if(translateY + layersMinY > maxY){ // bottom
+//                translateY = maxY - layersMinY;
+//            } else if(translateY - layersMaxY < minY){ // top
+//                translateY = minY + layersMaxY;
+//            }
+
+
+        translateXProperty.set(translateX);
+        translateYProperty.set(translateY);
+    }
+
 
     @FXML
     private void handleNextAction() {
@@ -237,8 +247,7 @@ public class CanvasController implements Initializable {
     private void setLayerBindings() {
         layers.translateXProperty().bind(translateXProperty);
         layers.translateYProperty().bind(translateYProperty);
-        layers.scaleXProperty().bind(scaleProperty);
-        layers.scaleYProperty().bind(scaleProperty);
+        layers.getTransforms().add(zoomScale);
     }
 
     private void clipViewingRegion() {
@@ -262,8 +271,8 @@ public class CanvasController implements Initializable {
     }
 
     private void resetFields(){
-        currentScale = 1.0;
-        scaleProperty.set(1.0);
+        zoomScale.setX(1);
+        zoomScale.setY(1);
         translateXProperty.set(0.0);
         translateYProperty.set(0.0);
         entityDisplayMap.clear();
