@@ -29,6 +29,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.transform.Scale;
+import javafx.scene.transform.Translate;
 
 import java.net.URL;
 import java.util.*;
@@ -53,17 +54,15 @@ public class CanvasController implements Initializable {
     private ExecutionManager execManager;
 
     private DisplayMode displayMode;
-    private Scale zoomScale; // unified scale factor for all layers TODO
-    private DoubleProperty translateXProperty; // unified translate value in X axis
-    private DoubleProperty translateYProperty; // unified translate value in Y axis
+    private Scale zoomScale;  // unified scale value
+    private Translate translate;  // unified translate value
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         messageData = MessageData.getInstance();
         fileManager = LPSFileManager.getInstance();
         zoomScale = new Scale(1,1);
-        translateXProperty = new SimpleDoubleProperty(0.0);
-        translateYProperty = new SimpleDoubleProperty(0.0);
+        translate = new Translate(0,0);
         entityDisplayMap = new HashMap<>();
         tokenDisplayMap = new HashMap<>();
         arrowsFrom = new HashMap<>();
@@ -148,8 +147,8 @@ public class CanvasController implements Initializable {
         // TODO mini-map
         // move view point using scroll
         contentPane.setOnScroll((ScrollEvent e) -> {
-            double translateX = translateXProperty.get() + e.getDeltaX();
-            double translateY = translateYProperty.get() + e.getDeltaY();
+            double translateX = translate.getX() + e.getDeltaX();
+            double translateY = translate.getY() + e.getDeltaY();
             setTranslate(translateX, translateY);
         });
 
@@ -158,12 +157,11 @@ public class CanvasController implements Initializable {
         contentPane.setOnZoom(zoomEvent -> {
             // scale about (0,0), then translate it by the increased amount in -x direction
             // ( newTx = previous_translation + increased_amount )
-
             Point2D mousePoint = layers.parentToLocal(zoomEvent.getX(), zoomEvent.getY());
             double s1 = zoomScale.getX();
             double s2 = zoomEvent.getZoomFactor();
-            double tx1 = translateXProperty.get();
-            double ty1 = translateYProperty.get();
+            double tx1 = translate.getX();
+            double ty1 = translate.getY();
             double tx2 = mousePoint.getX();
             double ty2 = mousePoint.getY();
 
@@ -215,9 +213,8 @@ public class CanvasController implements Initializable {
 //                translateY = minY + layersMaxY;
 //            }
 
-
-        translateXProperty.set(translateX);
-        translateYProperty.set(translateY);
+        translate.setX(translateX);
+        translate.setY(translateY);
     }
 
 
@@ -245,9 +242,7 @@ public class CanvasController implements Initializable {
     }
 
     private void setLayerBindings() {
-        layers.translateXProperty().bind(translateXProperty);
-        layers.translateYProperty().bind(translateYProperty);
-        layers.getTransforms().add(zoomScale);
+        layers.getTransforms().addAll(translate, zoomScale);
     }
 
     private void clipViewingRegion() {
@@ -273,8 +268,8 @@ public class CanvasController implements Initializable {
     private void resetFields(){
         zoomScale.setX(1);
         zoomScale.setY(1);
-        translateXProperty.set(0.0);
-        translateYProperty.set(0.0);
+        translate.setX(0);
+        translate.setY(0);
         entityDisplayMap.clear();
         tokenDisplayMap.clear();
         arrowsFrom.clear();
