@@ -347,15 +347,15 @@ public class CanvasController implements Initializable {
     private void drawProgram() {
         resetFields();
 
-        Group resultGroup;
+        Group resultPane;
         double initX = 0;
         double initY = 0;
 
         //for each root entity, go through the chain and build the workflow diagram
         for(Entity rootEntity : entityMap.values()){
-            resultGroup = new Group();
-            buildWorkflowDiagram(resultGroup, rootEntity, initX, initY, true);
-            diagramLayer.getChildren().add(resultGroup);
+            resultPane = new Group();
+            buildWorkflowDiagram(resultPane, rootEntity, initX, initY, true);
+            diagramLayer.getChildren().add(resultPane);
         }
 
         diagramDrawn = true;

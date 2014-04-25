@@ -6,7 +6,6 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.css.PseudoClass;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Scene;
@@ -30,7 +29,7 @@ public class ActionNode extends Node {
     private VBox vBox;
     private Button expandButton;
     private CheckBox checkBox;
-    private Group goalDefinition;
+    private StackPane goalDefinition;
     private boolean isExpanded;
 
     /* selected property */
@@ -80,8 +79,8 @@ public class ActionNode extends Node {
 
         // only add expand button if it has a goalDefinition
         if (goalDefinition != null && goalDefinition.getChildren().size() > 0) {
-            this.goalDefinition = goalDefinition;
-            VBox.setMargin(this.goalDefinition, new Insets(0, 10, 10, 10));
+            this.goalDefinition = new StackPane(goalDefinition);
+            this.goalDefinition.getStyleClass().add("goal-definition");
             expandButton = createExpandButton();
             getChildren().add(expandButton);
             setExpanded(false);
