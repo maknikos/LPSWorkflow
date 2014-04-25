@@ -77,9 +77,9 @@ public class CanvasController implements Initializable {
         //TODO cleanup
 //        executionLayer.setStyle("-fx-background-color: blue;");
 //        diagramLayer.setStyle("-fx-background-color: yellow;");
-        layers.setStyle("-fx-background-color: yellow;");
-        contentPane.setStyle("-fx-background-color: green;");
-
+//        layers.setStyle("-fx-background-color: yellow;");
+//        contentPane.setStyle("-fx-background-color: green;");
+//
 
 
 

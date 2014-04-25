@@ -1,7 +1,7 @@
 .root {
     shadow-dark: #252525;
     shadow-highlight: #a4d3ee65;
-    node-fill: #c3c3c3;
+    node-fill: #cacaca;
     node-text-color: #232323;
     outline-color: node-fill;
     pane-background-color: #454545;
@@ -178,12 +178,25 @@
     -fx-background-color: pane-background-color;
 }
 
+.scroll-pane {
+    -fx-background-color: pane-background-color;
+}
+
+.scroll-pane .corner {
+    -fx-background-radius: 0;
+    -fx-background-color: pane-background-color;
+}
+
+.domain-theory-pane {
+    -fx-background-color: pane-background-color;
+    -fx-padding: 5;
+}
+
 .domain-theory-label{
     -fx-text-fill: text-color;
     -fx-border-radius: 3;
     -fx-border-color: white;
     -fx-padding: 5;
-    -fx-margin: 5;
     -fx-effect: dropshadow(gaussian, shadow-dark, 5, 0.5, 0, 0);
 }
 
