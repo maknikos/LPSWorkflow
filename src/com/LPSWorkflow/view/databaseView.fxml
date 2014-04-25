@@ -7,6 +7,6 @@
         <Label styleClass="pane-title">Database</Label>
     </top>
     <center>
-        <TextArea fx:id="factArea" styleClass="db-area">p</TextArea>
+        <TextArea fx:id="factArea" styleClass="db-area">c1</TextArea>
     </center>
 </BorderPane>
