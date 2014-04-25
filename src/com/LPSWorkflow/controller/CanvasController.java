@@ -14,8 +14,6 @@ import com.LPSWorkflow.model.message.MessageData;
 import com.LPSWorkflow.model.message.MessageType;
 import com.LPSWorkflow.model.visualComponent.*;
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.SimpleDoubleProperty;
 import javafx.collections.ListChangeListener;
 import javafx.css.PseudoClass;
 import javafx.fxml.FXML;
@@ -196,22 +194,19 @@ public class CanvasController implements Initializable {
         Bounds layersBounds = layers.getBoundsInParent();
         double layersWidth = layersBounds.getWidth();
         double layersHeight = layersBounds.getHeight();
-        double layersMinX = layersBounds.getMinX();
-        double layersMinY = layersBounds.getMinY();
-        double layersMaxX = layersBounds.getMaxX();
-        double layersMaxY = layersBounds.getMaxY();
+        double padding = 50;
 
-        // limit scroll region (about the centre of layers)     TODO
-//            if(translateX + layersMinX > maxX){ // right
-//                translateX = maxX - layersMinX;
-//            } else if(translateX - layersMinX < minX){ // left
-//                translateX = minX;
-//            }
-//            if(translateY + layersMinY > maxY){ // bottom
-//                translateY = maxY - layersMinY;
-//            } else if(translateY - layersMaxY < minY){ // top
-//                translateY = minY + layersMaxY;
-//            }
+        // limit scroll region (about the centre of layers)
+        if(translateX + padding > maxX){ // right
+            translateX = maxX - padding;
+        } else if(translateX + layersWidth - padding < minX){ // left
+            translateX = minX - layersWidth + padding;
+        }
+        if(translateY + padding > maxY){ // bottom
+            translateY = maxY - padding;
+        } else if(translateY + layersHeight - padding < minY){ // top
+            translateY = minY - layersHeight + padding;
+        }
 
         translate.setX(translateX);
         translate.setY(translateY);
