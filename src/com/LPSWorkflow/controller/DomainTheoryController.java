@@ -6,7 +6,6 @@ import com.LPSWorkflow.model.domainTheory.Precondition;
 import javafx.beans.Observable;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.Group;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
@@ -20,7 +19,6 @@ import java.util.ResourceBundle;
  */
 public class DomainTheoryController implements Initializable{
     @FXML private ScrollPane domainTheoryScrollPane;
-    @FXML private Group group;
     @FXML private VBox domainTheoryPane;
     @FXML private Label precondLabel;
     @FXML private Label postcondLabel;
@@ -54,7 +52,7 @@ public class DomainTheoryController implements Initializable{
 
         domainTheoryPane.setOnZoom(zoomEvent -> {
             double scale = domainTheoryPane.getScaleX() * zoomEvent.getZoomFactor();
-            if(scale < 1){
+            if(scale < 1){ // only zoom-in from initial scale
                 scale = 1;
             }
             domainTheoryPane.setScaleX(scale);

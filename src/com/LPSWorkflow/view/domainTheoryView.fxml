@@ -9,7 +9,9 @@
     </top>
     <center>
         <ScrollPane fx:id="domainTheoryScrollPane" fitToHeight="true" fitToWidth="true">
-            <Group fx:id="group">
+            <!-- Enclosing Group is used so that ScrollPane could use it's layoutBounds,
+                which is the vBox's boundsInParent (takes into account transformation) -->
+            <Group>
                 <VBox fx:id="domainTheoryPane" styleClass="domain-theory-pane">
                     <Label styleClass="domain-theory-label">Pre-conditions</Label>
                     <Label fx:id="precondLabel" styleClass="domain-theory"/>
